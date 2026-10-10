@@ -5,26 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>404 – Page not found</title>
-<meta name="description" content="The page you were looking for doesn't exist.">
+<meta name="description" content="This domain has been purchased. Contact the owner.">
 <style>
   :root {
-    --bg: #0b0d12;
-    --fg: #e8eaf0;
-    --muted: #8b91a3;
+    --bg: #070910;
+    --fg: #eef0f7;
+    --muted: #8a90a6;
     --accent: #6ea8ff;
     --accent-2: #b48cff;
-    --card: #12151c;
-    --border: #232837;
+    --accent-3: #5eead4;
+    --card: rgba(18, 21, 30, .72);
+    --border: rgba(255,255,255,.09);
+    --dot: 160, 185, 255;
   }
   @media (prefers-color-scheme: light) {
     :root {
-      --bg: #f6f7fb;
+      --bg: #f5f6fb;
       --fg: #12151c;
-      --muted: #5d6477;
+      --muted: #596078;
       --accent: #2f6df6;
       --accent-2: #7c4dff;
-      --card: #ffffff;
-      --border: #dfe3ee;
+      --accent-3: #0ea5a0;
+      --card: rgba(255,255,255,.78);
+      --border: rgba(18,21,28,.1);
+      --dot: 70, 90, 160;
     }
   }
   * { box-sizing: border-box; }
@@ -33,86 +37,213 @@
     background: var(--bg);
     color: var(--fg);
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    display: grid;
-    place-items: center;
-    padding: 24px;
-    overflow: hidden;
+    display: grid; place-items: center;
+    padding: 20px; overflow-x: hidden;
   }
-  .glow {
-    position: fixed; inset: 0; pointer-events: none;
-    background:
-      radial-gradient(600px 400px at 20% 15%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 70%),
-      radial-gradient(500px 400px at 85% 85%, color-mix(in srgb, var(--accent-2) 16%, transparent), transparent 70%);
+  #sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  .spot {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(420px 420px at var(--mx, 50%) var(--my, 40%),
+      color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%);
   }
   main {
-    position: relative;
-    width: 100%; max-width: 560px;
-    text-align: center;
+    position: relative; z-index: 1;
+    width: 100%; max-width: 600px; text-align: center;
     background: var(--card);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
     border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 48px 32px 40px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    border-radius: 24px; padding: 44px 28px 32px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.35);
   }
+
+  /* 404 with an orbiting "planet" for the zero */
   .code {
-    font-size: clamp(72px, 18vw, 120px);
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.04em;
-    margin: 0 0 8px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    -webkit-background-clip: text; background-clip: text;
-    color: transparent;
-    animation: float 4s ease-in-out infinite;
+    display: flex; justify-content: center; align-items: center; gap: .04em;
+    font-size: clamp(76px, 22vw, 132px); font-weight: 800; line-height: 1;
+    letter-spacing: -.04em; margin: 0 0 6px;
   }
-  @keyframes float { 50% { transform: translateY(-6px); } }
-  @media (prefers-reduced-motion: reduce) { .code { animation: none; } }
-  h1 { font-size: 22px; margin: 0 0 12px; font-weight: 650; }
-  p { color: var(--muted); line-height: 1.6; margin: 0 0 8px; font-size: 15px; }
+  .code .d {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .zero {
+    position: relative; width: .74em; height: .74em; margin: 0 .03em;
+    border-radius: 50%;
+    background: conic-gradient(from 0deg, var(--accent), var(--accent-2), var(--accent-3), var(--accent));
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - .15em), #000 calc(100% - .15em));
+            mask: radial-gradient(farthest-side, transparent calc(100% - .15em), #000 calc(100% - .15em));
+    animation: spin 9s linear infinite;
+  }
+  .orbit { position: absolute; inset: -.08em; animation: spin 4.5s linear infinite reverse; }
+  .orbit::after {
+    content: ""; position: absolute; top: -.02em; left: 50%; width: .11em; height: .11em;
+    margin-left: -.055em; border-radius: 50%; background: var(--accent-3);
+    box-shadow: 0 0 .25em var(--accent-3);
+  }
+  .zero-wrap { position: relative; width: .74em; height: .74em; margin: 0 .05em; }
+  .zero-wrap .zero { position: absolute; inset: 0; margin: 0; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  h1 { font-size: 22px; margin: 6px 0 8px; font-weight: 650; }
+  p { color: var(--muted); line-height: 1.6; margin: 0; font-size: 15px; }
   .path {
-    display: inline-block; max-width: 100%;
-    margin: 12px 0 24px; padding: 6px 12px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 13px; color: var(--fg);
+    display: inline-block; max-width: 100%; margin: 14px 0 6px; padding: 6px 12px;
+    font: 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--fg);
     background: color-mix(in srgb, var(--fg) 6%, transparent);
     border: 1px solid var(--border); border-radius: 8px;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  a.btn, button.btn {
-    font: inherit; font-size: 15px; font-weight: 600;
-    padding: 11px 20px; border-radius: 10px; cursor: pointer;
-    text-decoration: none; transition: transform .15s ease, opacity .15s ease;
+
+  /* "claimed" stamp */
+  .stamp {
+    display: inline-block; margin: 20px 0 22px; padding: 10px 18px;
+    border: 2px solid var(--accent-3); color: var(--accent-3);
+    border-radius: 10px; transform: rotate(-3deg);
+    font-weight: 800; letter-spacing: .14em; font-size: 13px; text-transform: uppercase;
+    box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--accent-3) 14%, transparent);
+    animation: thud .7s cubic-bezier(.2,1.6,.4,1) .3s both;
   }
-  a.btn.primary {
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    color: #fff; border: 0;
+  .stamp b { display: block; font-size: 17px; letter-spacing: .08em; margin-top: 2px; }
+  @keyframes thud { from { transform: rotate(-3deg) scale(2.2); opacity: 0; } to { transform: rotate(-3deg) scale(1); opacity: 1; } }
+
+  .contact {
+    margin-top: 6px; padding-top: 22px; border-top: 1px dashed var(--border);
   }
-  button.btn.ghost {
-    background: transparent; color: var(--fg); border: 1px solid var(--border);
+  .contact small { display: block; color: var(--muted); font-size: 13px; margin-bottom: 14px; }
+  .actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: none;
+    padding: 12px 20px; border-radius: 12px; transition: transform .15s ease, box-shadow .15s ease;
   }
-  .btn:hover { transform: translateY(-1px); opacity: .92; }
-  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-  footer { margin-top: 28px; font-size: 12px; color: var(--muted); }
+  .btn.primary { color: #fff; border: 0; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 35%, transparent); }
+  .btn.ghost { color: var(--fg); background: transparent; border: 1px solid var(--border); }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  footer { margin-top: 24px; font-size: 12px; color: var(--muted); }
+  #toast {
+    position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); opacity: 0; z-index: 5;
+    background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: 14px;
+    transition: .25s ease; pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+  @media (prefers-reduced-motion: reduce) {
+    .zero, .orbit, .stamp { animation: none; }
+    .stamp { opacity: 1; }
+  }
 </style>
 </head>
 <body>
-<div class="glow" aria-hidden="true"></div>
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="spot" aria-hidden="true"></div>
+
 <main>
-  <div class="code" aria-hidden="true">404</div>
-  <h1>This page doesn't exist</h1>
-  <p>The link may be broken, or the page may have been moved or removed.</p>
+  <div class="code" aria-label="404">
+    <span class="d" aria-hidden="true">4</span>
+    <span class="zero-wrap" aria-hidden="true"><span class="zero"></span><span class="orbit"></span></span>
+    <span class="d" aria-hidden="true">4</span>
+  </div>
+  <h1>Nothing lives here&hellip; yet</h1>
+  <p>The page you're looking for doesn't exist.</p>
   <div class="path" id="path" title=""></div>
-  <p><strong style="color:var(--fg)">This domain has been purchased.</strong></p>
+
+  <div class="stamp">This domain has been<b>purchased</b></div>
+
+  <div class="contact">
+    <small>Interested in this domain, or want to get in touch with the owner?</small>
+    <div class="actions">
+      <a class="btn primary" id="mail" href="#">Contact the owner</a>
+      <button class="btn ghost" id="copy" type="button">Copy email</button>
+    </div>
+  </div>
   <footer id="host"></footer>
 </main>
+<div id="toast" role="status" aria-live="polite"></div>
+
 <script>
+  // ===== Set the owner's contact here =====
+  var OWNER_EMAIL = "YOUR_EMAIL_HERE";
+  // ========================================
+
+  var host = location.hostname || "this domain";
+  var path = location.pathname + location.search;
+  var pathEl = document.getElementById("path");
+  pathEl.textContent = path; pathEl.title = path;
+  document.getElementById("host").textContent = host;
+  document.title = "404 – Page not found | " + host;
+
+  var subject = "Inquiry about " + host;
+  var body = "Hi,\n\nI came across " + host + " (page: " + path + ") and would like to get in touch.\n\n";
+  document.getElementById("mail").href =
+    "mailto:" + OWNER_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+
+  var toast = document.getElementById("toast"), tt;
+  function say(msg) {
+    toast.textContent = msg; toast.classList.add("show");
+    clearTimeout(tt); tt = setTimeout(function () { toast.classList.remove("show"); }, 1800);
+  }
+  document.getElementById("copy").addEventListener("click", function () {
+    function fallback() {
+      var t = document.createElement("textarea"); t.value = OWNER_EMAIL;
+      document.body.appendChild(t); t.select();
+      try { document.execCommand("copy"); say("Email copied"); } catch (e) { say(OWNER_EMAIL); }
+      document.body.removeChild(t);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(OWNER_EMAIL).then(function () { say("Email copied"); }, fallback);
+    } else { fallback(); }
+  });
+
+  // ===== Constellation background that reacts to the cursor =====
   (function () {
-    var p = location.pathname + location.search;
-    var el = document.getElementById('path');
-    el.textContent = p; el.title = p;
-    document.getElementById('host').textContent = location.hostname;
-    document.title = '404 – Page not found | ' + location.hostname;
+    var c = document.getElementById("sky"), ctx = c.getContext("2d");
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var W, H, dpr, pts = [], mouse = { x: -999, y: -999 };
+    var dot = getComputedStyle(document.documentElement).getPropertyValue("--dot").trim();
+    function resize() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = c.width = innerWidth * dpr; H = c.height = innerHeight * dpr;
+      var n = Math.round(Math.min(90, Math.max(30, innerWidth * innerHeight / 14000)));
+      pts = [];
+      for (var i = 0; i < n; i++) pts.push({
+        x: Math.random() * W, y: Math.random() * H,
+        vx: (Math.random() - .5) * .25 * dpr, vy: (Math.random() - .5) * .25 * dpr,
+        r: (Math.random() * 1.4 + .6) * dpr
+      });
+      if (reduce) draw();
+    }
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      var link = 130 * dpr;
+      for (var i = 0; i < pts.length; i++) {
+        var p = pts[i];
+        if (!reduce) {
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0 || p.x > W) p.vx *= -1;
+          if (p.y < 0 || p.y > H) p.vy *= -1;
+          var dx = p.x - mouse.x, dy = p.y - mouse.y, d = Math.sqrt(dx * dx + dy * dy);
+          if (d < 120 * dpr && d > 0) { p.x += dx / d * 1.2 * dpr; p.y += dy / d * 1.2 * dpr; }
+        }
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832);
+        ctx.fillStyle = "rgba(" + dot + ",.75)"; ctx.fill();
+        for (var j = i + 1; j < pts.length; j++) {
+          var q = pts[j], ax = p.x - q.x, ay = p.y - q.y, dist = Math.sqrt(ax * ax + ay * ay);
+          if (dist < link) {
+            ctx.strokeStyle = "rgba(" + dot + "," + (0.22 * (1 - dist / link)) + ")";
+            ctx.lineWidth = dpr * .8; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+          }
+        }
+      }
+      if (!reduce) requestAnimationFrame(draw);
+    }
+    addEventListener("resize", resize);
+    addEventListener("pointermove", function (e) {
+      mouse.x = e.clientX * dpr; mouse.y = e.clientY * dpr;
+      document.documentElement.style.setProperty("--mx", e.clientX + "px");
+      document.documentElement.style.setProperty("--my", e.clientY + "px");
+    });
+    addEventListener("pointerleave", function () { mouse.x = mouse.y = -999; });
+    resize(); if (!reduce) draw();
   })();
 </script>
 </body>
