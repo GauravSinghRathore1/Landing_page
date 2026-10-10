@@ -162,7 +162,7 @@
 
 <script>
   // ===== Set the owner's contact here =====
-  var OWNER_EMAIL = "YOUR_EMAIL_HERE";
+  var OWNER_EMAIL = ""; // e.g. "hello@thetye.store"; leave empty to show "coming soon"
   // ========================================
 
   var host = location.hostname || "this domain";
@@ -174,8 +174,16 @@
 
   var subject = "Inquiry about " + host;
   var body = "Hi,\n\nI came across " + host + " (page: " + path + ") and would like to get in touch.\n\n";
-  document.getElementById("mail").href =
-    "mailto:" + OWNER_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+  var mailEl = document.getElementById("mail"), copyEl = document.getElementById("copy");
+  if (OWNER_EMAIL) {
+    mailEl.href = "mailto:" + OWNER_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+  } else {
+    mailEl.textContent = "Contact details coming soon";
+    mailEl.removeAttribute("href");
+    mailEl.setAttribute("aria-disabled", "true");
+    mailEl.style.opacity = ".6"; mailEl.style.cursor = "default"; mailEl.style.pointerEvents = "none";
+    copyEl.style.display = "none";
+  }
 
   var toast = document.getElementById("toast"), tt;
   function say(msg) {
