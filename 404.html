@@ -4,179 +4,154 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>404 – Row not found</title>
-<meta name="description" content="0 rows returned. This domain has been purchased.">
+<title>404 – DAG run failed</title>
+<meta name="description" content="DAG run failed: no page found. This domain has been purchased.">
 <style>
   :root {
-    --bg: #0a0e14;
+    --bg: #090d13;
     --panel: #0f141c;
+    --panel2: #0c1118;
     --line: #1f2733;
     --fg: #c9d1d9;
     --muted: #6e7b8b;
     --green: #3fb950;
     --red: #f85149;
     --blue: #58a6ff;
-    --purple: #bc8cff;
     --amber: #d29922;
-    --bronze: #cd7f32;
-    --silver: #aab4c0;
-    --gold: #f5c542;
+    --purple: #bc8cff;
     --mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; min-height: 100%; }
   body {
     background:
-      radial-gradient(900px 500px at 15% -10%, rgba(88,166,255,.10), transparent 60%),
-      radial-gradient(700px 500px at 100% 110%, rgba(188,140,255,.09), transparent 60%),
+      radial-gradient(900px 480px at 10% -10%, rgba(88,166,255,.10), transparent 60%),
+      radial-gradient(700px 480px at 100% 110%, rgba(188,140,255,.08), transparent 60%),
       var(--bg);
-    color: var(--fg);
-    font-family: var(--mono);
-    font-size: 14px; line-height: 1.6;
-    display: grid; place-items: center;
-    padding: 24px 16px;
+    color: var(--fg); font-family: var(--mono); font-size: 13px; line-height: 1.55;
+    display: grid; place-items: center; padding: 20px 14px;
   }
-  body::before {            /* faint grid, like a data canvas */
+  body::before {
     content: ""; position: fixed; inset: 0; pointer-events: none;
-    background-image:
-      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-image: linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
     background-size: 36px 36px;
-    -webkit-mask-image: radial-gradient(circle at 50% 40%, #000, transparent 75%);
-            mask-image: radial-gradient(circle at 50% 40%, #000, transparent 75%);
+    -webkit-mask-image: radial-gradient(circle at 50% 35%, #000, transparent 75%); mask-image: radial-gradient(circle at 50% 35%, #000, transparent 75%);
   }
-  .win {
-    position: relative; width: 100%; max-width: 680px;
-    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
-    box-shadow: 0 30px 80px rgba(0,0,0,.55); overflow: hidden;
-  }
-  .bar {
-    display: flex; align-items: center; gap: 8px; padding: 11px 14px;
-    background: #0c1118; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 12px;
-  }
-  .bar i { width: 11px; height: 11px; border-radius: 50%; display: block; }
-  .bar i:nth-child(1) { background: #ff5f56; } .bar i:nth-child(2) { background: #ffbd2e; } .bar i:nth-child(3) { background: #27c93f; }
-  .bar span { margin-left: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .body { padding: 22px 22px 8px; }
+  .app { position: relative; width: 100%; max-width: 760px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.55); }
 
-  .cmt { color: var(--muted); }
-  .prompt { color: var(--green); margin-right: 8px; }
-  .kw { color: var(--purple); } .id { color: var(--blue); } .str { color: var(--amber); }
-  .cursor { display: inline-block; width: 8px; height: 1.05em; background: var(--fg); vertical-align: -2px; margin-left: 2px; animation: blink 1s steps(1) infinite; }
-  @keyframes blink { 50% { opacity: 0; } }
-  #sqlline { word-break: break-all; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px; background: var(--panel2); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .logo { width: 22px; height: 22px; flex: none; }
+  .dagid { font-weight: 700; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dagid small { color: var(--muted); font-weight: 400; margin-left: 6px; }
+  .badge { display: inline-flex; align-items: center; gap: 7px; padding: 2px 11px; border-radius: 99px; font-weight: 700; font-size: 12px; letter-spacing: .04em; border: 1px solid; transition: .3s; }
+  .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .badge.running { color: var(--blue); background: rgba(88,166,255,.1); border-color: rgba(88,166,255,.4); }
+  .badge.running::before { animation: pulse 1s ease-in-out infinite; }
+  .badge.up_for_retry { color: var(--amber); background: rgba(210,153,34,.1); border-color: rgba(210,153,34,.4); }
+  .badge.failed { color: var(--red); background: rgba(248,81,73,.1); border-color: rgba(248,81,73,.45); }
+  @keyframes pulse { 50% { opacity: .25; } }
 
-  .result { margin: 14px 0 22px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; opacity: 0; transform: translateY(6px); transition: .4s ease; }
-  .result.show { opacity: 1; transform: none; }
-  .result .head { display: flex; justify-content: space-between; gap: 8px; padding: 8px 12px; background: rgba(248,81,73,.1); color: var(--red); border-bottom: 1px solid var(--line); font-weight: 700; }
-  .kv { display: grid; grid-template-columns: 110px 1fr; }
-  .kv > div { padding: 7px 12px; border-bottom: 1px solid var(--line); }
+  .banner { margin: 16px 16px 0; padding: 12px 14px; border: 1px dashed rgba(63,185,80,.5); background: rgba(63,185,80,.07); border-radius: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .banner b { color: var(--green); letter-spacing: .06em; }
+  .pill { display: inline-block; padding: 1px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--green); background: rgba(63,185,80,.12); border: 1px solid rgba(63,185,80,.45); }
+
+  h2 { font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 18px 16px 8px; }
+  .graph { margin: 0 12px; padding: 8px; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; }
+  svg#dag { display: block; width: 100%; height: auto; }
+  .edge { fill: none; stroke: var(--line); stroke-width: 2; transition: stroke .3s; }
+  .edge.done { stroke: rgba(63,185,80,.55); }
+  .edge.active { stroke: var(--blue); stroke-dasharray: 5 5; animation: dash .6s linear infinite; }
+  @keyframes dash { to { stroke-dashoffset: -10; } }
+  .node rect { fill: var(--panel); stroke: #2a3444; stroke-width: 1.5; rx: 8; transition: .3s; }
+  .node text { fill: var(--muted); font: 12px var(--mono); text-anchor: middle; transition: fill .3s; }
+  .node circle { fill: #2a3444; transition: fill .3s; }
+  .node.running rect { stroke: var(--blue); fill: rgba(88,166,255,.08); animation: glow 1s ease-in-out infinite; }
+  .node.running text { fill: var(--fg); } .node.running circle { fill: var(--blue); }
+  .node.success rect { stroke: var(--green); fill: rgba(63,185,80,.08); } .node.success text { fill: var(--fg); } .node.success circle { fill: var(--green); }
+  .node.up_for_retry rect { stroke: var(--amber); fill: rgba(210,153,34,.1); animation: glow 1.2s ease-in-out infinite; } .node.up_for_retry text { fill: var(--fg); } .node.up_for_retry circle { fill: var(--amber); }
+  .node.failed rect { stroke: var(--red); fill: rgba(248,81,73,.12); } .node.failed text { fill: #fff; } .node.failed circle { fill: var(--red); }
+  .node.failed { animation: shake .4s 2; }
+  @keyframes glow { 50% { stroke-opacity: .35; } }
+  @keyframes shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; padding: 4px 6px 2px; color: var(--muted); font-size: 11px; }
+  .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+
+  .log { margin: 0 16px; background: #080b10; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; height: 188px; overflow: auto; font-size: 12px; }
+  .log .l { white-space: pre-wrap; word-break: break-word; }
+  .log .t { color: #475467; margin-right: 8px; }
+  .log .INFO { color: var(--blue); } .log .WARN { color: var(--amber); } .log .ERROR { color: var(--red); font-weight: 700; } .log .OK { color: var(--green); }
+  .log .lv { display: inline-block; min-width: 46px; margin-right: 6px; }
+
+  .kv { margin: 0 16px; display: grid; grid-template-columns: 130px 1fr; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .kv > div { padding: 7px 12px; border-bottom: 1px solid var(--line); word-break: break-all; }
   .kv > div:nth-last-child(-n+2) { border-bottom: 0; }
   .kv .k { color: var(--muted); }
 
-  h2 { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 6px 0 12px; }
-
-  /* medallion pipeline */
-  .dag { display: grid; grid-template-columns: repeat(5, 1fr); align-items: start; margin-bottom: 8px; }
-  .node { position: relative; text-align: center; }
-  .node .dot {
-    width: 38px; height: 38px; margin: 0 auto 8px; border-radius: 50%;
-    display: grid; place-items: center; font-weight: 800; font-size: 14px;
-    background: #0c1118; border: 2px solid var(--line); color: var(--muted);
-    transition: .35s ease; position: relative; z-index: 1;
-  }
-  .node small { display: block; font-size: 11px; color: var(--muted); transition: color .35s; }
-  .node::after { /* connector to next node */
-    content: ""; position: absolute; top: 18px; left: calc(50% + 22px); width: calc(100% - 44px); height: 2px;
-    background: var(--line); transition: background .35s;
-  }
-  .node:last-child::after { display: none; }
-  .node.on .dot { color: #0a0e14; }
-  .node.on small { color: var(--fg); }
-  .node.on::after { background: var(--c); }
-  .node[data-c="req"]    { --c: var(--blue); }
-  .node[data-c="bronze"] { --c: var(--bronze); }
-  .node[data-c="silver"] { --c: var(--silver); }
-  .node[data-c="gold"]   { --c: var(--gold); }
-  .node.on .dot { background: var(--c); border-color: var(--c); box-shadow: 0 0 18px -2px var(--c); }
-  .node.fail .dot { background: var(--red); border-color: var(--red); color: #fff; box-shadow: 0 0 22px -2px var(--red); animation: shake .4s 2; }
-  .node.fail small { color: var(--red); }
-  @keyframes shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
-
-  .meta { margin: 18px 0 6px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-  .meta .kv > div { padding: 8px 12px; }
-  .pill { display: inline-block; padding: 1px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; letter-spacing: .06em;
-    color: var(--green); background: rgba(63,185,80,.12); border: 1px solid rgba(63,185,80,.4); }
-  .pill::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); margin-right: 7px; animation: pulse 1.6s ease-in-out infinite; }
-  @keyframes pulse { 50% { opacity: .25; } }
-
-  .actions { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px 0 6px; }
-  .btn {
-    font: inherit; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block;
-    padding: 10px 16px; border-radius: 9px; transition: transform .15s ease, box-shadow .15s ease;
-  }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px 16px 6px; }
+  .btn { font: inherit; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; padding: 10px 16px; border-radius: 9px; transition: transform .15s ease, box-shadow .15s ease; }
   .btn.primary { color: #06101c; background: var(--blue); border: 0; box-shadow: 0 8px 24px -8px var(--blue); }
-  .btn.ghost { color: var(--fg); background: transparent; border: 1px solid var(--line); }
-  .btn:hover { transform: translateY(-2px); }
+  .btn.ghost { color: var(--fg); background: transparent; border: 1px solid #2a3444; }
+  .btn:hover:not(:disabled) { transform: translateY(-2px); }
+  .btn:disabled { opacity: .45; cursor: default; }
   .btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
-  .foot { padding: 12px 22px 18px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); margin-top: 14px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-  #toast { position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 16px); opacity: 0; background: var(--fg); color: var(--bg); padding: 9px 14px; border-radius: 8px; font-size: 13px; transition: .25s; pointer-events: none; }
+  .foot { margin-top: 14px; padding: 11px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 16px); opacity: 0; background: var(--fg); color: var(--bg); padding: 9px 14px; border-radius: 8px; font-size: 13px; transition: .25s; pointer-events: none; }
   #toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-  @media (max-width: 480px) {
-    .body { padding: 18px 14px 6px; }
-    .kv { grid-template-columns: 92px 1fr; }
-    .node .dot { width: 32px; height: 32px; font-size: 12px; }
-    .node::after { top: 15px; left: calc(50% + 19px); width: calc(100% - 38px); }
-    .node small { font-size: 10px; }
+  @media (max-width: 520px) {
+    .kv { grid-template-columns: 104px 1fr; }
+    .log { height: 210px; font-size: 11px; }
+    .top { padding: 10px 12px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .cursor, .pill::before, .node.fail .dot { animation: none; }
-    .result { transition: none; }
+    .badge.running::before, .node.running rect, .node.up_for_retry rect, .node.failed, .edge.active { animation: none; }
   }
 </style>
 </head>
 <body>
-<main class="win">
-  <div class="bar"><i></i><i></i><i></i><span id="title">query-console</span></div>
-
-  <div class="body">
-    <div class="cmt">-- request received, running lookup against the site catalog</div>
-    <div id="sqlline"><span class="prompt">&#10095;</span><span id="sql"></span><span class="cursor"></span></div>
-
-    <div class="result" id="result" aria-live="polite">
-      <div class="head"><span>ERROR 404</span><span>0 rows returned</span></div>
-      <div class="kv">
-        <div class="k">message</div><div>Row not found</div>
-        <div class="k">path</div><div id="path" style="word-break:break-all"></div>
-        <div class="k">elapsed</div><div>0.004 s</div>
-      </div>
+<main class="app">
+  <div class="top">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="#58a6ff" stroke-width="2"/><path d="M12 12 L19 8" stroke="#bc8cff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="2.4" fill="#58a6ff"/></svg>
+      <div class="dagid"><span id="dagid">serve_site</span><small id="runid"></small></div>
     </div>
+    <span class="badge running" id="badge">running</span>
+  </div>
 
-    <h2>Pipeline run &middot; medallion lookup</h2>
-    <div class="dag" id="dag" aria-label="Request moves through bronze, silver and gold layers and fails at the page">
-      <div class="node" data-c="req"><div class="dot">&#8594;</div><small>request</small></div>
-      <div class="node" data-c="bronze"><div class="dot">B</div><small>bronze</small></div>
-      <div class="node" data-c="silver"><div class="dot">S</div><small>silver</small></div>
-      <div class="node" data-c="gold"><div class="dot">G</div><small>gold</small></div>
-      <div class="node" id="last"><div class="dot">?</div><small id="lastlabel">page</small></div>
-    </div>
+  <div class="banner">
+    <span class="pill">PURCHASED</span>
+    <span><b>This domain has been purchased.</b> <span style="color:var(--muted)">The page you asked for doesn&rsquo;t exist.</span></span>
+  </div>
 
-    <div class="meta">
-      <div class="kv">
-        <div class="k">domain</div><div id="host">thetye.store</div>
-        <div class="k">status</div><div><span class="pill">PURCHASED</span></div>
-        <div class="k">owner</div><div>a data engineer</div>
-      </div>
-    </div>
-
-    <div class="actions">
-      <a class="btn primary" id="mail" href="#">Contact the owner</a>
-      <button class="btn ghost" id="copy" type="button">Copy email</button>
+  <h2>Graph &middot; run view</h2>
+  <div class="graph">
+    <svg id="dag" role="img" aria-label="Task graph: receive_request, resolve_dns and check_cache, lookup_path, render_page. The last task fails."></svg>
+    <div class="legend">
+      <span><i style="background:#2a3444"></i>queued</span><span><i style="background:var(--blue)"></i>running</span><span><i style="background:var(--green)"></i>success</span><span><i style="background:var(--amber)"></i>up_for_retry</span><span><i style="background:var(--red)"></i>failed</span>
     </div>
   </div>
 
-  <div class="foot"><span>pipeline: healthy</span><span>page: not found</span></div>
+  <h2>Logs &middot; render_page</h2>
+  <div class="log" id="log" role="log" aria-live="polite"></div>
+
+  <h2>Task instance details</h2>
+  <div class="kv">
+    <div class="k">domain</div><div id="host">thetye.store</div>
+    <div class="k">requested path</div><div id="path"></div>
+    <div class="k">state</div><div id="state">running</div>
+    <div class="k">try_number</div><div id="tries">1</div>
+    <div class="k">duration</div><div id="dur">0.0s</div>
+    <div class="k">owner</div><div>data-engineer</div>
+  </div>
+
+  <div class="actions">
+    <button class="btn ghost" id="rerun" type="button" disabled>Clear task &amp; re-run</button>
+    <a class="btn primary" id="mail" href="#">Contact the owner</a>
+    <button class="btn ghost" id="copy" type="button">Copy email</button>
+  </div>
+
+  <div class="foot"><span>scheduler: healthy</span><span>webserver: healthy</span><span>page: not found</span></div>
 </main>
 <div id="toast" role="status" aria-live="polite"></div>
 
@@ -187,26 +162,26 @@
 
   var host = location.hostname || "this-domain";
   var rawPath = location.pathname + location.search;
-  var shown = rawPath.length > 38 ? rawPath.slice(0, 35) + "..." : rawPath;
-  document.getElementById("host").textContent = host;
-  document.getElementById("path").textContent = rawPath;
-  document.getElementById("title").textContent = "query-console — " + host;
-  document.title = "404 – Row not found | " + host;
+  var shown = rawPath.length > 48 ? rawPath.slice(0, 45) + "..." : rawPath;
+  var $ = function (id) { return document.getElementById(id); };
+  $("host").textContent = host;
+  $("path").textContent = rawPath;
+  $("dagid").textContent = "serve_" + host.replace(/[^a-z0-9]+/gi, "_").toLowerCase();
+  document.title = "404 – DAG run failed | " + host;
 
-  // contact button
-  var mailEl = document.getElementById("mail"), copyEl = document.getElementById("copy");
+  // ---- contact ----
+  var mailEl = $("mail"), copyEl = $("copy");
   if (OWNER_EMAIL) {
     var subject = "Inquiry about " + host;
     var body = "Hi,\n\nI came across " + host + " (page: " + rawPath + ") and would like to get in touch.\n\n";
     mailEl.href = "mailto:" + OWNER_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
   } else {
     mailEl.textContent = "Contact details coming soon";
-    mailEl.removeAttribute("href");
-    mailEl.setAttribute("aria-disabled", "true");
+    mailEl.removeAttribute("href"); mailEl.setAttribute("aria-disabled", "true");
     mailEl.style.opacity = ".55"; mailEl.style.cursor = "default"; mailEl.style.pointerEvents = "none";
     copyEl.style.display = "none";
   }
-  var toast = document.getElementById("toast"), tt;
+  var toast = $("toast"), tt;
   function say(m) { toast.textContent = m; toast.classList.add("show"); clearTimeout(tt); tt = setTimeout(function () { toast.classList.remove("show"); }, 1800); }
   copyEl.addEventListener("click", function () {
     function fb() { var t = document.createElement("textarea"); t.value = OWNER_EMAIL; document.body.appendChild(t); t.select();
@@ -214,47 +189,115 @@
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(OWNER_EMAIL).then(function () { say("Email copied"); }, fb); else fb();
   });
 
-  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var segs = [["kw","SELECT"],["tx"," * "],["kw","FROM"],["id"," gold.site_pages "],["kw","WHERE"],["tx"," path = "],["str","'" + shown + "'"],["tx",";"]];
-  var sqlEl = document.getElementById("sql"), resEl = document.getElementById("result");
-  var nodes = document.querySelectorAll("#dag .node"), last = document.getElementById("last");
+  // ---- DAG drawing ----
+  var NS = "http://www.w3.org/2000/svg";
+  var TASKS = ["receive_request", "resolve_dns", "check_cache", "lookup_path", "render_page"];
+  var EDGES = [["receive_request", "resolve_dns"], ["receive_request", "check_cache"], ["resolve_dns", "lookup_path"], ["check_cache", "lookup_path"], ["lookup_path", "render_page"]];
+  var states = {}; TASKS.forEach(function (t) { states[t] = "queued"; });
+  var mq = window.matchMedia("(max-width: 520px)");
+  var nodeEls = {}, edgeEls = [];
 
-  function showFail() {
-    last.classList.add("fail");
-    last.querySelector(".dot").textContent = "404";
-    document.getElementById("lastlabel").textContent = "not found";
-    last.querySelector(".dot").style.fontSize = "11px";
+  function layout(narrow) {
+    var w = 140, h = 40;
+    if (narrow) return { vb: [320, 258], w: w, h: h, narrow: true, pos: {
+      receive_request: [90, 8], resolve_dns: [10, 76], check_cache: [170, 76], lookup_path: [90, 144], render_page: [90, 210] } };
+    return { vb: [700, 190], w: w, h: h, narrow: false, pos: {
+      receive_request: [0, 75], resolve_dns: [185, 20], check_cache: [185, 130], lookup_path: [370, 75], render_page: [555, 75] } };
   }
-  function runPipeline(done) {
-    var i = 0;
-    for (var n = 0; n < nodes.length; n++) nodes[n].classList.remove("on", "fail");
-    last.querySelector(".dot").textContent = "?"; last.querySelector(".dot").style.fontSize = "";
-    document.getElementById("lastlabel").textContent = "page";
-    (function step() {
-      if (i < nodes.length - 1) { nodes[i].classList.add("on"); i++; setTimeout(step, 650); }
-      else { showFail(); if (done) done(); }
-    })();
+  function el(name, attrs) { var e = document.createElementNS(NS, name); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+  function drawDag() {
+    var L = layout(mq.matches), svg = $("dag");
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    svg.setAttribute("viewBox", "0 0 " + L.vb[0] + " " + L.vb[1]);
+    edgeEls = []; nodeEls = {};
+    EDGES.forEach(function (e) {
+      var a = L.pos[e[0]], b = L.pos[e[1]], d;
+      if (L.narrow) { var x1 = a[0] + L.w / 2, y1 = a[1] + L.h, x2 = b[0] + L.w / 2, y2 = b[1]; d = "M" + x1 + " " + y1 + " C" + x1 + " " + (y1 + 22) + " " + x2 + " " + (y2 - 22) + " " + x2 + " " + y2; }
+      else { var X1 = a[0] + L.w, Y1 = a[1] + L.h / 2, X2 = b[0], Y2 = b[1] + L.h / 2; d = "M" + X1 + " " + Y1 + " C" + (X1 + 40) + " " + Y1 + " " + (X2 - 40) + " " + Y2 + " " + X2 + " " + Y2; }
+      var p = el("path", { d: d, "class": "edge" }); svg.appendChild(p); edgeEls.push({ from: e[0], to: e[1], el: p });
+    });
+    TASKS.forEach(function (t) {
+      var p = L.pos[t], g = el("g", { "class": "node queued" });
+      g.appendChild(el("rect", { x: p[0], y: p[1], width: L.w, height: L.h }));
+      g.appendChild(el("circle", { cx: p[0] + L.w - 11, cy: p[1] + 11, r: 3.5 }));
+      var tx = el("text", { x: p[0] + L.w / 2, y: p[1] + L.h / 2 + 4 }); tx.textContent = t; g.appendChild(tx);
+      svg.appendChild(g); nodeEls[t] = g;
+    });
+    TASKS.forEach(function (t) { paint(t); });
   }
+  function paint(t) {
+    if (nodeEls[t]) nodeEls[t].setAttribute("class", "node " + states[t]);
+    edgeEls.forEach(function (e) {
+      var cls = "edge";
+      if (states[e.from] === "success") cls += " done";
+      if (states[e.to] === "running" && states[e.from] === "success") cls += " active";
+      e.el.setAttribute("class", cls);
+    });
+  }
+  function setState(t, s) { states[t] = s; paint(t); }
+  mq.addEventListener ? mq.addEventListener("change", drawDag) : mq.addListener(drawDag);
 
-  if (reduce) {
-    segs.forEach(function (s) { var sp = document.createElement("span"); sp.className = s[0]; sp.textContent = s[1]; sqlEl.appendChild(sp); });
-    resEl.classList.add("show");
-    for (var k = 0; k < nodes.length - 1; k++) nodes[k].classList.add("on");
-    showFail();
-  } else {
-    var si = 0, ci = 0, cur = null;
-    (function type() {
-      if (si >= segs.length) {
-        resEl.classList.add("show");
-        setTimeout(function cycle() { runPipeline(function () { setTimeout(cycle, 5000); }); }, 500);
-        return;
-      }
-      if (ci === 0) { cur = document.createElement("span"); cur.className = segs[si][0]; sqlEl.appendChild(cur); }
-      cur.textContent += segs[si][1].charAt(ci++);
-      if (ci >= segs[si][1].length) { si++; ci = 0; }
-      setTimeout(type, 28 + Math.random() * 30);
-    })();
+  // ---- log + header state ----
+  var logEl = $("log"), badge = $("badge"), startT = 0, durTimer = null;
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function log(level, msg) {
+    var d = new Date(), line = document.createElement("div"); line.className = "l";
+    var t = document.createElement("span"); t.className = "t"; t.textContent = pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
+    var lv = document.createElement("span"); lv.className = "lv " + level; lv.textContent = level;
+    var m = document.createElement("span"); m.textContent = msg;
+    line.appendChild(t); line.appendChild(lv); line.appendChild(m); logEl.appendChild(line); logEl.scrollTop = logEl.scrollHeight;
   }
+  function setBadge(s) { badge.className = "badge " + s; badge.textContent = s; $("state").textContent = s; }
+  function startClock() { startT = Date.now(); clearInterval(durTimer); durTimer = setInterval(function () { $("dur").textContent = ((Date.now() - startT) / 1000).toFixed(1) + "s"; }, 100); }
+  function stopClock() { clearInterval(durTimer); $("dur").textContent = ((Date.now() - startT) / 1000).toFixed(1) + "s"; }
+
+  // ---- the run ----
+  var timers = [], runCount = 0, reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function later(ms, fn) { timers.push(setTimeout(fn, ms)); }
+  function runId() { return "manual__" + new Date().toISOString().slice(0, 19); }
+
+  function resetRun() {
+    timers.forEach(clearTimeout); timers = [];
+    TASKS.forEach(function (t) { states[t] = "queued"; }); drawDag();
+    logEl.textContent = ""; $("tries").textContent = "1"; $("rerun").disabled = true;
+  }
+  function failFinal() {
+    setState("render_page", "failed"); setBadge("failed"); stopClock();
+    log("ERROR", "render_page: max retries exceeded, task failed");
+    log("INFO", "dag run marked failed. reason: domain purchased");
+    $("rerun").disabled = false;
+  }
+  function run() {
+    resetRun(); runCount++;
+    var rid = runId(); $("runid").textContent = rid; setBadge("running"); startClock();
+    log("INFO", "dag run started: " + rid);
+
+    if (reduce) {
+      ["receive_request", "resolve_dns", "check_cache", "lookup_path"].forEach(function (t) { states[t] = "success"; });
+      log("INFO", "receive_request: GET " + shown);
+      log("INFO", "lookup_path: scanning gold.site_pages, 0 rows");
+      log("ERROR", "render_page: PageNotFound for path " + shown);
+      $("tries").textContent = "4"; drawDag(); failFinal(); return;
+    }
+    var t = 0;
+    t += 300; later(t, function () { setState("receive_request", "running"); log("INFO", "receive_request: GET " + shown); });
+    t += 700; later(t, function () { setState("receive_request", "success"); setState("resolve_dns", "running"); setState("check_cache", "running");
+      log("INFO", "resolve_dns: " + host + " resolved"); log("INFO", "check_cache: looking up " + shown); });
+    t += 700; later(t, function () { setState("resolve_dns", "success"); });
+    t += 250; later(t, function () { setState("check_cache", "success"); log("WARN", "check_cache: MISS"); setState("lookup_path", "running"); log("INFO", "lookup_path: SELECT * FROM gold.site_pages WHERE path = '" + shown + "'"); });
+    t += 900; later(t, function () { setState("lookup_path", "success"); log("WARN", "lookup_path: 0 rows returned"); setState("render_page", "running"); });
+    t += 800; later(t, function () { setState("render_page", "up_for_retry"); setBadge("up_for_retry"); log("ERROR", "render_page: PageNotFound, no row for path " + shown); });
+    [["1/3", 2, 2], ["2/3", 4, 3], ["3/3", 8, 4]].forEach(function (r) {
+      t += 600; later(t, function () { log("WARN", "render_page: retry " + r[0] + " in " + r[1] + "s (accelerated)"); $("tries").textContent = String(r[2]); setState("render_page", "running"); setBadge("running"); });
+      t += 900; later(t, function () { if (r[0] !== "3/3") { setState("render_page", "up_for_retry"); setBadge("up_for_retry"); log("ERROR", "render_page: attempt failed, still no row"); } });
+    });
+    t += 200; later(t, failFinal);
+  }
+  $("rerun").addEventListener("click", function () {
+    run();
+    if (runCount > 1) later(400, function () { log("INFO", "tip: re-running won't help. the domain is still purchased."); });
+  });
+  drawDag(); run();
 </script>
 </body>
 </html>
