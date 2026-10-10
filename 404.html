@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>404 – DAG run failed</title>
-<meta name="description" content="DAG run failed: no page found. This domain has been purchased.">
+<title>404 – Page not found</title>
+<meta name="description" content="No page found at this address. This domain has been purchased.">
 <style>
   :root {
     --bg: #090d13;
@@ -48,8 +48,7 @@
   .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
   .badge.running { color: var(--blue); background: rgba(88,166,255,.1); border-color: rgba(88,166,255,.4); }
   .badge.running::before { animation: pulse 1s ease-in-out infinite; }
-  .badge.up_for_retry { color: var(--amber); background: rgba(210,153,34,.1); border-color: rgba(210,153,34,.4); }
-  .badge.failed { color: var(--red); background: rgba(248,81,73,.1); border-color: rgba(248,81,73,.45); }
+    .badge.success { color: var(--green); background: rgba(63,185,80,.1); border-color: rgba(63,185,80,.45); }
   @keyframes pulse { 50% { opacity: .25; } }
 
   .banner { margin: 16px 16px 0; padding: 12px 14px; border: 1px dashed rgba(63,185,80,.5); background: rgba(63,185,80,.07); border-radius: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -69,11 +68,8 @@
   .node.running rect { stroke: var(--blue); fill: rgba(88,166,255,.08); animation: glow 1s ease-in-out infinite; }
   .node.running text { fill: var(--fg); } .node.running circle { fill: var(--blue); }
   .node.success rect { stroke: var(--green); fill: rgba(63,185,80,.08); } .node.success text { fill: var(--fg); } .node.success circle { fill: var(--green); }
-  .node.up_for_retry rect { stroke: var(--amber); fill: rgba(210,153,34,.1); animation: glow 1.2s ease-in-out infinite; } .node.up_for_retry text { fill: var(--fg); } .node.up_for_retry circle { fill: var(--amber); }
-  .node.failed rect { stroke: var(--red); fill: rgba(248,81,73,.12); } .node.failed text { fill: #fff; } .node.failed circle { fill: var(--red); }
-  .node.failed { animation: shake .4s 2; }
+  .node.skipped rect { stroke: var(--purple); fill: rgba(188,140,255,.10); } .node.skipped text { fill: var(--fg); } .node.skipped circle { fill: var(--purple); }
   @keyframes glow { 50% { stroke-opacity: .35; } }
-  @keyframes shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
   .legend { display: flex; gap: 14px; flex-wrap: wrap; padding: 4px 6px 2px; color: var(--muted); font-size: 11px; }
   .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
 
@@ -105,7 +101,7 @@
     .top { padding: 10px 12px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .badge.running::before, .node.running rect, .node.up_for_retry rect, .node.failed, .edge.active { animation: none; }
+    .badge.running::before, .node.running rect, .edge.active { animation: none; }
   }
 </style>
 </head>
@@ -126,9 +122,9 @@
 
   <h2>Graph &middot; run view</h2>
   <div class="graph">
-    <svg id="dag" role="img" aria-label="Task graph: receive_request, resolve_dns and check_cache, lookup_path, render_page. The last task fails."></svg>
+    <svg id="dag" role="img" aria-label="Task graph: receive_request, resolve_dns and check_cache, lookup_path, render_page. The last task is skipped because the domain has been purchased."></svg>
     <div class="legend">
-      <span><i style="background:#2a3444"></i>queued</span><span><i style="background:var(--blue)"></i>running</span><span><i style="background:var(--green)"></i>success</span><span><i style="background:var(--amber)"></i>up_for_retry</span><span><i style="background:var(--red)"></i>failed</span>
+      <span><i style="background:#2a3444"></i>queued</span><span><i style="background:var(--blue)"></i>running</span><span><i style="background:var(--green)"></i>success</span><span><i style="background:var(--purple)"></i>skipped</span>
     </div>
   </div>
 
@@ -140,7 +136,6 @@
     <div class="k">domain</div><div id="host">thetye.store</div>
     <div class="k">requested path</div><div id="path"></div>
     <div class="k">state</div><div id="state">running</div>
-    <div class="k">try_number</div><div id="tries">1</div>
     <div class="k">duration</div><div id="dur">0.0s</div>
     <div class="k">owner</div><div>data-engineer</div>
   </div>
@@ -167,7 +162,7 @@
   $("host").textContent = host;
   $("path").textContent = rawPath;
   $("dagid").textContent = "serve_" + host.replace(/[^a-z0-9]+/gi, "_").toLowerCase();
-  document.title = "404 – DAG run failed | " + host;
+  document.title = "404 \u2013 Page not found | " + host;
 
   // ---- contact ----
   var mailEl = $("mail"), copyEl = $("copy");
@@ -259,12 +254,12 @@
   function resetRun() {
     timers.forEach(clearTimeout); timers = [];
     TASKS.forEach(function (t) { states[t] = "queued"; }); drawDag();
-    logEl.textContent = ""; $("tries").textContent = "1"; $("rerun").disabled = true;
+    logEl.textContent = ""; $("rerun").disabled = true;
   }
-  function failFinal() {
-    setState("render_page", "failed"); setBadge("failed"); stopClock();
-    log("ERROR", "render_page: max retries exceeded, task failed");
-    log("INFO", "dag run marked failed. reason: domain purchased");
+  function finish() {
+    setState("render_page", "skipped"); setBadge("success"); stopClock();
+    log("INFO", "render_page: skipped. no page at this path, domain is purchased");
+    log("OK", "dag run completed. result: 404 page not found");
     $("rerun").disabled = false;
   }
   function run() {
@@ -276,26 +271,20 @@
       ["receive_request", "resolve_dns", "check_cache", "lookup_path"].forEach(function (t) { states[t] = "success"; });
       log("INFO", "receive_request: GET " + shown);
       log("INFO", "lookup_path: scanning gold.site_pages, 0 rows");
-      log("ERROR", "render_page: PageNotFound for path " + shown);
-      $("tries").textContent = "4"; drawDag(); failFinal(); return;
+      drawDag(); finish(); return;
     }
     var t = 0;
     t += 300; later(t, function () { setState("receive_request", "running"); log("INFO", "receive_request: GET " + shown); });
     t += 700; later(t, function () { setState("receive_request", "success"); setState("resolve_dns", "running"); setState("check_cache", "running");
       log("INFO", "resolve_dns: " + host + " resolved"); log("INFO", "check_cache: looking up " + shown); });
     t += 700; later(t, function () { setState("resolve_dns", "success"); });
-    t += 250; later(t, function () { setState("check_cache", "success"); log("WARN", "check_cache: MISS"); setState("lookup_path", "running"); log("INFO", "lookup_path: SELECT * FROM gold.site_pages WHERE path = '" + shown + "'"); });
-    t += 900; later(t, function () { setState("lookup_path", "success"); log("WARN", "lookup_path: 0 rows returned"); setState("render_page", "running"); });
-    t += 800; later(t, function () { setState("render_page", "up_for_retry"); setBadge("up_for_retry"); log("ERROR", "render_page: PageNotFound, no row for path " + shown); });
-    [["1/3", 2, 2], ["2/3", 4, 3], ["3/3", 8, 4]].forEach(function (r) {
-      t += 600; later(t, function () { log("WARN", "render_page: retry " + r[0] + " in " + r[1] + "s (accelerated)"); $("tries").textContent = String(r[2]); setState("render_page", "running"); setBadge("running"); });
-      t += 900; later(t, function () { if (r[0] !== "3/3") { setState("render_page", "up_for_retry"); setBadge("up_for_retry"); log("ERROR", "render_page: attempt failed, still no row"); } });
-    });
-    t += 200; later(t, failFinal);
+    t += 250; later(t, function () { setState("check_cache", "success"); log("INFO", "check_cache: miss"); setState("lookup_path", "running"); log("INFO", "lookup_path: SELECT * FROM gold.site_pages WHERE path = '" + shown + "'"); });
+    t += 900; later(t, function () { setState("lookup_path", "success"); log("WARN", "lookup_path: 0 rows returned"); setState("render_page", "running"); log("INFO", "render_page: checking domain status"); });
+    t += 900; later(t, finish);
   }
   $("rerun").addEventListener("click", function () {
     run();
-    if (runCount > 1) later(400, function () { log("INFO", "tip: re-running won't help. the domain is still purchased."); });
+    if (runCount > 1) later(400, function () { log("INFO", "same result. the domain is still purchased."); });
   });
   drawDag(); run();
 </script>
