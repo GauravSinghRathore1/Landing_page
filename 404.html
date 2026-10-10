@@ -1,118 +1,226 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>404 – Page not found</title>
 <meta name="description" content="No page found at this address. This domain has been purchased.">
+<script>
+  (function () {
+    var t = "dark";
+    try {
+      var s = localStorage.getItem("thetye-theme");
+      if (s === "dark" || s === "light" || s === "terminal") t = s;
+      else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) t = "light";
+    } catch (e) {}
+    document.documentElement.setAttribute("data-theme", t);
+  })();
+</script>
 <style>
-  :root {
-    --bg: #090d13;
-    --panel: #0f141c;
-    --panel2: #0c1118;
-    --line: #1f2733;
-    --fg: #c9d1d9;
-    --muted: #6e7b8b;
-    --green: #3fb950;
-    --red: #f85149;
-    --blue: #58a6ff;
-    --amber: #d29922;
-    --purple: #bc8cff;
-    --mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
+  :root, [data-theme="dark"] {
+    --bg: #090d13; --panel: #0f141c; --panel2: #0c1118; --logbg: #080b10;
+    --line: #1f2733; --edge: #2a3444; --fg: #c9d1d9; --muted: #6e7b8b;
+    --green: #3fb950; --red: #f85149; --blue: #58a6ff; --amber: #d29922; --purple: #bc8cff;
+    --onblue: #06101c; --shadow: rgba(0,0,0,.55); --grid: rgba(255,255,255,.022);
   }
+  [data-theme="light"] {
+    --bg: #f3f5f9; --panel: #ffffff; --panel2: #f6f8fa; --logbg: #fbfcfe;
+    --line: #d8dee6; --edge: #c3ccd6; --fg: #1f2328; --muted: #5b6573;
+    --green: #1a7f37; --red: #cf222e; --blue: #0969da; --amber: #9a6700; --purple: #8250df;
+    --onblue: #ffffff; --shadow: rgba(31,35,40,.18); --grid: rgba(0,0,0,.035);
+  }
+  [data-theme="terminal"] {
+    --bg: #000000; --panel: #020a03; --panel2: #010601; --logbg: #000000;
+    --line: #0d3b17; --edge: #145a24; --fg: #3dff7a; --muted: #1fa247;
+    --green: #3dff7a; --red: #ff5f5f; --blue: #6dffb0; --amber: #e7ff5c; --purple: #a6ffcf;
+    --onblue: #001a07; --shadow: rgba(0,255,100,.12); --grid: rgba(61,255,122,.05);
+  }
+  :root { --mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace; }
   * { box-sizing: border-box; }
   html, body { margin: 0; min-height: 100%; }
   body {
     background:
-      radial-gradient(900px 480px at 10% -10%, rgba(88,166,255,.10), transparent 60%),
-      radial-gradient(700px 480px at 100% 110%, rgba(188,140,255,.08), transparent 60%),
+      radial-gradient(900px 480px at 10% -10%, color-mix(in srgb, var(--blue) 11%, transparent), transparent 60%),
+      radial-gradient(700px 480px at 100% 110%, color-mix(in srgb, var(--purple) 9%, transparent), transparent 60%),
       var(--bg);
     color: var(--fg); font-family: var(--mono); font-size: 13px; line-height: 1.55;
-    display: grid; place-items: center; padding: 20px 14px;
+    display: grid; place-items: start center; padding: 20px 14px 40px;
+    transition: background-color .3s, color .3s;
   }
   body::before {
     content: ""; position: fixed; inset: 0; pointer-events: none;
-    background-image: linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
+    background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
     background-size: 36px 36px;
-    -webkit-mask-image: radial-gradient(circle at 50% 35%, #000, transparent 75%); mask-image: radial-gradient(circle at 50% 35%, #000, transparent 75%);
+    -webkit-mask-image: radial-gradient(circle at 50% 30%, #000, transparent 75%); mask-image: radial-gradient(circle at 50% 30%, #000, transparent 75%);
   }
-  .app { position: relative; width: 100%; max-width: 760px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.55); }
+  [data-theme="terminal"] body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 50;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,.18) 0 1px, transparent 1px 3px);
+  }
+  .app { position: relative; width: 100%; max-width: 780px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; box-shadow: 0 30px 80px var(--shadow); }
 
+  /* top bar */
   .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 16px; background: var(--panel2); border-bottom: 1px solid var(--line); flex-wrap: wrap; }
   .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-  .logo { width: 22px; height: 22px; flex: none; }
-  .dagid { font-weight: 700; color: var(--fg); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .logo { width: 22px; height: 22px; flex: none; color: var(--blue); }
+  .dagid { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .dagid small { color: var(--muted); font-weight: 400; margin-left: 6px; }
+  .right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .themes { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .themes button { font: inherit; font-size: 11px; color: var(--muted); background: transparent; border: 0; padding: 4px 9px; cursor: pointer; }
+  .themes button + button { border-left: 1px solid var(--line); }
+  .themes button[aria-pressed="true"] { color: var(--onblue); background: var(--blue); font-weight: 700; }
+  .themes button:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
   .badge { display: inline-flex; align-items: center; gap: 7px; padding: 2px 11px; border-radius: 99px; font-weight: 700; font-size: 12px; letter-spacing: .04em; border: 1px solid; transition: .3s; }
   .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-  .badge.running { color: var(--blue); background: rgba(88,166,255,.1); border-color: rgba(88,166,255,.4); }
+  .badge.running { color: var(--blue); background: color-mix(in srgb, var(--blue) 10%, transparent); border-color: color-mix(in srgb, var(--blue) 45%, transparent); }
   .badge.running::before { animation: pulse 1s ease-in-out infinite; }
-    .badge.success { color: var(--green); background: rgba(63,185,80,.1); border-color: rgba(63,185,80,.45); }
+  .badge.success { color: var(--green); background: color-mix(in srgb, var(--green) 10%, transparent); border-color: color-mix(in srgb, var(--green) 45%, transparent); }
+  .badge.puzzle { color: var(--purple); background: color-mix(in srgb, var(--purple) 10%, transparent); border-color: color-mix(in srgb, var(--purple) 45%, transparent); }
   @keyframes pulse { 50% { opacity: .25; } }
 
-  .banner { margin: 16px 16px 0; padding: 12px 14px; border: 1px dashed rgba(63,185,80,.5); background: rgba(63,185,80,.07); border-radius: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .banner b { color: var(--green); letter-spacing: .06em; }
-  .pill { display: inline-block; padding: 1px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--green); background: rgba(63,185,80,.12); border: 1px solid rgba(63,185,80,.45); }
+  /* scheduler strip */
+  .sched { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 8px 16px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 11px; }
+  .sched b { color: var(--fg); font-weight: 600; }
+  .hb { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--green); margin-right: 6px; vertical-align: 1px; }
+  .hb.beat { animation: beat .8s ease-out; }
+  @keyframes beat { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--green) 70%, transparent); } 100% { box-shadow: 0 0 0 8px transparent; } }
 
-  h2 { font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 18px 16px 8px; }
+  .banner { margin: 16px 16px 0; padding: 12px 14px; border: 1px dashed color-mix(in srgb, var(--green) 55%, transparent); background: color-mix(in srgb, var(--green) 7%, transparent); border-radius: 10px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .banner b { color: var(--green); letter-spacing: .06em; }
+  .pill { display: inline-block; padding: 1px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; letter-spacing: .06em; color: var(--green); background: color-mix(in srgb, var(--green) 12%, transparent); border: 1px solid color-mix(in srgb, var(--green) 50%, transparent); }
+
+  h2 { font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 18px 16px 8px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  h2 .chip { font: inherit; font-size: 10px; letter-spacing: .04em; text-transform: none; color: var(--blue); background: transparent; border: 1px solid color-mix(in srgb, var(--blue) 45%, transparent); border-radius: 99px; padding: 1px 9px; cursor: pointer; }
+  h2 .chip[hidden] { display: none; }
+
+  /* game bar */
+  .gamebar { margin: 0 12px 10px; padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--purple) 50%, transparent); background: color-mix(in srgb, var(--purple) 8%, transparent); border-radius: 10px; display: flex; gap: 8px 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .gamebar[hidden] { display: none; }
+  .gamebar .msg { flex: 1 1 240px; }
+  .gamebar .stat { color: var(--purple); font-weight: 700; white-space: nowrap; }
+  .sbtn { font: inherit; font-size: 12px; color: var(--fg); background: transparent; border: 1px solid var(--edge); border-radius: 8px; padding: 4px 10px; cursor: pointer; }
+  .sbtn:hover { border-color: var(--blue); }
+
+  /* graph */
   .graph { margin: 0 12px; padding: 8px; background: var(--panel2); border: 1px solid var(--line); border-radius: 10px; }
   svg#dag { display: block; width: 100%; height: auto; }
-  .edge { fill: none; stroke: var(--line); stroke-width: 2; transition: stroke .3s; }
-  .edge.done { stroke: rgba(63,185,80,.55); }
+  .edge { fill: none; stroke: var(--edge); stroke-width: 2; transition: stroke .3s, opacity .3s; }
+  .edge.done { stroke: color-mix(in srgb, var(--green) 60%, transparent); }
   .edge.active { stroke: var(--blue); stroke-dasharray: 5 5; animation: dash .6s linear infinite; }
+  .edge.ghost { opacity: 0; }
   @keyframes dash { to { stroke-dashoffset: -10; } }
-  .node rect { fill: var(--panel); stroke: #2a3444; stroke-width: 1.5; rx: 8; transition: .3s; }
-  .node text { fill: var(--muted); font: 12px var(--mono); text-anchor: middle; transition: fill .3s; }
-  .node circle { fill: #2a3444; transition: fill .3s; }
-  .node.running rect { stroke: var(--blue); fill: rgba(88,166,255,.08); animation: glow 1s ease-in-out infinite; }
+  .elab { font: 10px var(--mono); fill: var(--muted); paint-order: stroke; stroke: var(--panel2); stroke-width: 4px; stroke-linejoin: round; }
+  .pt { fill: var(--blue); pointer-events: none; }
+  .node { cursor: pointer; outline: none; }
+  .node rect { fill: var(--panel); stroke: var(--edge); stroke-width: 1.5; rx: 8; transition: .3s; }
+  .node text { fill: var(--muted); font: 12px var(--mono); text-anchor: middle; transition: fill .3s; pointer-events: none; }
+  .node circle { fill: var(--edge); transition: fill .3s; }
+  .node:hover rect { stroke: var(--blue); }
+  .node:focus-visible rect { stroke: var(--blue); stroke-width: 3; }
+  .node.running rect { stroke: var(--blue); fill: color-mix(in srgb, var(--blue) 9%, var(--panel)); animation: glow 1s ease-in-out infinite; }
   .node.running text { fill: var(--fg); } .node.running circle { fill: var(--blue); }
-  .node.success rect { stroke: var(--green); fill: rgba(63,185,80,.08); } .node.success text { fill: var(--fg); } .node.success circle { fill: var(--green); }
-  .node.skipped rect { stroke: var(--purple); fill: rgba(188,140,255,.10); } .node.skipped text { fill: var(--fg); } .node.skipped circle { fill: var(--purple); }
+  .node.success rect { stroke: var(--green); fill: color-mix(in srgb, var(--green) 9%, var(--panel)); } .node.success text { fill: var(--fg); } .node.success circle { fill: var(--green); }
+  .node.skipped rect { stroke: var(--purple); fill: color-mix(in srgb, var(--purple) 10%, var(--panel)); } .node.skipped text { fill: var(--fg); } .node.skipped circle { fill: var(--purple); }
+  .node.sel rect { stroke-width: 3; }
+  .node.gsel rect { stroke: var(--amber); stroke-width: 3; fill: color-mix(in srgb, var(--amber) 12%, var(--panel)); }
+  .node.nope { animation: shake .35s; }
   @keyframes glow { 50% { stroke-opacity: .35; } }
+  @keyframes shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
   .legend { display: flex; gap: 14px; flex-wrap: wrap; padding: 4px 6px 2px; color: var(--muted); font-size: 11px; }
   .legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; }
+  .hintline { padding: 2px 6px 0; color: var(--muted); font-size: 11px; }
 
-  .log { margin: 0 16px; background: #080b10; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; height: 188px; overflow: auto; font-size: 12px; }
+  /* task drawer */
+  .drawer { margin: 10px 12px 0; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--blue) 40%, transparent); background: color-mix(in srgb, var(--blue) 6%, transparent); border-radius: 10px; }
+  .drawer[hidden] { display: none; }
+  .drawer .dhead { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; margin-bottom: 6px; }
+  .drawer .dhead b { color: var(--blue); }
+  .drawer .dgrid { display: grid; grid-template-columns: 96px 1fr; gap: 2px 10px; }
+  .drawer .dgrid span:nth-child(odd) { color: var(--muted); }
+
+  /* logs + terminal */
+  .log { margin: 0 16px; background: var(--logbg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; height: 176px; overflow: auto; font-size: 12px; }
   .log .l { white-space: pre-wrap; word-break: break-word; }
-  .log .t { color: #475467; margin-right: 8px; }
+  .log .t { color: var(--muted); opacity: .8; margin-right: 8px; }
   .log .INFO { color: var(--blue); } .log .WARN { color: var(--amber); } .log .ERROR { color: var(--red); font-weight: 700; } .log .OK { color: var(--green); }
   .log .lv { display: inline-block; min-width: 46px; margin-right: 6px; }
+  .log .tk { color: var(--purple); margin-right: 6px; }
+  .term { margin: 0 16px; background: var(--logbg); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .termout { height: 138px; overflow: auto; padding: 10px 12px 4px; font-size: 12px; }
+  .termout .o { white-space: pre-wrap; word-break: break-word; }
+  .termout .cmd { color: var(--fg); } .termout .cmd::before { content: "\276F "; color: var(--green); }
+  .termout .res { color: var(--muted); } .termout .err { color: var(--red); } .termout .ok { color: var(--green); }
+  .termin { display: flex; align-items: center; gap: 8px; padding: 6px 12px 10px; }
+  .termin span { color: var(--green); }
+  .termin input { flex: 1; min-width: 0; font: inherit; font-size: 16px; color: var(--fg); background: transparent; border: 0; outline: none; caret-color: var(--green); padding: 2px 0; }
+  .termin input::placeholder { color: var(--muted); opacity: .7; }
+  @media (min-width: 521px) { .termin input { font-size: 13px; } }
 
   .kv { margin: 0 16px; display: grid; grid-template-columns: 130px 1fr; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
   .kv > div { padding: 7px 12px; border-bottom: 1px solid var(--line); word-break: break-all; }
   .kv > div:nth-last-child(-n+2) { border-bottom: 0; }
   .kv .k { color: var(--muted); }
 
+  /* owner card */
+  .owner { margin: 0 16px; display: flex; gap: 14px; align-items: flex-start; padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel2); }
+  .avatar { flex: none; width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; font-weight: 800; font-size: 15px; color: var(--onblue); background: linear-gradient(135deg, var(--blue), var(--purple)); }
+  .owner .nm { font-weight: 700; font-size: 14px; }
+  .owner .tt { color: var(--muted); }
+  .owner p { margin: 6px 0 0; color: var(--fg); }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tags span, .tags a { font-size: 11px; color: var(--blue); border: 1px solid color-mix(in srgb, var(--blue) 40%, transparent); border-radius: 99px; padding: 1px 9px; text-decoration: none; }
+
   .actions { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px 16px 6px; }
   .btn { font: inherit; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; padding: 10px 16px; border-radius: 9px; transition: transform .15s ease, box-shadow .15s ease; }
-  .btn.primary { color: #06101c; background: var(--blue); border: 0; box-shadow: 0 8px 24px -8px var(--blue); }
-  .btn.ghost { color: var(--fg); background: transparent; border: 1px solid #2a3444; }
+  .btn.primary { color: var(--onblue); background: var(--blue); border: 0; box-shadow: 0 8px 24px -8px var(--blue); }
+  .btn.primary.glow { animation: bglow 1.4s ease-in-out 4; }
+  @keyframes bglow { 50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--blue) 30%, transparent), 0 8px 24px -8px var(--blue); } }
+  .btn.ghost { color: var(--fg); background: transparent; border: 1px solid var(--edge); }
   .btn:hover:not(:disabled) { transform: translateY(-2px); }
   .btn:disabled { opacity: .45; cursor: default; }
   .btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
   .foot { margin-top: 14px; padding: 11px 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 11px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
-  #toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 16px); opacity: 0; background: var(--fg); color: var(--bg); padding: 9px 14px; border-radius: 8px; font-size: 13px; transition: .25s; pointer-events: none; }
+  #toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 16px); opacity: 0; background: var(--fg); color: var(--bg); padding: 9px 14px; border-radius: 8px; font-size: 13px; transition: .25s; pointer-events: none; z-index: 60; }
   #toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .confetti { position: absolute; top: -10px; width: 8px; height: 12px; opacity: .95; z-index: 40; pointer-events: none; animation: fall 2.4s ease-in forwards; }
+  @keyframes fall { to { transform: translateY(700px) rotate(540deg); opacity: 0; } }
 
   @media (max-width: 520px) {
     .kv { grid-template-columns: 104px 1fr; }
-    .log { height: 210px; font-size: 11px; }
+    .log { height: 200px; font-size: 11px; }
     .top { padding: 10px 12px; }
+    .sched { padding: 8px 12px; }
+    .drawer .dgrid { grid-template-columns: 82px 1fr; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .badge.running::before, .node.running rect, .edge.active { animation: none; }
+    .badge.running::before, .node.running rect, .edge.active, .btn.primary.glow, .hb.beat, .node.nope { animation: none; }
+    .confetti { display: none; }
   }
 </style>
 </head>
 <body>
-<main class="app">
+<main class="app" id="app">
   <div class="top">
     <div class="brand">
-      <svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="#58a6ff" stroke-width="2"/><path d="M12 12 L19 8" stroke="#bc8cff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="2.4" fill="#58a6ff"/></svg>
+      <svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 12 L19 8" stroke="#bc8cff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/></svg>
       <div class="dagid"><span id="dagid">serve_site</span><small id="runid"></small></div>
     </div>
-    <span class="badge running" id="badge">running</span>
+    <div class="right">
+      <div class="themes" role="group" aria-label="Theme">
+        <button type="button" data-t="dark" aria-pressed="true">dark</button>
+        <button type="button" data-t="light" aria-pressed="false">light</button>
+        <button type="button" data-t="terminal" aria-pressed="false">terminal</button>
+      </div>
+      <span class="badge running" id="badge">running</span>
+    </div>
+  </div>
+
+  <div class="sched" aria-label="Scheduler">
+    <span>schedule <b>*/5 * * * *</b></span>
+    <span>next run in <b id="nextrun">--:--</b></span>
+    <span><i class="hb" id="hb"></i>heartbeat <b id="hbt">--:--:--</b></span>
   </div>
 
   <div class="banner">
@@ -121,15 +229,42 @@
   </div>
 
   <h2>Graph &middot; run view</h2>
+  <div class="gamebar" id="gamebar" hidden>
+    <div class="msg" id="gamemsg"></div>
+    <div class="stat" id="gamestat"></div>
+    <div><button class="sbtn" id="gameexit" type="button">Exit puzzle</button></div>
+  </div>
   <div class="graph">
-    <svg id="dag" role="img" aria-label="Task graph: receive_request, resolve_dns and check_cache, lookup_path, render_page. The last task is skipped because the domain has been purchased."></svg>
+    <svg id="dag" role="group" aria-label="Task graph: receive_request, resolve_dns and check_cache, lookup_path, render_page."></svg>
     <div class="legend">
-      <span><i style="background:#2a3444"></i>queued</span><span><i style="background:var(--blue)"></i>running</span><span><i style="background:var(--green)"></i>success</span><span><i style="background:var(--purple)"></i>skipped</span>
+      <span><i style="background:var(--edge)"></i>queued</span><span><i style="background:var(--blue)"></i>running</span><span><i style="background:var(--green)"></i>success</span><span><i style="background:var(--purple)"></i>skipped</span>
+    </div>
+    <div class="hintline" id="hintline">Tip: tap any task to inspect it and filter its logs.</div>
+  </div>
+
+  <div class="drawer" id="drawer" hidden aria-live="polite">
+    <div class="dhead"><b id="dr_task"></b><button class="sbtn" id="dr_close" type="button">Close</button></div>
+    <div class="dgrid">
+      <span>operator</span><span id="dr_op"></span>
+      <span>state</span><span id="dr_state"></span>
+      <span>duration</span><span id="dr_dur"></span>
+      <span>upstream</span><span id="dr_up"></span>
+      <span>downstream</span><span id="dr_down"></span>
+      <span>about</span><span id="dr_desc"></span>
     </div>
   </div>
 
-  <h2>Logs &middot; render_page</h2>
+  <h2><span id="logtitle">Logs &middot; all tasks</span><button class="chip" id="showall" type="button" hidden>show all</button></h2>
   <div class="log" id="log" role="log" aria-live="polite"></div>
+
+  <h2>Terminal</h2>
+  <div class="term">
+    <div class="termout" id="termout" aria-live="polite"></div>
+    <form class="termin" id="termform" autocomplete="off">
+      <span aria-hidden="true">&#10095;</span>
+      <input id="terminput" type="text" placeholder="type help" aria-label="Terminal input" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" enterkeyhint="go">
+    </form>
+  </div>
 
   <h2>Task instance details</h2>
   <div class="kv">
@@ -140,8 +275,19 @@
     <div class="k">owner</div><div>data-engineer</div>
   </div>
 
+  <h2>Owner</h2>
+  <div class="owner" id="owner">
+    <div class="avatar" id="avatar" aria-hidden="true">DE</div>
+    <div>
+      <div><span class="nm" id="ownername"></span> <span class="tt" id="ownertitle"></span></div>
+      <p id="ownerbio"></p>
+      <div class="tags" id="ownertags"></div>
+    </div>
+  </div>
+
   <div class="actions">
     <button class="btn ghost" id="rerun" type="button" disabled>Clear task &amp; re-run</button>
+    <button class="btn ghost" id="play" type="button">Fix the pipeline</button>
     <a class="btn primary" id="mail" href="#">Contact the owner</a>
     <button class="btn ghost" id="copy" type="button">Copy email</button>
   </div>
@@ -151,46 +297,95 @@
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
-  // ===== Owner contact: set an email to enable the button =====
-  var OWNER_EMAIL = ""; // e.g. "hello@thetye.store"; leave empty to show "coming soon"
-  // ============================================================
+  // ====================== Owner config (edit these) ======================
+  var OWNER_EMAIL = "";                       // e.g. "hello@thetye.store"; empty shows "coming soon"
+  var OWNER = {
+    name: "",                                 // e.g. "Gaurav"; leave empty to hide
+    title: "Data Engineer",
+    bio: "Builds data pipelines and cloud data platforms.",
+    stack: [],                                // e.g. ["Databricks", "Azure Data Factory"]
+    links: []                                 // e.g. [{ label: "LinkedIn", url: "https://..." }]
+  };
+  // =======================================================================
 
+  var $ = function (id) { return document.getElementById(id); };
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var host = location.hostname || "this-domain";
   var rawPath = location.pathname + location.search;
   var shown = rawPath.length > 48 ? rawPath.slice(0, 45) + "..." : rawPath;
-  var $ = function (id) { return document.getElementById(id); };
   $("host").textContent = host;
   $("path").textContent = rawPath;
   $("dagid").textContent = "serve_" + host.replace(/[^a-z0-9]+/gi, "_").toLowerCase();
-  document.title = "404 \u2013 Page not found | " + host;
+  document.title = "404 – Page not found | " + host;
 
-  // ---- contact ----
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function hms(d) { return pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds()); }
+  var toast = $("toast"), tt;
+  function say(m) { toast.textContent = m; toast.classList.add("show"); clearTimeout(tt); tt = setTimeout(function () { toast.classList.remove("show"); }, 2000); }
+
+  // ---------------- owner card + contact ----------------
+  (function () {
+    $("ownername").textContent = OWNER.name || "The owner";
+    $("ownertitle").textContent = OWNER.title ? "· " + OWNER.title : "";
+    $("ownerbio").textContent = OWNER.bio || "";
+    var initials = OWNER.name ? OWNER.name.split(/\s+/).map(function (w) { return w.charAt(0); }).join("").slice(0, 2).toUpperCase() : "DE";
+    $("avatar").textContent = initials;
+    var tags = $("ownertags");
+    (OWNER.stack || []).forEach(function (s) { var sp = document.createElement("span"); sp.textContent = s; tags.appendChild(sp); });
+    (OWNER.links || []).forEach(function (l) {
+      if (!/^https?:\/\//i.test(l.url)) return;
+      var a = document.createElement("a"); a.textContent = l.label; a.href = l.url; a.target = "_blank"; a.rel = "noopener noreferrer"; tags.appendChild(a);
+    });
+    if (!tags.children.length) tags.style.display = "none";
+  })();
   var mailEl = $("mail"), copyEl = $("copy");
   if (OWNER_EMAIL) {
     var subject = "Inquiry about " + host;
-    var body = "Hi,\n\nI came across " + host + " (page: " + rawPath + ") and would like to get in touch.\n\n";
-    mailEl.href = "mailto:" + OWNER_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
+    var mbody = "Hi,\n\nI came across " + host + " (page: " + rawPath + ") and would like to get in touch.\n\n";
+    mailEl.href = "mailto:" + OWNER_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(mbody);
   } else {
     mailEl.textContent = "Contact details coming soon";
     mailEl.removeAttribute("href"); mailEl.setAttribute("aria-disabled", "true");
     mailEl.style.opacity = ".55"; mailEl.style.cursor = "default"; mailEl.style.pointerEvents = "none";
     copyEl.style.display = "none";
   }
-  var toast = $("toast"), tt;
-  function say(m) { toast.textContent = m; toast.classList.add("show"); clearTimeout(tt); tt = setTimeout(function () { toast.classList.remove("show"); }, 1800); }
   copyEl.addEventListener("click", function () {
     function fb() { var t = document.createElement("textarea"); t.value = OWNER_EMAIL; document.body.appendChild(t); t.select();
       try { document.execCommand("copy"); say("Email copied"); } catch (e) { say(OWNER_EMAIL); } document.body.removeChild(t); }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(OWNER_EMAIL).then(function () { say("Email copied"); }, fb); else fb();
   });
 
-  // ---- DAG drawing ----
+  // ---------------- themes ----------------
+  function setTheme(n, persist) {
+    if (["dark", "light", "terminal"].indexOf(n) < 0) return false;
+    document.documentElement.setAttribute("data-theme", n);
+    var bs = document.querySelectorAll(".themes button");
+    for (var i = 0; i < bs.length; i++) bs[i].setAttribute("aria-pressed", bs[i].getAttribute("data-t") === n ? "true" : "false");
+    if (persist) { try { localStorage.setItem("thetye-theme", n); } catch (e) {} }
+    return true;
+  }
+  setTheme(document.documentElement.getAttribute("data-theme"), false);
+  document.querySelector(".themes").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (b) setTheme(b.getAttribute("data-t"), true);
+  });
+
+  // ---------------- graph model ----------------
   var NS = "http://www.w3.org/2000/svg";
   var TASKS = ["receive_request", "resolve_dns", "check_cache", "lookup_path", "render_page"];
+  var META = {
+    receive_request: { op: "HttpSensor", desc: "accepts the incoming GET request" },
+    resolve_dns: { op: "PythonOperator", desc: "resolves the domain to the web edge" },
+    check_cache: { op: "PythonOperator", desc: "looks for a cached copy of the page" },
+    lookup_path: { op: "SqlOperator", desc: "queries gold.site_pages for the requested path" },
+    render_page: { op: "PythonOperator", desc: "renders the page for the requested path" }
+  };
   var EDGES = [["receive_request", "resolve_dns"], ["receive_request", "check_cache"], ["resolve_dns", "lookup_path"], ["check_cache", "lookup_path"], ["lookup_path", "render_page"]];
-  var states = {}; TASKS.forEach(function (t) { states[t] = "queued"; });
+  var ELAB = { "receive_request>resolve_dns": "1 row", "receive_request>check_cache": "1 row", "resolve_dns>lookup_path": "1 row", "check_cache>lookup_path": "miss", "lookup_path>render_page": "0 rows" };
+  var states = {}, times = {}; TASKS.forEach(function (t) { states[t] = "queued"; });
   var mq = window.matchMedia("(max-width: 520px)");
   var nodeEls = {}, edgeEls = [];
+  var sel = null, running = false;
+  var game = { on: false, made: {}, sel: null, moves: 0, won: false };
 
   function layout(narrow) {
     var w = 140, h = 40;
@@ -200,6 +395,8 @@
       receive_request: [0, 75], resolve_dns: [185, 20], check_cache: [185, 130], lookup_path: [370, 75], render_page: [555, 75] } };
   }
   function el(name, attrs) { var e = document.createElementNS(NS, name); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+  function nodeClass(t) { return "node " + states[t] + (sel === t ? " sel" : "") + (game.sel === t ? " gsel" : ""); }
+
   function drawDag() {
     var L = layout(mq.matches), svg = $("dag");
     while (svg.firstChild) svg.removeChild(svg.firstChild);
@@ -209,84 +406,299 @@
       var a = L.pos[e[0]], b = L.pos[e[1]], d;
       if (L.narrow) { var x1 = a[0] + L.w / 2, y1 = a[1] + L.h, x2 = b[0] + L.w / 2, y2 = b[1]; d = "M" + x1 + " " + y1 + " C" + x1 + " " + (y1 + 22) + " " + x2 + " " + (y2 - 22) + " " + x2 + " " + y2; }
       else { var X1 = a[0] + L.w, Y1 = a[1] + L.h / 2, X2 = b[0], Y2 = b[1] + L.h / 2; d = "M" + X1 + " " + Y1 + " C" + (X1 + 40) + " " + Y1 + " " + (X2 - 40) + " " + Y2 + " " + X2 + " " + Y2; }
-      var p = el("path", { d: d, "class": "edge" }); svg.appendChild(p); edgeEls.push({ from: e[0], to: e[1], el: p });
+      var p = el("path", { d: d, "class": "edge" }); svg.appendChild(p);
+      edgeEls.push({ from: e[0], to: e[1], key: e[0] + ">" + e[1], el: p, len: 0, lab: null, pts: [] });
+    });
+    edgeEls.forEach(function (e) {
+      e.len = e.el.getTotalLength();
+      var mid = e.el.getPointAtLength(e.len / 2);
+      var left = L.narrow && (e.from === "resolve_dns" || e.to === "resolve_dns");   // keep labels clear of the curves on phones
+      var lab = el("text", { "class": "elab", x: L.narrow ? mid.x + (left ? -9 : 9) : mid.x, y: L.narrow ? mid.y + 3 : mid.y - 7, "text-anchor": L.narrow ? (left ? "end" : "start") : "middle" });
+      svg.appendChild(lab); e.lab = lab;
+      for (var i = 0; i < 2; i++) { var c = el("circle", { "class": "pt", r: 3, cx: 0, cy: 0, opacity: 0 }); svg.appendChild(c); e.pts.push(c); }
     });
     TASKS.forEach(function (t) {
-      var p = L.pos[t], g = el("g", { "class": "node queued" });
+      var p = L.pos[t], g = el("g", { "class": nodeClass(t), tabindex: "0", role: "button", "aria-label": t + ", " + states[t] });
       g.appendChild(el("rect", { x: p[0], y: p[1], width: L.w, height: L.h }));
       g.appendChild(el("circle", { cx: p[0] + L.w - 11, cy: p[1] + 11, r: 3.5 }));
       var tx = el("text", { x: p[0] + L.w / 2, y: p[1] + L.h / 2 + 4 }); tx.textContent = t; g.appendChild(tx);
+      g.addEventListener("click", function () { onNode(t); });
+      g.addEventListener("keydown", function (ev) { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); onNode(t); } });
       svg.appendChild(g); nodeEls[t] = g;
     });
-    TASKS.forEach(function (t) { paint(t); });
+    paintAll();
   }
-  function paint(t) {
-    if (nodeEls[t]) nodeEls[t].setAttribute("class", "node " + states[t]);
+  function edgeVisible(e) { return !game.on || game.made[e.key]; }
+  function paintAll() {
+    TASKS.forEach(function (t) { if (nodeEls[t]) { nodeEls[t].setAttribute("class", nodeClass(t)); nodeEls[t].setAttribute("aria-label", t + ", " + states[t]); } });
     edgeEls.forEach(function (e) {
-      var cls = "edge";
-      if (states[e.from] === "success") cls += " done";
-      if (states[e.to] === "running" && states[e.from] === "success") cls += " active";
+      var vis = edgeVisible(e), cls = "edge";
+      if (!vis) cls += " ghost";
+      else if (states[e.from] === "success") cls += " done";
+      if (vis && states[e.to] === "running" && states[e.from] === "success") cls += " active";
       e.el.setAttribute("class", cls);
+      e.lab.textContent = (vis && states[e.from] === "success") ? ELAB[e.key] : "";
     });
   }
-  function setState(t, s) { states[t] = s; paint(t); }
+  function setState(t, s) {
+    var now = Date.now();
+    if (s === "running") times[t] = { start: now, end: null };
+    else if ((s === "success" || s === "skipped") && times[t] && !times[t].end) times[t].end = now;
+    states[t] = s; paintAll(); renderDrawer();
+  }
   mq.addEventListener ? mq.addEventListener("change", drawDag) : mq.addListener(drawDag);
 
-  // ---- log + header state ----
-  var logEl = $("log"), badge = $("badge"), startT = 0, durTimer = null;
-  function pad(n) { return (n < 10 ? "0" : "") + n; }
-  function log(level, msg) {
-    var d = new Date(), line = document.createElement("div"); line.className = "l";
-    var t = document.createElement("span"); t.className = "t"; t.textContent = pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds());
-    var lv = document.createElement("span"); lv.className = "lv " + level; lv.textContent = level;
-    var m = document.createElement("span"); m.textContent = msg;
-    line.appendChild(t); line.appendChild(lv); line.appendChild(m); logEl.appendChild(line); logEl.scrollTop = logEl.scrollHeight;
+  // data particles flowing along edges
+  function flow(ts) {
+    edgeEls.forEach(function (e) {
+      var on = edgeVisible(e) && states[e.from] === "success";
+      var empty = e.to === "render_page";
+      for (var i = 0; i < e.pts.length; i++) {
+        var c = e.pts[i];
+        if (!on) { c.setAttribute("opacity", "0"); continue; }
+        var p = e.el.getPointAtLength((((ts / 2000) + i * 0.5) % 1) * e.len);
+        c.setAttribute("cx", p.x); c.setAttribute("cy", p.y);
+        c.setAttribute("opacity", empty ? (i === 0 ? "0.28" : "0") : "0.9");
+      }
+    });
+    requestAnimationFrame(flow);
   }
-  function setBadge(s) { badge.className = "badge " + s; badge.textContent = s; $("state").textContent = s; }
-  function startClock() { startT = Date.now(); clearInterval(durTimer); durTimer = setInterval(function () { $("dur").textContent = ((Date.now() - startT) / 1000).toFixed(1) + "s"; }, 100); }
-  function stopClock() { clearInterval(durTimer); $("dur").textContent = ((Date.now() - startT) / 1000).toFixed(1) + "s"; }
 
-  // ---- the run ----
-  var timers = [], runCount = 0, reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // ---------------- logs ----------------
+  var logs = [], logEl = $("log");
+  function log(level, msg, task) {
+    logs.push({ t: hms(new Date()), lv: level, msg: msg, task: task || null });
+    if (logs.length > 300) logs.shift();
+    renderLog();
+  }
+  function renderLog() {
+    while (logEl.firstChild) logEl.removeChild(logEl.firstChild);
+    logs.forEach(function (r) {
+      if (sel && r.task !== sel) return;
+      var line = document.createElement("div"); line.className = "l";
+      var t = document.createElement("span"); t.className = "t"; t.textContent = r.t;
+      var lv = document.createElement("span"); lv.className = "lv " + r.lv; lv.textContent = r.lv;
+      line.appendChild(t); line.appendChild(lv);
+      if (r.task && !sel) { var tk = document.createElement("span"); tk.className = "tk"; tk.textContent = "[" + r.task + "]"; line.appendChild(tk); }
+      var m = document.createElement("span"); m.textContent = r.msg; line.appendChild(m);
+      logEl.appendChild(line);
+    });
+    if (sel && !logEl.firstChild) { var n = document.createElement("div"); n.className = "l"; n.style.color = "var(--muted)"; n.textContent = "no log lines for " + sel + " yet"; logEl.appendChild(n); }
+    logEl.scrollTop = logEl.scrollHeight;
+    $("logtitle").textContent = "Logs · " + (sel || "all tasks");
+    $("showall").hidden = !sel;
+  }
+
+  // ---------------- task drawer ----------------
+  function onNode(t) { if (game.on) gameClick(t); else select(t); }
+  function select(t) {
+    sel = (sel === t) ? null : t;
+    paintAll(); renderDrawer(); renderLog();
+  }
+  function fmtDur(t) {
+    var x = times[t]; if (!x) return "–";
+    return (((x.end || Date.now()) - x.start) / 1000).toFixed(1) + "s";
+  }
+  function renderDrawer() {
+    var d = $("drawer");
+    if (!sel) { d.hidden = true; return; }
+    d.hidden = false;
+    $("dr_task").textContent = sel;
+    $("dr_op").textContent = META[sel].op;
+    $("dr_state").textContent = states[sel];
+    $("dr_dur").textContent = fmtDur(sel);
+    $("dr_up").textContent = EDGES.filter(function (e) { return e[1] === sel; }).map(function (e) { return e[0]; }).join(", ") || "none";
+    $("dr_down").textContent = EDGES.filter(function (e) { return e[0] === sel; }).map(function (e) { return e[1]; }).join(", ") || "none";
+    $("dr_desc").textContent = META[sel].desc;
+  }
+  $("dr_close").addEventListener("click", function () { sel = null; paintAll(); renderDrawer(); renderLog(); });
+  $("showall").addEventListener("click", function () { sel = null; paintAll(); renderDrawer(); renderLog(); });
+
+  // ---------------- header state / clock ----------------
+  var badge = $("badge"), startT = 0, durTimer = null;
+  function setBadge(s) { badge.className = "badge " + s; badge.textContent = s; $("state").textContent = s; }
+  function startClock() { startT = Date.now(); clearInterval(durTimer); durTimer = setInterval(function () { $("dur").textContent = ((Date.now() - startT) / 1000).toFixed(1) + "s"; if (sel) renderDrawer(); }, 100); }
+  function stopClock() { clearInterval(durTimer); $("dur").textContent = ((Date.now() - startT) / 1000).toFixed(1) + "s"; renderDrawer(); }
+
+  // ---------------- the run ----------------
+  var timers = [];
   function later(ms, fn) { timers.push(setTimeout(fn, ms)); }
   function runId() { return "manual__" + new Date().toISOString().slice(0, 19); }
-
   function resetRun() {
     timers.forEach(clearTimeout); timers = [];
-    TASKS.forEach(function (t) { states[t] = "queued"; }); drawDag();
-    logEl.textContent = ""; $("rerun").disabled = true;
+    TASKS.forEach(function (t) { states[t] = "queued"; }); times = {};
+    logs = []; renderLog(); $("rerun").disabled = true; drawDag(); renderDrawer();
   }
   function finish() {
-    setState("render_page", "skipped"); setBadge("success"); stopClock();
-    log("INFO", "render_page: skipped. no page at this path, domain is purchased");
+    setState("render_page", "skipped"); setBadge("success"); stopClock(); running = false;
+    log("INFO", "skipped. no page at this path, domain is purchased", "render_page");
     log("OK", "dag run completed. result: 404 page not found");
     $("rerun").disabled = false;
   }
   function run() {
-    resetRun(); runCount++;
+    exitGame(true);
+    resetRun(); running = true;
     var rid = runId(); $("runid").textContent = rid; setBadge("running"); startClock();
     log("INFO", "dag run started: " + rid);
-
     if (reduce) {
-      ["receive_request", "resolve_dns", "check_cache", "lookup_path"].forEach(function (t) { states[t] = "success"; });
-      log("INFO", "receive_request: GET " + shown);
-      log("INFO", "lookup_path: scanning gold.site_pages, 0 rows");
+      ["receive_request", "resolve_dns", "check_cache", "lookup_path"].forEach(function (t) { states[t] = "success"; times[t] = { start: Date.now(), end: Date.now() }; });
+      log("INFO", "GET " + shown, "receive_request");
+      log("INFO", "scanning gold.site_pages, 0 rows", "lookup_path");
       drawDag(); finish(); return;
     }
     var t = 0;
-    t += 300; later(t, function () { setState("receive_request", "running"); log("INFO", "receive_request: GET " + shown); });
+    t += 300; later(t, function () { setState("receive_request", "running"); log("INFO", "GET " + shown, "receive_request"); });
     t += 700; later(t, function () { setState("receive_request", "success"); setState("resolve_dns", "running"); setState("check_cache", "running");
-      log("INFO", "resolve_dns: " + host + " resolved"); log("INFO", "check_cache: looking up " + shown); });
+      log("INFO", host + " resolved", "resolve_dns"); log("INFO", "looking up " + shown, "check_cache"); });
     t += 700; later(t, function () { setState("resolve_dns", "success"); });
-    t += 250; later(t, function () { setState("check_cache", "success"); log("INFO", "check_cache: miss"); setState("lookup_path", "running"); log("INFO", "lookup_path: SELECT * FROM gold.site_pages WHERE path = '" + shown + "'"); });
-    t += 900; later(t, function () { setState("lookup_path", "success"); log("WARN", "lookup_path: 0 rows returned"); setState("render_page", "running"); log("INFO", "render_page: checking domain status"); });
+    t += 250; later(t, function () { setState("check_cache", "success"); log("INFO", "miss", "check_cache"); setState("lookup_path", "running"); log("INFO", "SELECT * FROM gold.site_pages WHERE path = '" + shown + "'", "lookup_path"); });
+    t += 900; later(t, function () { setState("lookup_path", "success"); log("WARN", "0 rows returned", "lookup_path"); setState("render_page", "running"); log("INFO", "checking domain status", "render_page"); });
     t += 900; later(t, finish);
   }
-  $("rerun").addEventListener("click", function () {
-    run();
-    if (runCount > 1) later(400, function () { log("INFO", "same result. the domain is still purchased."); });
+  $("rerun").addEventListener("click", function () { run(); later(400, function () { log("INFO", "same result. the domain is still purchased."); }); });
+
+  // ---------------- puzzle: fix the pipeline ----------------
+  function confetti() {
+    if (reduce) return;
+    var app = $("app"), cols = ["#58a6ff", "#3fb950", "#bc8cff", "#d29922", "#f85149"];
+    for (var i = 0; i < 28; i++) {
+      var c = document.createElement("i"); c.className = "confetti";
+      c.style.left = (Math.random() * 100) + "%"; c.style.background = cols[i % cols.length];
+      c.style.animationDelay = (Math.random() * 0.4) + "s"; c.style.animationDuration = (1.8 + Math.random() * 1.2) + "s";
+      app.appendChild(c); (function (n) { setTimeout(function () { if (n.parentNode) n.parentNode.removeChild(n); }, 3400); })(c);
+    }
+  }
+  function gameUI() {
+    var made = Object.keys(game.made).length;
+    $("gamebar").hidden = !game.on && !game.won;
+    $("gamestat").textContent = "linked " + made + "/" + EDGES.length + " · moves " + game.moves;
+  }
+  function startGame() {
+    if (game.on) return;
+    timers.forEach(clearTimeout); timers = []; clearInterval(durTimer); running = false;
+    game.on = true; game.won = false; game.made = {}; game.sel = null; game.moves = 0; sel = null;
+    TASKS.forEach(function (t) { states[t] = "queued"; }); times = {};
+    logs = []; setBadge("puzzle"); $("rerun").disabled = false; $("runid").textContent = "puzzle__repair";
+    $("gamemsg").textContent = "The dependencies got wiped. Tap a task, then the task that runs right after it (data flows left to right, top to bottom).";
+    $("hintline").textContent = "Puzzle mode: connect all 5 dependencies.";
+    log("WARN", "pipeline corrupted: 5 dependencies missing");
+    log("INFO", "tap a task, then the task that depends on it");
+    drawDag(); renderDrawer(); gameUI();
+    $("gamebar").scrollIntoView && $("gamebar").scrollIntoView({ block: "nearest", behavior: reduce ? "auto" : "smooth" });
+  }
+  function exitGame(silent) {
+    if (!game.on && !game.won) return;
+    game.on = false; game.won = false; game.sel = null; $("gamebar").hidden = true;
+    $("hintline").textContent = "Tip: tap any task to inspect it and filter its logs.";
+    if (!silent) { run(); }
+  }
+  function nope(a, b) {
+    [a, b].forEach(function (t) { var g = nodeEls[t]; if (!g) return; g.classList.remove("nope"); void g.getBoundingClientRect(); g.classList.add("nope"); });
+  }
+  function gameClick(t) {
+    if (game.won) return;
+    if (!game.sel) { game.sel = t; paintAll(); return; }
+    if (game.sel === t) { game.sel = null; paintAll(); return; }
+    var a = game.sel, b = t, key = a + ">" + b, rev = b + ">" + a;
+    game.sel = null; game.moves++;
+    var valid = EDGES.some(function (e) { return e[0] + ">" + e[1] === key; });
+    var reverse = EDGES.some(function (e) { return e[0] + ">" + e[1] === rev; });
+    if (valid && !game.made[key]) {
+      game.made[key] = true; states[a] = "success"; states[b] = "success";
+      log("OK", "linked " + a + " → " + b);
+    } else if (valid) {
+      log("INFO", a + " → " + b + " is already linked");
+    } else if (reverse) {
+      log("WARN", "wrong direction: " + b + " runs before " + a); nope(a, b);
+    } else {
+      log("WARN", a + " and " + b + " don't depend on each other"); nope(a, b);
+    }
+    paintAll(); gameUI();
+    if (Object.keys(game.made).length === EDGES.length) win();
+  }
+  function win() {
+    game.on = false; game.won = true;
+    TASKS.forEach(function (t) { states[t] = "success"; });
+    paintAll(); setBadge("success");
+    log("OK", "pipeline repaired in " + game.moves + " moves");
+    log("INFO", "rendered 1 page: 404.html (it's the best we can do)", "render_page");
+    $("gamemsg").textContent = "Pipeline repaired. Nice work. The page still doesn't exist, but you've earned bragging rights" + (OWNER_EMAIL ? " (and the contact button is glowing for you)." : ".");
+    gameUI(); confetti();
+    var b = $("mail"); b.classList.remove("glow"); void b.offsetWidth; b.classList.add("glow");
+    say("Pipeline repaired in " + game.moves + " moves");
+    $("gameexit").textContent = "Close";
+  }
+  $("play").addEventListener("click", function () { $("gameexit").textContent = "Exit puzzle"; startGame(); });
+  $("gameexit").addEventListener("click", function () { exitGame(false); });
+
+  // ---------------- terminal ----------------
+  var tout = $("termout"), tin = $("terminput"), hist = [], hi = 0;
+  function tprint(text, cls) {
+    String(text).split("\n").forEach(function (ln) {
+      var d = document.createElement("div"); d.className = "o " + (cls || "res"); d.textContent = ln; tout.appendChild(d);
+    });
+    tout.scrollTop = tout.scrollHeight;
+  }
+  function tcmd(text) { tprint(text, "cmd"); }
+  function exec(raw) {
+    var line = raw.trim(); if (!line) return;
+    hist.push(line); hi = hist.length; tcmd(line);
+    var parts = line.split(/\s+/), c = parts[0].toLowerCase(), arg = parts.slice(1).join(" ").toLowerCase();
+    if (/^select\b/i.test(line)) { tprint("0 rows returned (0.004 s)"); return; }
+    switch (c) {
+      case "help":
+        tprint("commands:\n  help            this list\n  whoami          who are you?\n  ls              list the warehouse\n  cat contact     how to reach the owner\n  status          scheduler health\n  run             re-run the DAG\n  play            fix the pipeline puzzle\n  theme <name>    dark | light | terminal\n  date            current time\n  clear           clear the terminal\n  select ...      run any SQL (spoiler: 0 rows)"); break;
+      case "whoami": tprint("guest@" + host + " (you were not supposed to be here)"); break;
+      case "ls": tprint("bronze.requests/   silver.requests/   gold.site_pages/\n404.html   domain.purchased   README.md"); break;
+      case "cat":
+        if (arg === "contact") tprint(OWNER_EMAIL ? OWNER_EMAIL : "contact details coming soon", OWNER_EMAIL ? "ok" : "res");
+        else if (arg === "domain.purchased") tprint(host + ": purchased", "ok");
+        else if (arg === "readme.md") tprint("# " + host + "\nnothing to see here yet.");
+        else if (arg === "404.html") tprint("you're looking at it.");
+        else tprint("cat: " + (arg || "missing operand") + ": no such file", "err");
+        break;
+      case "status": tprint("scheduler: healthy\nwebserver: healthy\npage: not found\ndomain: purchased", "ok"); break;
+      case "run": case "rerun": tprint("triggering dag run..."); run(); break;
+      case "play": tprint("starting puzzle..."); $("gameexit").textContent = "Exit puzzle"; startGame(); break;
+      case "exit": if (game.on || game.won) { tprint("leaving puzzle"); exitGame(false); } else tprint("nothing to exit. you live here now."); break;
+      case "theme":
+        if (setTheme(arg, true)) tprint("theme: " + arg, "ok"); else tprint("usage: theme dark | light | terminal", "err"); break;
+      case "date": tprint(new Date().toString()); break;
+      case "clear": while (tout.firstChild) tout.removeChild(tout.firstChild); break;
+      case "sudo":
+        if (arg.indexOf("give-me-this-domain") === 0) tprint("[sudo] password for guest: ********\nguest is not in the sudoers file. This incident will be reported.\n(just kidding. try: cat contact)", "err");
+        else tprint("guest is not in the sudoers file. This incident will be reported.", "err");
+        break;
+      case "rm": tprint("nice try. this filesystem is read-only.", "err"); break;
+      case "ping": tprint("pong. the pipeline is healthy, the page is not."); break;
+      default: tprint("command not found: " + c + ". try help", "err");
+    }
+  }
+  tprint("welcome. type help to see what this terminal can do.");
+  $("termform").addEventListener("submit", function (e) { e.preventDefault(); exec(tin.value); tin.value = ""; });
+  tin.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowUp") { if (hi > 0) { hi--; tin.value = hist[hi]; } e.preventDefault(); }
+    else if (e.key === "ArrowDown") { if (hi < hist.length - 1) { hi++; tin.value = hist[hi]; } else { hi = hist.length; tin.value = ""; } e.preventDefault(); }
   });
+
+  // ---------------- scheduler strip ----------------
+  var lastBeat = 0, prevRem = 999;
+  function schedTick() {
+    var now = Date.now(), nextB = Math.ceil((now + 1) / 300000) * 300000, rem = Math.round((nextB - now) / 1000);
+    $("nextrun").textContent = pad(Math.floor(rem / 60)) + ":" + pad(rem % 60);
+    var beat = Math.floor(now / 5000);
+    if (beat !== lastBeat) {
+      lastBeat = beat; $("hbt").textContent = hms(new Date(beat * 5000));
+      var hb = $("hb"); hb.classList.remove("beat"); void hb.offsetWidth; hb.classList.add("beat");
+    }
+    if (rem > prevRem + 5 && !running && !game.on && !game.won && !reduce) { run(); log("INFO", "scheduled run triggered by cron */5"); }
+    prevRem = rem;
+  }
+  setInterval(schedTick, 1000); schedTick();
+
+  // ---------------- go ----------------
   drawDag(); run();
+  if (!reduce) requestAnimationFrame(flow);
 </script>
 </body>
 </html>
