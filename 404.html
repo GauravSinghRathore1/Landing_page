@@ -4,255 +4,257 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>404 – Page not found</title>
-<meta name="description" content="This domain has been purchased. Contact the owner.">
+<title>404 – Row not found</title>
+<meta name="description" content="0 rows returned. This domain has been purchased.">
 <style>
   :root {
-    --bg: #070910;
-    --fg: #eef0f7;
-    --muted: #8a90a6;
-    --accent: #6ea8ff;
-    --accent-2: #b48cff;
-    --accent-3: #5eead4;
-    --card: rgba(18, 21, 30, .72);
-    --border: rgba(255,255,255,.09);
-    --dot: 160, 185, 255;
-  }
-  @media (prefers-color-scheme: light) {
-    :root {
-      --bg: #f5f6fb;
-      --fg: #12151c;
-      --muted: #596078;
-      --accent: #2f6df6;
-      --accent-2: #7c4dff;
-      --accent-3: #0ea5a0;
-      --card: rgba(255,255,255,.78);
-      --border: rgba(18,21,28,.1);
-      --dot: 70, 90, 160;
-    }
+    --bg: #0a0e14;
+    --panel: #0f141c;
+    --line: #1f2733;
+    --fg: #c9d1d9;
+    --muted: #6e7b8b;
+    --green: #3fb950;
+    --red: #f85149;
+    --blue: #58a6ff;
+    --purple: #bc8cff;
+    --amber: #d29922;
+    --bronze: #cd7f32;
+    --silver: #aab4c0;
+    --gold: #f5c542;
+    --mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; }
-  html, body { height: 100%; margin: 0; }
+  html, body { margin: 0; min-height: 100%; }
   body {
-    background: var(--bg);
+    background:
+      radial-gradient(900px 500px at 15% -10%, rgba(88,166,255,.10), transparent 60%),
+      radial-gradient(700px 500px at 100% 110%, rgba(188,140,255,.09), transparent 60%),
+      var(--bg);
     color: var(--fg);
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--mono);
+    font-size: 14px; line-height: 1.6;
     display: grid; place-items: center;
-    padding: 20px; overflow-x: hidden;
+    padding: 24px 16px;
   }
-  #sky { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
-  .spot {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    background: radial-gradient(420px 420px at var(--mx, 50%) var(--my, 40%),
-      color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%);
+  body::before {            /* faint grid, like a data canvas */
+    content: ""; position: fixed; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 36px 36px;
+    -webkit-mask-image: radial-gradient(circle at 50% 40%, #000, transparent 75%);
+            mask-image: radial-gradient(circle at 50% 40%, #000, transparent 75%);
   }
-  main {
-    position: relative; z-index: 1;
-    width: 100%; max-width: 600px; text-align: center;
-    background: var(--card);
-    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-    border: 1px solid var(--border);
-    border-radius: 24px; padding: 44px 28px 32px;
-    box-shadow: 0 30px 80px rgba(0,0,0,.35);
+  .win {
+    position: relative; width: 100%; max-width: 680px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.55); overflow: hidden;
   }
+  .bar {
+    display: flex; align-items: center; gap: 8px; padding: 11px 14px;
+    background: #0c1118; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 12px;
+  }
+  .bar i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+  .bar i:nth-child(1) { background: #ff5f56; } .bar i:nth-child(2) { background: #ffbd2e; } .bar i:nth-child(3) { background: #27c93f; }
+  .bar span { margin-left: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .body { padding: 22px 22px 8px; }
 
-  /* 404 with an orbiting "planet" for the zero */
-  .code {
-    display: flex; justify-content: center; align-items: center; gap: .04em;
-    font-size: clamp(76px, 22vw, 132px); font-weight: 800; line-height: 1;
-    letter-spacing: -.04em; margin: 0 0 6px;
-  }
-  .code .d {
-    background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-  }
-  .zero {
-    position: relative; width: .74em; height: .74em; margin: 0 .03em;
-    border-radius: 50%;
-    background: conic-gradient(from 0deg, var(--accent), var(--accent-2), var(--accent-3), var(--accent));
-    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - .15em), #000 calc(100% - .15em));
-            mask: radial-gradient(farthest-side, transparent calc(100% - .15em), #000 calc(100% - .15em));
-    animation: spin 9s linear infinite;
-  }
-  .orbit { position: absolute; inset: -.08em; animation: spin 4.5s linear infinite reverse; }
-  .orbit::after {
-    content: ""; position: absolute; top: -.02em; left: 50%; width: .11em; height: .11em;
-    margin-left: -.055em; border-radius: 50%; background: var(--accent-3);
-    box-shadow: 0 0 .25em var(--accent-3);
-  }
-  .zero-wrap { position: relative; width: .74em; height: .74em; margin: 0 .05em; }
-  .zero-wrap .zero { position: absolute; inset: 0; margin: 0; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  .cmt { color: var(--muted); }
+  .prompt { color: var(--green); margin-right: 8px; }
+  .kw { color: var(--purple); } .id { color: var(--blue); } .str { color: var(--amber); }
+  .cursor { display: inline-block; width: 8px; height: 1.05em; background: var(--fg); vertical-align: -2px; margin-left: 2px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  #sqlline { word-break: break-all; }
 
-  h1 { font-size: 22px; margin: 6px 0 8px; font-weight: 650; }
-  p { color: var(--muted); line-height: 1.6; margin: 0; font-size: 15px; }
-  .path {
-    display: inline-block; max-width: 100%; margin: 14px 0 6px; padding: 6px 12px;
-    font: 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--fg);
-    background: color-mix(in srgb, var(--fg) 6%, transparent);
-    border: 1px solid var(--border); border-radius: 8px;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
+  .result { margin: 14px 0 22px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; opacity: 0; transform: translateY(6px); transition: .4s ease; }
+  .result.show { opacity: 1; transform: none; }
+  .result .head { display: flex; justify-content: space-between; gap: 8px; padding: 8px 12px; background: rgba(248,81,73,.1); color: var(--red); border-bottom: 1px solid var(--line); font-weight: 700; }
+  .kv { display: grid; grid-template-columns: 110px 1fr; }
+  .kv > div { padding: 7px 12px; border-bottom: 1px solid var(--line); }
+  .kv > div:nth-last-child(-n+2) { border-bottom: 0; }
+  .kv .k { color: var(--muted); }
 
-  /* "claimed" stamp */
-  .stamp {
-    display: inline-block; margin: 20px 0 22px; padding: 10px 18px;
-    border: 2px solid var(--accent-3); color: var(--accent-3);
-    border-radius: 10px; transform: rotate(-3deg);
-    font-weight: 800; letter-spacing: .14em; font-size: 13px; text-transform: uppercase;
-    box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--accent-3) 14%, transparent);
-    animation: thud .7s cubic-bezier(.2,1.6,.4,1) .3s both;
-  }
-  .stamp b { display: block; font-size: 17px; letter-spacing: .08em; margin-top: 2px; }
-  @keyframes thud { from { transform: rotate(-3deg) scale(2.2); opacity: 0; } to { transform: rotate(-3deg) scale(1); opacity: 1; } }
+  h2 { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 6px 0 12px; }
 
-  .contact {
-    margin-top: 6px; padding-top: 22px; border-top: 1px dashed var(--border);
+  /* medallion pipeline */
+  .dag { display: grid; grid-template-columns: repeat(5, 1fr); align-items: start; margin-bottom: 8px; }
+  .node { position: relative; text-align: center; }
+  .node .dot {
+    width: 38px; height: 38px; margin: 0 auto 8px; border-radius: 50%;
+    display: grid; place-items: center; font-weight: 800; font-size: 14px;
+    background: #0c1118; border: 2px solid var(--line); color: var(--muted);
+    transition: .35s ease; position: relative; z-index: 1;
   }
-  .contact small { display: block; color: var(--muted); font-size: 13px; margin-bottom: 14px; }
-  .actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .node small { display: block; font-size: 11px; color: var(--muted); transition: color .35s; }
+  .node::after { /* connector to next node */
+    content: ""; position: absolute; top: 18px; left: calc(50% + 22px); width: calc(100% - 44px); height: 2px;
+    background: var(--line); transition: background .35s;
+  }
+  .node:last-child::after { display: none; }
+  .node.on .dot { color: #0a0e14; }
+  .node.on small { color: var(--fg); }
+  .node.on::after { background: var(--c); }
+  .node[data-c="req"]    { --c: var(--blue); }
+  .node[data-c="bronze"] { --c: var(--bronze); }
+  .node[data-c="silver"] { --c: var(--silver); }
+  .node[data-c="gold"]   { --c: var(--gold); }
+  .node.on .dot { background: var(--c); border-color: var(--c); box-shadow: 0 0 18px -2px var(--c); }
+  .node.fail .dot { background: var(--red); border-color: var(--red); color: #fff; box-shadow: 0 0 22px -2px var(--red); animation: shake .4s 2; }
+  .node.fail small { color: var(--red); }
+  @keyframes shake { 25% { transform: translateX(-3px); } 75% { transform: translateX(3px); } }
+
+  .meta { margin: 18px 0 6px; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .meta .kv > div { padding: 8px 12px; }
+  .pill { display: inline-block; padding: 1px 10px; border-radius: 99px; font-size: 12px; font-weight: 700; letter-spacing: .06em;
+    color: var(--green); background: rgba(63,185,80,.12); border: 1px solid rgba(63,185,80,.4); }
+  .pill::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); margin-right: 7px; animation: pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .25; } }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; padding: 16px 0 6px; }
   .btn {
-    font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: none;
-    padding: 12px 20px; border-radius: 12px; transition: transform .15s ease, box-shadow .15s ease;
+    font: inherit; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block;
+    padding: 10px 16px; border-radius: 9px; transition: transform .15s ease, box-shadow .15s ease;
   }
-  .btn.primary { color: #fff; border: 0; background: linear-gradient(135deg, var(--accent), var(--accent-2));
-    box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 35%, transparent); }
-  .btn.ghost { color: var(--fg); background: transparent; border: 1px solid var(--border); }
+  .btn.primary { color: #06101c; background: var(--blue); border: 0; box-shadow: 0 8px 24px -8px var(--blue); }
+  .btn.ghost { color: var(--fg); background: transparent; border: 1px solid var(--line); }
   .btn:hover { transform: translateY(-2px); }
-  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-  footer { margin-top: 24px; font-size: 12px; color: var(--muted); }
-  #toast {
-    position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); opacity: 0; z-index: 5;
-    background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: 14px;
-    transition: .25s ease; pointer-events: none;
-  }
+  .btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+  .foot { padding: 12px 22px 18px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); margin-top: 14px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  #toast { position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 16px); opacity: 0; background: var(--fg); color: var(--bg); padding: 9px 14px; border-radius: 8px; font-size: 13px; transition: .25s; pointer-events: none; }
   #toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 480px) {
+    .body { padding: 18px 14px 6px; }
+    .kv { grid-template-columns: 92px 1fr; }
+    .node .dot { width: 32px; height: 32px; font-size: 12px; }
+    .node::after { top: 15px; left: calc(50% + 19px); width: calc(100% - 38px); }
+    .node small { font-size: 10px; }
+  }
   @media (prefers-reduced-motion: reduce) {
-    .zero, .orbit, .stamp { animation: none; }
-    .stamp { opacity: 1; }
+    .cursor, .pill::before, .node.fail .dot { animation: none; }
+    .result { transition: none; }
   }
 </style>
 </head>
 <body>
-<canvas id="sky" aria-hidden="true"></canvas>
-<div class="spot" aria-hidden="true"></div>
+<main class="win">
+  <div class="bar"><i></i><i></i><i></i><span id="title">query-console</span></div>
 
-<main>
-  <div class="code" aria-label="404">
-    <span class="d" aria-hidden="true">4</span>
-    <span class="zero-wrap" aria-hidden="true"><span class="zero"></span><span class="orbit"></span></span>
-    <span class="d" aria-hidden="true">4</span>
-  </div>
-  <h1>Nothing lives here&hellip; yet</h1>
-  <p>The page you're looking for doesn't exist.</p>
-  <div class="path" id="path" title=""></div>
+  <div class="body">
+    <div class="cmt">-- request received, running lookup against the site catalog</div>
+    <div id="sqlline"><span class="prompt">&#10095;</span><span id="sql"></span><span class="cursor"></span></div>
 
-  <div class="stamp">This domain has been<b>purchased</b></div>
+    <div class="result" id="result" aria-live="polite">
+      <div class="head"><span>ERROR 404</span><span>0 rows returned</span></div>
+      <div class="kv">
+        <div class="k">message</div><div>Row not found</div>
+        <div class="k">path</div><div id="path" style="word-break:break-all"></div>
+        <div class="k">elapsed</div><div>0.004 s</div>
+      </div>
+    </div>
 
-  <div class="contact">
-    <small>Interested in this domain, or want to get in touch with the owner?</small>
+    <h2>Pipeline run &middot; medallion lookup</h2>
+    <div class="dag" id="dag" aria-label="Request moves through bronze, silver and gold layers and fails at the page">
+      <div class="node" data-c="req"><div class="dot">&#8594;</div><small>request</small></div>
+      <div class="node" data-c="bronze"><div class="dot">B</div><small>bronze</small></div>
+      <div class="node" data-c="silver"><div class="dot">S</div><small>silver</small></div>
+      <div class="node" data-c="gold"><div class="dot">G</div><small>gold</small></div>
+      <div class="node" id="last"><div class="dot">?</div><small id="lastlabel">page</small></div>
+    </div>
+
+    <div class="meta">
+      <div class="kv">
+        <div class="k">domain</div><div id="host">thetye.store</div>
+        <div class="k">status</div><div><span class="pill">PURCHASED</span></div>
+        <div class="k">owner</div><div>a data engineer</div>
+      </div>
+    </div>
+
     <div class="actions">
       <a class="btn primary" id="mail" href="#">Contact the owner</a>
       <button class="btn ghost" id="copy" type="button">Copy email</button>
     </div>
   </div>
-  <footer id="host"></footer>
+
+  <div class="foot"><span>pipeline: healthy</span><span>page: not found</span></div>
 </main>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
-  // ===== Set the owner's contact here =====
+  // ===== Owner contact: set an email to enable the button =====
   var OWNER_EMAIL = ""; // e.g. "hello@thetye.store"; leave empty to show "coming soon"
-  // ========================================
+  // ============================================================
 
-  var host = location.hostname || "this domain";
-  var path = location.pathname + location.search;
-  var pathEl = document.getElementById("path");
-  pathEl.textContent = path; pathEl.title = path;
+  var host = location.hostname || "this-domain";
+  var rawPath = location.pathname + location.search;
+  var shown = rawPath.length > 38 ? rawPath.slice(0, 35) + "..." : rawPath;
   document.getElementById("host").textContent = host;
-  document.title = "404 – Page not found | " + host;
+  document.getElementById("path").textContent = rawPath;
+  document.getElementById("title").textContent = "query-console — " + host;
+  document.title = "404 – Row not found | " + host;
 
-  var subject = "Inquiry about " + host;
-  var body = "Hi,\n\nI came across " + host + " (page: " + path + ") and would like to get in touch.\n\n";
+  // contact button
   var mailEl = document.getElementById("mail"), copyEl = document.getElementById("copy");
   if (OWNER_EMAIL) {
+    var subject = "Inquiry about " + host;
+    var body = "Hi,\n\nI came across " + host + " (page: " + rawPath + ") and would like to get in touch.\n\n";
     mailEl.href = "mailto:" + OWNER_EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
   } else {
     mailEl.textContent = "Contact details coming soon";
     mailEl.removeAttribute("href");
     mailEl.setAttribute("aria-disabled", "true");
-    mailEl.style.opacity = ".6"; mailEl.style.cursor = "default"; mailEl.style.pointerEvents = "none";
+    mailEl.style.opacity = ".55"; mailEl.style.cursor = "default"; mailEl.style.pointerEvents = "none";
     copyEl.style.display = "none";
   }
-
   var toast = document.getElementById("toast"), tt;
-  function say(msg) {
-    toast.textContent = msg; toast.classList.add("show");
-    clearTimeout(tt); tt = setTimeout(function () { toast.classList.remove("show"); }, 1800);
-  }
-  document.getElementById("copy").addEventListener("click", function () {
-    function fallback() {
-      var t = document.createElement("textarea"); t.value = OWNER_EMAIL;
-      document.body.appendChild(t); t.select();
-      try { document.execCommand("copy"); say("Email copied"); } catch (e) { say(OWNER_EMAIL); }
-      document.body.removeChild(t);
-    }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(OWNER_EMAIL).then(function () { say("Email copied"); }, fallback);
-    } else { fallback(); }
+  function say(m) { toast.textContent = m; toast.classList.add("show"); clearTimeout(tt); tt = setTimeout(function () { toast.classList.remove("show"); }, 1800); }
+  copyEl.addEventListener("click", function () {
+    function fb() { var t = document.createElement("textarea"); t.value = OWNER_EMAIL; document.body.appendChild(t); t.select();
+      try { document.execCommand("copy"); say("Email copied"); } catch (e) { say(OWNER_EMAIL); } document.body.removeChild(t); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(OWNER_EMAIL).then(function () { say("Email copied"); }, fb); else fb();
   });
 
-  // ===== Constellation background that reacts to the cursor =====
-  (function () {
-    var c = document.getElementById("sky"), ctx = c.getContext("2d");
-    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var W, H, dpr, pts = [], mouse = { x: -999, y: -999 };
-    var dot = getComputedStyle(document.documentElement).getPropertyValue("--dot").trim();
-    function resize() {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
-      W = c.width = innerWidth * dpr; H = c.height = innerHeight * dpr;
-      var n = Math.round(Math.min(90, Math.max(30, innerWidth * innerHeight / 14000)));
-      pts = [];
-      for (var i = 0; i < n; i++) pts.push({
-        x: Math.random() * W, y: Math.random() * H,
-        vx: (Math.random() - .5) * .25 * dpr, vy: (Math.random() - .5) * .25 * dpr,
-        r: (Math.random() * 1.4 + .6) * dpr
-      });
-      if (reduce) draw();
-    }
-    function draw() {
-      ctx.clearRect(0, 0, W, H);
-      var link = 130 * dpr;
-      for (var i = 0; i < pts.length; i++) {
-        var p = pts[i];
-        if (!reduce) {
-          p.x += p.vx; p.y += p.vy;
-          if (p.x < 0 || p.x > W) p.vx *= -1;
-          if (p.y < 0 || p.y > H) p.vy *= -1;
-          var dx = p.x - mouse.x, dy = p.y - mouse.y, d = Math.sqrt(dx * dx + dy * dy);
-          if (d < 120 * dpr && d > 0) { p.x += dx / d * 1.2 * dpr; p.y += dy / d * 1.2 * dpr; }
-        }
-        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832);
-        ctx.fillStyle = "rgba(" + dot + ",.75)"; ctx.fill();
-        for (var j = i + 1; j < pts.length; j++) {
-          var q = pts[j], ax = p.x - q.x, ay = p.y - q.y, dist = Math.sqrt(ax * ax + ay * ay);
-          if (dist < link) {
-            ctx.strokeStyle = "rgba(" + dot + "," + (0.22 * (1 - dist / link)) + ")";
-            ctx.lineWidth = dpr * .8; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
-          }
-        }
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var segs = [["kw","SELECT"],["tx"," * "],["kw","FROM"],["id"," gold.site_pages "],["kw","WHERE"],["tx"," path = "],["str","'" + shown + "'"],["tx",";"]];
+  var sqlEl = document.getElementById("sql"), resEl = document.getElementById("result");
+  var nodes = document.querySelectorAll("#dag .node"), last = document.getElementById("last");
+
+  function showFail() {
+    last.classList.add("fail");
+    last.querySelector(".dot").textContent = "404";
+    document.getElementById("lastlabel").textContent = "not found";
+    last.querySelector(".dot").style.fontSize = "11px";
+  }
+  function runPipeline(done) {
+    var i = 0;
+    for (var n = 0; n < nodes.length; n++) nodes[n].classList.remove("on", "fail");
+    last.querySelector(".dot").textContent = "?"; last.querySelector(".dot").style.fontSize = "";
+    document.getElementById("lastlabel").textContent = "page";
+    (function step() {
+      if (i < nodes.length - 1) { nodes[i].classList.add("on"); i++; setTimeout(step, 650); }
+      else { showFail(); if (done) done(); }
+    })();
+  }
+
+  if (reduce) {
+    segs.forEach(function (s) { var sp = document.createElement("span"); sp.className = s[0]; sp.textContent = s[1]; sqlEl.appendChild(sp); });
+    resEl.classList.add("show");
+    for (var k = 0; k < nodes.length - 1; k++) nodes[k].classList.add("on");
+    showFail();
+  } else {
+    var si = 0, ci = 0, cur = null;
+    (function type() {
+      if (si >= segs.length) {
+        resEl.classList.add("show");
+        setTimeout(function cycle() { runPipeline(function () { setTimeout(cycle, 5000); }); }, 500);
+        return;
       }
-      if (!reduce) requestAnimationFrame(draw);
-    }
-    addEventListener("resize", resize);
-    addEventListener("pointermove", function (e) {
-      mouse.x = e.clientX * dpr; mouse.y = e.clientY * dpr;
-      document.documentElement.style.setProperty("--mx", e.clientX + "px");
-      document.documentElement.style.setProperty("--my", e.clientY + "px");
-    });
-    addEventListener("pointerleave", function () { mouse.x = mouse.y = -999; });
-    resize(); if (!reduce) draw();
-  })();
+      if (ci === 0) { cur = document.createElement("span"); cur.className = segs[si][0]; sqlEl.appendChild(cur); }
+      cur.textContent += segs[si][1].charAt(ci++);
+      if (ci >= segs[si][1].length) { si++; ci = 0; }
+      setTimeout(type, 28 + Math.random() * 30);
+    })();
+  }
 </script>
 </body>
 </html>
