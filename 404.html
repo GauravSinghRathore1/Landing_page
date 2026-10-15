@@ -136,6 +136,18 @@
   .note { margin: 10px 16px 0; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--purple) 50%, transparent); background: color-mix(in srgb, var(--purple) 8%, transparent); border-radius: 10px; }
   .note[hidden] { display: none; } .note p { margin: 6px 0 8px; } .note b { color: var(--purple); }
   #fri { color: var(--amber); } #fri[hidden] { display: none; } .logo { cursor: pointer; }
+  .dd { position: fixed; inset: 0; z-index: 80; background: color-mix(in srgb, var(--bg) 97%, transparent); display: flex; flex-direction: column; font-family: var(--mono); touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+  .dd[hidden] { display: none; }
+  .dd .hud { display: flex; gap: 14px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--edge); font-size: 13px; flex-wrap: wrap; }
+  .dd .hud b { color: var(--blue); } .dd .hud .sp { flex: 1; }
+  .dd .field { position: relative; flex: 1; overflow: hidden; }
+  .dd .lake { position: absolute; left: 0; right: 0; bottom: 0; height: 34px; border-top: 2px dashed var(--green); background: color-mix(in srgb, var(--green) 8%, transparent); color: var(--green); font-size: 11px; padding: 8px 12px; }
+  .dd .row { position: absolute; top: 0; padding: 6px 10px; border-radius: 8px; font-size: 12px; white-space: nowrap; cursor: pointer; border: 1px solid var(--edge); background: var(--panel); color: var(--fg); will-change: transform; }
+  .dd .row.bad { border-color: color-mix(in srgb, var(--red) 70%, var(--edge)); color: var(--red); }
+  .dd .row.pop { opacity: 0; transition: opacity .18s, transform .18s; }
+  .dd .msg { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 20px; background: color-mix(in srgb, var(--bg) 80%, transparent); font-size: 14px; line-height: 1.6; }
+  .dd .msg h2 { margin: 0; font-size: 20px; color: var(--blue); }
+  .dd .msg[hidden] { display: none; }
   .pal { position: fixed; inset: 0; z-index: 70; background: rgba(0,0,0,.5); display: flex; align-items: flex-start; justify-content: center; padding: 12vh 14px 0; }
   .pal[hidden] { display: none; }
   .pal .box { width: 100%; max-width: 460px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 20px 60px var(--shadow); overflow: hidden; }
@@ -355,6 +367,7 @@
 
   <div class="foot"><span>scheduler: healthy</span><span>webserver: healthy</span><span>page: not found</span></div>
 </main>
+<div class="dd" id="dd" hidden role="dialog" aria-label="Dedupe Dash mini game"><div class="hud"><span>score <b id="ddsc">0</b></span><span>time <b id="ddt">30</b>s</span><span>best <b id="ddbest">0</b></span><span class="sp"></span><button class="sbtn" id="ddx" type="button">Exit (Esc)</button></div><div class="field" id="ddf"><div class="lake">gold.site_pages (keep it clean)</div><div class="msg" id="ddmsg"><h2>Dedupe Dash</h2><div>Dirty rows are falling into the gold layer.<br>Tap the <span style="color:var(--red)">NULL / dup / garbage</span> rows to drop them (+1).<br>Don't touch valid rows (-2). Anything dirty that lands costs -1.</div><button class="sbtn" id="ddgo" type="button">Start (30s)</button></div></div></div>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -710,7 +723,7 @@
     if (/^select\b/i.test(line)) { tprint("0 rows returned (0.004 s)"); return; }
     switch (c) {
       case "help":
-        tprint("commands:\n  help            this list\n  whoami          who are you?\n  ls              list the warehouse\n  cat contact     how to reach the owner\n  status          scheduler health\n  run             re-run the DAG\n  play            fix the pipeline puzzle\n  theme <name>    dark | light | terminal\n  effect <name>   matrix | warp | network | lightning | helix | none\n  sound <name>    off | tick | chime | 8bit\n  vibrate on|off  haptics on supported phones\n  spark           open the Spark UI view\n  dag             back to the orchestrator view\n  hint            a clue for the next secret\n  secrets         how many you have found\n  share           copy your run summary\n  menu            command palette (Ctrl/Cmd+K)\n  date            current time\n  clear           clear the terminal\n  select ...      run any SQL (spoiler: 0 rows)"); break;
+        tprint("commands:\n  help            this list\n  whoami          who are you?\n  ls              list the warehouse\n  cat contact     how to reach the owner\n  status          scheduler health\n  run             re-run the DAG\n  play            fix the pipeline puzzle\n  dedupe          Dedupe Dash mini game\n  theme <name>    dark | light | terminal\n  effect <name>   matrix | warp | network | lightning | helix | none\n  sound <name>    off | tick | chime | 8bit\n  vibrate on|off  haptics on supported phones\n  spark           open the Spark UI view\n  dag             back to the orchestrator view\n  hint            a clue for the next secret\n  secrets         how many you have found\n  share           copy your run summary\n  menu            command palette (Ctrl/Cmd+K)\n  date            current time\n  clear           clear the terminal\n  select ...      run any SQL (spoiler: 0 rows)"); break;
       case "whoami": tprint("guest@" + host + " (you were not supposed to be here)"); break;
       case "ls": tprint("bronze.requests/   silver.requests/   gold.site_pages/\n404.html   domain.purchased   README.md"); break;
       case "cat":
@@ -731,6 +744,7 @@
       case "git":
         if (arg.indexOf("blame") === 0) { tprint("^0000001 (the owner)  404.html: a page that doesn't exist\n1a2b3c4d (Claude)     404.html: everything else\nconclusion: everyone is to blame, nobody is at fault."); unlock("blame"); }
         else tprint("git: this repo is read-only here. try: git blame", "err"); break;
+      case "dedupe": case "dash": tprint("opening Dedupe Dash...", "ok"); ddOpen(); break;
       case "konami": konami(); break;
       case "hint": hint(); break;
       case "secrets": tprint("secrets found: " + foundN() + "/" + SECRETS.length + (foundN() < SECRETS.length ? ". type hint for a clue." : ". all found. you win.")); break;
@@ -1169,12 +1183,58 @@
     function fb() { var a = document.createElement("textarea"); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand("copy"); ok(); } catch (e) { say(t); } document.body.removeChild(a); }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, fb); else fb();
   }
+  // mini game: Dedupe Dash
+  var dd = { on: false, sc: 0, t: 30, rows: [], raf: 0, last: 0, spawn: 0, el: null };
+  var DDBAD = ["NULL", "NULL", "id=NaN", "dup#2", "dup#3", "N/A", "???", "\\x00\\x00", "id=-1", "dup#7"];
+  function ddBest() { try { return +localStorage.getItem("thetye-dd") || 0; } catch (e) { return 0; } }
+  function ddOpen() { dd.el = $("dd"); dd.el.hidden = false; $("ddbest").textContent = ddBest(); $("ddmsg").hidden = false; $("ddmsg").querySelector("h2").textContent = "Dedupe Dash"; $("ddgo").focus(); }
+  function ddStop() { dd.on = false; cancelAnimationFrame(dd.raf); }
+  function ddClose() { ddStop(); $("dd").hidden = true; dd.rows.forEach(function (r) { r.el.remove(); }); dd.rows = []; }
+  function ddScore(n) { dd.sc = Math.max(0, dd.sc + n); $("ddsc").textContent = dd.sc; }
+  function ddStart() {
+    dd.rows.forEach(function (r) { r.el.remove(); }); dd.rows = []; dd.sc = 0; dd.t = 30; dd.spawn = 0; dd.last = 0; dd.on = true;
+    $("ddsc").textContent = 0; $("ddt").textContent = 30; $("ddmsg").hidden = true; dd.raf = requestAnimationFrame(ddTick);
+  }
+  function ddMake() {
+    var f = $("ddf"), bad = Math.random() < 0.6, el = document.createElement("div");
+    el.className = "row" + (bad ? " bad" : ""); el.textContent = bad ? DDBAD[Math.floor(Math.random() * DDBAD.length)] : "id=" + (1000 + Math.floor(Math.random() * 9000));
+    f.appendChild(el);
+    var w = el.offsetWidth, x = Math.random() * Math.max(10, f.clientWidth - w - 10), r = { el: el, x: x, y: -34, bad: bad, v: 90 + (30 - dd.t) * 6 + Math.random() * 50 };
+    el.style.left = x + "px"; el.style.transform = "translateY(-34px)";
+    el.addEventListener("pointerdown", function (ev) {
+      ev.preventDefault(); if (!dd.on || r.dead) return; r.dead = true;
+      if (bad) { ddScore(1); sfx("task"); } else { ddScore(-2); sfx("nope"); if (navigator.vibrate && vibOn) try { navigator.vibrate(30); } catch (e) {} }
+      el.classList.add("pop"); setTimeout(function () { el.remove(); }, 200);
+    });
+    dd.rows.push(r);
+  }
+  function ddTick(ts) {
+    if (!dd.on) return; var dt = dd.last ? Math.min((ts - dd.last) / 1000, 0.05) : 0; dd.last = ts;
+    dd.t -= dt; dd.spawn -= dt; $("ddt").textContent = Math.max(0, Math.ceil(dd.t));
+    if (dd.spawn <= 0) { ddMake(); dd.spawn = Math.max(0.28, 0.75 - (30 - dd.t) * 0.016); }
+    var H = $("ddf").clientHeight - 34;
+    dd.rows = dd.rows.filter(function (r) {
+      if (r.dead) return false; r.y += r.v * dt; r.el.style.transform = "translateY(" + r.y + "px)";
+      if (r.y > H - 28) { if (r.bad) { ddScore(-1); sfx("nope"); } r.el.remove(); return false; } return true;
+    });
+    if (dd.t <= 0) { ddEnd(); return; } dd.raf = requestAnimationFrame(ddTick);
+  }
+  function ddEnd() {
+    ddStop(); dd.rows.forEach(function (r) { r.el.remove(); }); dd.rows = [];
+    var b = ddBest(), nb = dd.sc > b; if (nb) { try { localStorage.setItem("thetye-dd", String(dd.sc)); } catch (e) {} $("ddbest").textContent = dd.sc; }
+    var g = dd.sc >= 30 ? "Principal Data Engineer" : dd.sc >= 20 ? "Senior Data Engineer" : dd.sc >= 10 ? "Data Engineer" : "Intern (the lake is murky)";
+    var m = $("ddmsg"); m.hidden = false; m.querySelector("h2").textContent = "Pipeline clean: " + dd.sc + " pts";
+    m.querySelector("div").textContent = "Rank: " + g + (nb ? " - new personal best!" : ""); $("ddgo").textContent = "Play again"; $("ddgo").focus(); sfx("win");
+  }
+  $("ddgo").addEventListener("click", ddStart); $("ddx").addEventListener("click", ddClose);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("dd").hidden) { e.stopPropagation(); ddClose(); } }, true);
   // command palette (Ctrl/Cmd+K or the menu button)
   var CMDS = [
     ["Open Spark UI", "view", function () { showTab("spark"); }],
     ["Open orchestrator view", "view", function () { showTab("orch"); }],
     ["Re-run the DAG", "run", function () { if ($("rerun").disabled) say("A run is already in progress"); else $("rerun").click(); }],
-    ["Fix the pipeline (puzzle)", "game", function () { $("play").click(); }]
+    ["Fix the pipeline (puzzle)", "game", function () { $("play").click(); }],
+    ["Play Dedupe Dash (mini game)", "game", ddOpen]
   ];
   ["dark", "light", "terminal"].forEach(function (n) { CMDS.push(["Theme: " + n, "theme", function () { setTheme(n, true); }]); });
   ["none", "matrix", "warp", "network", "lightning", "helix"].forEach(function (n) { CMDS.push(["Effect: " + n, "effect", function () { setFx(n); if (n !== "none") playFx(n); }]); });
