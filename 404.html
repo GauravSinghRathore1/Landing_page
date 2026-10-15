@@ -133,6 +133,16 @@
   .mx div { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px solid var(--line); padding: 3px 0; } .mx span { color: var(--muted); }
   .spfin { margin-top: 10px; color: var(--green); font-weight: 700; min-height: 1.5em; }
   @media (max-width: 520px) { .mx { grid-template-columns: 1fr; } }
+  .note { margin: 10px 16px 0; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--purple) 50%, transparent); background: color-mix(in srgb, var(--purple) 8%, transparent); border-radius: 10px; }
+  .note[hidden] { display: none; } .note p { margin: 6px 0 8px; } .note b { color: var(--purple); }
+  #fri { color: var(--amber); } #fri[hidden] { display: none; } .logo { cursor: pointer; }
+  .pal { position: fixed; inset: 0; z-index: 70; background: rgba(0,0,0,.5); display: flex; align-items: flex-start; justify-content: center; padding: 12vh 14px 0; }
+  .pal[hidden] { display: none; }
+  .pal .box { width: 100%; max-width: 460px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 20px 60px var(--shadow); overflow: hidden; }
+  .pal input { width: 100%; font: inherit; font-size: 16px; color: var(--fg); background: transparent; border: 0; border-bottom: 1px solid var(--line); padding: 12px 14px; outline: none; }
+  .pal ul { list-style: none; margin: 0; padding: 6px; max-height: 50vh; overflow: auto; }
+  .pal li { padding: 8px 10px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; gap: 10px; }
+  .pal li[aria-selected="true"] { background: color-mix(in srgb, var(--blue) 18%, transparent); } .pal li small { color: var(--muted); }
   #fxc { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 45; }
   .node.chaosn rect { stroke: var(--purple); fill: color-mix(in srgb, var(--purple) 16%, var(--panel)); animation: shake .3s; }
   .glitch { animation: glitch 1.3s steps(2, end); }
@@ -239,7 +249,7 @@
 <main class="app" id="app">
   <div class="top">
     <div class="brand">
-      <svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 12 L19 8" stroke="#bc8cff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/></svg>
+      <svg class="logo" id="logo" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 12 L19 8" stroke="#bc8cff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/></svg>
       <div class="dagid"><span id="dagid">serve_site</span><small id="runid"></small></div>
     </div>
     <div class="right">
@@ -262,6 +272,8 @@
     <span>schedule <b>*/5 * * * *</b></span>
     <span>next run in <b id="nextrun">--:--</b></span>
     <span><i class="hb" id="hb"></i>heartbeat <b id="hbt">--:--:--</b></span>
+    <span>secrets <b id="secn">0/6</b></span><span id="fri" hidden>never deploy on a Friday</span>
+    <button class="sbtn" id="kbtn" type="button" aria-haspopup="dialog">menu &#8984;K</button>
   </div>
 
   <div class="banner">
@@ -694,7 +706,7 @@
     if (/^select\b/i.test(line)) { tprint("0 rows returned (0.004 s)"); return; }
     switch (c) {
       case "help":
-        tprint("commands:\n  help            this list\n  whoami          who are you?\n  ls              list the warehouse\n  cat contact     how to reach the owner\n  status          scheduler health\n  run             re-run the DAG\n  play            fix the pipeline puzzle\n  theme <name>    dark | light | terminal\n  effect <name>   confetti | matrix | fireworks | chaos | glitch | none\n  sound <name>    off | tick | chime | 8bit\n  vibrate on|off  haptics on supported phones\n  spark           open the Spark UI view\n  dag             back to the orchestrator view\n  date            current time\n  clear           clear the terminal\n  select ...      run any SQL (spoiler: 0 rows)"); break;
+        tprint("commands:\n  help            this list\n  whoami          who are you?\n  ls              list the warehouse\n  cat contact     how to reach the owner\n  status          scheduler health\n  run             re-run the DAG\n  play            fix the pipeline puzzle\n  theme <name>    dark | light | terminal\n  effect <name>   confetti | matrix | fireworks | chaos | glitch | none\n  sound <name>    off | tick | chime | 8bit\n  vibrate on|off  haptics on supported phones\n  spark           open the Spark UI view\n  dag             back to the orchestrator view\n  hint            a clue for the next secret\n  secrets         how many you have found\n  share           copy your run summary\n  menu            command palette (Ctrl/Cmd+K)\n  date            current time\n  clear           clear the terminal\n  select ...      run any SQL (spoiler: 0 rows)"); break;
       case "whoami": tprint("guest@" + host + " (you were not supposed to be here)"); break;
       case "ls": tprint("bronze.requests/   silver.requests/   gold.site_pages/\n404.html   domain.purchased   README.md"); break;
       case "cat":
@@ -710,6 +722,16 @@
       case "exit": if (game.on || game.won) { tprint("leaving puzzle"); exitGame(false); } else tprint("nothing to exit. you live here now."); break;
       case "theme":
         if (setTheme(arg, true)) tprint("theme: " + arg, "ok"); else tprint("usage: theme dark | light | terminal", "err"); break;
+      case "vacuum": tprint("VACUUM gold.site_pages RETAIN " + (/\b0\b/.test(arg) ? "0" : "168") + " HOURS\nDeltaIllegalArgumentException: retentionDurationCheck is enabled.\nDisabling it would delete every old version (goodbye, time travel). Not today."); unlock("vacuum"); break;
+      case "optimize": tprint("OPTIMIZE gold.site_pages ZORDER BY (path)\ncompacted 1 file into 1 file. z-ordered 0 rows. impressive."); if (arg.indexOf("zorder") >= 0) unlock("zorder"); break;
+      case "git":
+        if (arg.indexOf("blame") === 0) { tprint("^0000001 (the owner)  404.html: a page that doesn't exist\n1a2b3c4d (Claude)     404.html: everything else\nconclusion: everyone is to blame, nobody is at fault."); unlock("blame"); }
+        else tprint("git: this repo is read-only here. try: git blame", "err"); break;
+      case "konami": konami(); break;
+      case "hint": hint(); break;
+      case "secrets": tprint("secrets found: " + foundN() + "/" + SECRETS.length + (foundN() < SECRETS.length ? ". type hint for a clue." : ". all found. you win.")); break;
+      case "share": tprint(shareText(), "ok"); share(); break;
+      case "menu": case "palette": openPal(); break;
       case "spark": showTab("spark"); tprint("opening the Spark UI...", "ok"); break;
       case "dag": case "orchestrator": showTab("orch"); tprint("back to the orchestrator", "ok"); break;
       case "sound": case "sfx":
@@ -724,7 +746,8 @@
       case "date": tprint(new Date().toString()); break;
       case "clear": while (tout.firstChild) tout.removeChild(tout.firstChild); break;
       case "sudo":
-        if (arg.indexOf("give-me-this-domain") === 0) tprint("[sudo] password for guest: ********\nguest is not in the sudoers file. This incident will be reported.\n(just kidding. try: cat contact)", "err");
+        if (/^rm\b/.test(arg) && /-\w*[rf]/.test(arg) && arg.indexOf("/") >= 0) rmrf();
+        else if (arg.indexOf("give-me-this-domain") === 0) tprint("[sudo] password for guest: ********\nguest is not in the sudoers file. This incident will be reported.\n(just kidding. try: cat contact)", "err");
         else tprint("guest is not in the sudoers file. This incident will be reported.", "err");
         break;
       case "rm": tprint("nice try. this filesystem is read-only.", "err"); break;
@@ -922,6 +945,107 @@
   $("tab_spark").addEventListener("click", function () { showTab("spark"); });
   $("sp_replay").addEventListener("click", spRun);
   ["play", "rerun"].forEach(function (id) { $(id).addEventListener("click", function () { if (spTab !== "orch") showTab("orch"); }, true); });
+
+  // ---------------- secrets, share, command palette ----------------
+  var NOTE = (OWNER && OWNER.note) || "Thanks for poking around. If you are interested in this domain, say hi.";
+  var SECRETS = [
+    { id: "konami", name: "the old gamers' code", clue: "an old gamers' code works here (or type konami)" },
+    { id: "rmrf", name: "sudo rm -rf /", clue: "sudo plus something very destructive" },
+    { id: "vacuum", name: "vacuum", clue: "storage cleanup, but dangerous for time travel" },
+    { id: "zorder", name: "optimize zorder", clue: "make a table faster to filter" },
+    { id: "logo", name: "the logo", clue: "tap the little logo at the top five times" },
+    { id: "blame", name: "git blame", clue: "find out who is responsible" }
+  ];
+  var found = {};
+  try { found = JSON.parse(localStorage.getItem("thetye-secrets") || "{}") || {}; } catch (e) { found = {}; }
+  function foundN() { return SECRETS.filter(function (x) { return found[x.id]; }).length; }
+  function secUI() { $("secn").textContent = foundN() + "/" + SECRETS.length; }
+  function unlock(id) {
+    if (found[id]) return; found[id] = 1;
+    try { localStorage.setItem("thetye-secrets", JSON.stringify(found)); } catch (e) {}
+    secUI(); var sc = SECRETS.filter(function (x) { return x.id === id; })[0];
+    say("Secret found: " + sc.name + " (" + foundN() + "/" + SECRETS.length + ")"); sfx("win"); vib([30, 40, 30]);
+    log("OK", "secret unlocked: " + sc.name);
+    if (foundN() === SECRETS.length) setTimeout(function () { if (!reduce) fxFireworks(); say("All secrets found. You win. Say hi to the owner."); }, 1400);
+  }
+  secUI();
+  function hint() { var n = SECRETS.filter(function (x) { return !found[x.id]; })[0]; tprint(n ? "hint: " + n.clue : "no hints left. you found everything.", n ? "res" : "ok"); }
+  function konami() { unlock("konami"); if (reduce) { say("Konami! (animation paused: reduced motion is on)"); return; } fxChaos(); }
+  function rmrf() {
+    tprint("[sudo] password for guest: ********"); tprint("removing /warehouse/bronze ...", "err");
+    setTimeout(function () { tprint("removing /warehouse/silver ...", "err"); }, 500);
+    setTimeout(function () { tprint("removing /warehouse/gold ...", "err"); }, 1000);
+    setTimeout(function () { tprint("just kidding. restored from the latest Delta checkpoint. nothing was harmed.", "ok"); unlock("rmrf"); if (!reduce) fxGlitch(); }, 1700);
+  }
+  var KSEQ = ["arrowup", "arrowup", "arrowdown", "arrowdown", "arrowleft", "arrowright", "arrowleft", "arrowright", "b", "a"], ki = 0;
+  document.addEventListener("keydown", function (e) {
+    var tg = e.target && e.target.tagName; if (tg === "INPUT" || tg === "SELECT" || tg === "TEXTAREA" || !pal.hidden) return;
+    var k = (e.key || "").toLowerCase(); ki = (k === KSEQ[ki]) ? ki + 1 : (k === KSEQ[0] ? 1 : 0);
+    if (ki === KSEQ.length) { ki = 0; konami(); }
+  });
+  // hidden note (tap the logo five times)
+  var noteEl = document.createElement("div"); noteEl.className = "note"; noteEl.hidden = true;
+  noteEl.innerHTML = '<b>note from the owner</b><p></p><button class="sbtn" type="button">Close</button>';
+  noteEl.querySelector("p").textContent = NOTE;
+  document.querySelector(".banner").insertAdjacentElement("afterend", noteEl);
+  noteEl.querySelector("button").addEventListener("click", function () { noteEl.hidden = true; });
+  var lt = 0, lts = 0;
+  $("logo").addEventListener("click", function () {
+    var n = Date.now(); lt = (n - lts < 1500) ? lt + 1 : 1; lts = n;
+    if (lt >= 5) { lt = 0; noteEl.hidden = false; if (noteEl.scrollIntoView) noteEl.scrollIntoView({ block: "nearest", behavior: reduce ? "auto" : "smooth" }); unlock("logo"); }
+  });
+  var fd = new Date(); if (fd.getDay() === 5 && fd.getHours() >= 17) $("fri").hidden = false;
+  // share
+  function shareText() { return host + " 404: " + (game.won ? "fixed the pipeline in " + game.moves + " moves, " : "") + "found " + foundN() + "/" + SECRETS.length + " secrets."; }
+  function share() {
+    var t = shareText();
+    function ok() { say("Run summary copied"); }
+    function fb() { var a = document.createElement("textarea"); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand("copy"); ok(); } catch (e) { say(t); } document.body.removeChild(a); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, fb); else fb();
+  }
+  // command palette (Ctrl/Cmd+K or the menu button)
+  var CMDS = [
+    ["Open Spark UI", "view", function () { showTab("spark"); }],
+    ["Open orchestrator view", "view", function () { showTab("orch"); }],
+    ["Re-run the DAG", "run", function () { if ($("rerun").disabled) say("A run is already in progress"); else $("rerun").click(); }],
+    ["Fix the pipeline (puzzle)", "game", function () { $("play").click(); }]
+  ];
+  ["dark", "light", "terminal"].forEach(function (n) { CMDS.push(["Theme: " + n, "theme", function () { setTheme(n, true); }]); });
+  ["none", "confetti", "matrix", "fireworks", "chaos", "glitch"].forEach(function (n) { CMDS.push(["Effect: " + n, "effect", function () { setFx(n); if (n !== "none") playFx(n); }]); });
+  ["off", "tick", "chime", "8bit"].forEach(function (n) { CMDS.push(["Sound: " + n, "sound", function () { if (reduce) { say("Sound is paused (reduced motion is on)"); return; } setSnd(n); sfx("done"); }]); });
+  CMDS.push(["Toggle vibration", "haptics", function () { setVib(!vibOn, true); }]);
+  CMDS.push(["Copy my run summary", "share", share]);
+  CMDS.push(["Show a hint", "secrets", function () { var n = SECRETS.filter(function (x) { return !found[x.id]; })[0]; say(n ? "Hint: " + n.clue : "No hints left. You found everything."); }]);
+  CMDS.push(["Focus the terminal", "terminal", function () { tin.scrollIntoView({ block: "center" }); tin.focus(); }]);
+  var pal = document.createElement("div"); pal.className = "pal"; pal.hidden = true;
+  pal.setAttribute("role", "dialog"); pal.setAttribute("aria-modal", "true"); pal.setAttribute("aria-label", "Command palette");
+  pal.innerHTML = '<div class="box"><input type="text" id="palin" placeholder="type a command..." aria-label="Filter commands" autocomplete="off" autocapitalize="off" spellcheck="false"><ul id="palist" role="listbox"></ul></div>';
+  document.body.appendChild(pal);
+  var palSel = 0, palItems = [];
+  function palRender() {
+    var q = $("palin").value.trim().toLowerCase(), ul = $("palist");
+    palItems = CMDS.filter(function (c) { return !q || (c[0] + " " + c[1]).toLowerCase().indexOf(q) >= 0; });
+    palSel = Math.min(palSel, Math.max(palItems.length - 1, 0)); ul.textContent = "";
+    palItems.forEach(function (c, i) {
+      var li = document.createElement("li"); li.setAttribute("role", "option"); li.setAttribute("aria-selected", String(i === palSel));
+      var a = document.createElement("span"); a.textContent = c[0]; var b = document.createElement("small"); b.textContent = c[1];
+      li.appendChild(a); li.appendChild(b); li.addEventListener("click", function () { palRun(i); }); ul.appendChild(li);
+    });
+    if (!palItems.length) { var e = document.createElement("li"); e.textContent = "no matches"; e.style.color = "var(--muted)"; ul.appendChild(e); }
+  }
+  function palRun(i) { var c = palItems[i]; if (!c) return; closePal(); c[2](); }
+  function openPal() { pal.hidden = false; $("palin").value = ""; palSel = 0; palRender(); $("palin").focus(); }
+  function closePal() { pal.hidden = true; }
+  $("palin").addEventListener("input", function () { palSel = 0; palRender(); });
+  $("palin").addEventListener("keydown", function (e) {
+    if (e.key === "ArrowDown") { palSel = Math.min(palSel + 1, palItems.length - 1); palRender(); e.preventDefault(); }
+    else if (e.key === "ArrowUp") { palSel = Math.max(palSel - 1, 0); palRender(); e.preventDefault(); }
+    else if (e.key === "Enter") { palRun(palSel); e.preventDefault(); }
+    else if (e.key === "Escape") closePal();
+  });
+  pal.addEventListener("click", function (e) { if (e.target === pal) closePal(); });
+  document.addEventListener("keydown", function (e) { if ((e.ctrlKey || e.metaKey) && (e.key || "").toLowerCase() === "k") { e.preventDefault(); if (pal.hidden) openPal(); else closePal(); } });
+  $("kbtn").addEventListener("click", openPal);
 
   // ---------------- go ----------------
   drawDag(); run();
