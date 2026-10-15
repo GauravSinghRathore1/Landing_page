@@ -254,7 +254,7 @@
     </div>
     <div class="right">
       <span class="fxwrap"><select class="fxsel" id="fxsel" aria-label="Celebration effect, plays when a run completes">
-        <option value="none">effect: none</option><option value="confetti">confetti</option><option value="matrix">matrix rain</option><option value="fireworks">fireworks</option><option value="chaos">chaos monkey</option><option value="glitch">glitch</option>
+        <option value="none">effect: none</option><option value="matrix">matrix rain</option><option value="warp">hyperspace</option><option value="network">lineage burst</option><option value="lightning">lightning</option><option value="helix">dna helix</option>
       </select><button class="sbtn" id="fxplay" type="button" aria-label="Play effect">&#9654;</button></span>
       <span class="fxwrap"><select class="fxsel" id="sndsel" aria-label="Sound style">
         <option value="off">sound: off</option><option value="tick">soft tick</option><option value="chime">chime</option><option value="8bit">8-bit</option>
@@ -706,7 +706,7 @@
     if (/^select\b/i.test(line)) { tprint("0 rows returned (0.004 s)"); return; }
     switch (c) {
       case "help":
-        tprint("commands:\n  help            this list\n  whoami          who are you?\n  ls              list the warehouse\n  cat contact     how to reach the owner\n  status          scheduler health\n  run             re-run the DAG\n  play            fix the pipeline puzzle\n  theme <name>    dark | light | terminal\n  effect <name>   confetti | matrix | fireworks | chaos | glitch | none\n  sound <name>    off | tick | chime | 8bit\n  vibrate on|off  haptics on supported phones\n  spark           open the Spark UI view\n  dag             back to the orchestrator view\n  hint            a clue for the next secret\n  secrets         how many you have found\n  share           copy your run summary\n  menu            command palette (Ctrl/Cmd+K)\n  date            current time\n  clear           clear the terminal\n  select ...      run any SQL (spoiler: 0 rows)"); break;
+        tprint("commands:\n  help            this list\n  whoami          who are you?\n  ls              list the warehouse\n  cat contact     how to reach the owner\n  status          scheduler health\n  run             re-run the DAG\n  play            fix the pipeline puzzle\n  theme <name>    dark | light | terminal\n  effect <name>   matrix | warp | network | lightning | helix | none\n  sound <name>    off | tick | chime | 8bit\n  vibrate on|off  haptics on supported phones\n  spark           open the Spark UI view\n  dag             back to the orchestrator view\n  hint            a clue for the next secret\n  secrets         how many you have found\n  share           copy your run summary\n  menu            command palette (Ctrl/Cmd+K)\n  date            current time\n  clear           clear the terminal\n  select ...      run any SQL (spoiler: 0 rows)"); break;
       case "whoami": tprint("guest@" + host + " (you were not supposed to be here)"); break;
       case "ls": tprint("bronze.requests/   silver.requests/   gold.site_pages/\n404.html   domain.purchased   README.md"); break;
       case "cat":
@@ -742,7 +742,7 @@
         else tprint("usage: vibrate on | off", "err"); break;
       case "effect": case "fx":
         if (arg === "none" || FXN[arg]) { setFx(arg); tprint("effect: " + arg, "ok"); if (arg !== "none") playFx(arg); }
-        else tprint("usage: effect confetti | matrix | fireworks | chaos | glitch | none", "err"); break;
+        else tprint("usage: effect matrix | warp | network | lightning | helix | none", "err"); break;
       case "date": tprint(new Date().toString()); break;
       case "clear": while (tout.firstChild) tout.removeChild(tout.firstChild); break;
       case "sudo":
@@ -823,7 +823,80 @@
     }, 280);
   }
   function fxGlitch() { var a = $("app"); a.classList.remove("glitch"); void a.offsetWidth; a.classList.add("glitch"); setTimeout(function () { a.classList.remove("glitch"); }, 1400); }
-  var FXN = { confetti: confetti, matrix: fxMatrix, fireworks: fxFireworks, chaos: fxChaos, glitch: fxGlitch };
+  function fxWarp() {   // hyperspace: star streaks accelerating out of the centre
+    var cx = innerWidth / 2, cy = innerHeight * 0.42, cols = [cssv("--blue"), cssv("--purple"), cssv("--fg")], st = [], i, mx = Math.max(innerWidth, innerHeight);
+    function mk() { return { a: Math.random() * 6.2832, r: Math.random() * 30, v: 1 + Math.random() * 2, c: cols[(Math.random() * 3) | 0] }; }
+    for (i = 0; i < 150; i++) st.push(mk());
+    fxLoop(4200, function (k) {
+      fxx.globalCompositeOperation = "destination-out"; fxx.fillStyle = "rgba(0,0,0,.22)"; fxx.fillRect(0, 0, innerWidth, innerHeight);
+      fxx.globalCompositeOperation = "source-over"; fxx.lineCap = "round"; var boost = 1 + k * 9;
+      st.forEach(function (q, j) {
+        var r0 = q.r; q.r += q.v * boost * (0.6 + q.r / 220);
+        fxx.strokeStyle = q.c; fxx.globalAlpha = Math.min(1, q.r / 120); fxx.lineWidth = 0.6 + q.r / 260;
+        fxx.beginPath(); fxx.moveTo(cx + Math.cos(q.a) * r0, cy + Math.sin(q.a) * r0); fxx.lineTo(cx + Math.cos(q.a) * q.r, cy + Math.sin(q.a) * q.r); fxx.stroke();
+        if (q.r > mx) st[j] = mk();
+      });
+      fxx.globalAlpha = 1;
+    });
+  }
+  function fxNetwork() {   // lineage burst: a graph grows from the centre while data packets run along its edges
+    var ns = [{ x: innerWidth / 2, y: innerHeight * 0.4, t: 0 }], es = [], pk = [], cols = [cssv("--blue"), cssv("--purple"), cssv("--green")], next = 0;
+    fxLoop(4800, function (k, now) {
+      fxx.clearRect(0, 0, innerWidth, innerHeight);
+      if (now > next && ns.length < 46 && k < 0.7) {
+        next = now + 70;
+        var par = ns[(Math.random() * ns.length) | 0], a = Math.random() * 6.2832, d = 50 + Math.random() * 90;
+        var nn = { x: Math.min(innerWidth - 10, Math.max(10, par.x + Math.cos(a) * d)), y: Math.min(innerHeight - 10, Math.max(10, par.y + Math.sin(a) * d)), t: now };
+        ns.push(nn); var e = { a: par, b: nn, t: now }; es.push(e); pk.push({ e: e, p: 0, c: cols[(Math.random() * 3) | 0] });
+      }
+      es.forEach(function (e) { var g = Math.min(1, (now - e.t) / 300); fxx.globalAlpha = 0.45 * g; fxx.strokeStyle = cols[0]; fxx.lineWidth = 1; fxx.beginPath(); fxx.moveTo(e.a.x, e.a.y); fxx.lineTo(e.a.x + (e.b.x - e.a.x) * g, e.a.y + (e.b.y - e.a.y) * g); fxx.stroke(); });
+      ns.forEach(function (n) { var g = Math.min(1, (now - n.t) / 300); fxx.globalAlpha = 0.9; fxx.fillStyle = cols[1]; fxx.beginPath(); fxx.arc(n.x, n.y, 2 + 2.5 * g, 0, 6.2832); fxx.fill(); });
+      pk.forEach(function (q) {
+        q.p = (q.p + 0.02) % 1; var x = q.e.a.x + (q.e.b.x - q.e.a.x) * q.p, y = q.e.a.y + (q.e.b.y - q.e.a.y) * q.p;
+        fxx.globalAlpha = 1; fxx.fillStyle = q.c; fxx.shadowColor = q.c; fxx.shadowBlur = 10; fxx.fillRect(x - 1.5, y - 1.5, 3, 3); fxx.shadowBlur = 0;
+      });
+      fxx.globalAlpha = 1;
+    });
+  }
+  function fxLightning() {   // branching bolts with a soft flash
+    var bolts = [], next = 0, col = cssv("--blue"), hi = cssv("--fg");
+    function mk(x0, y0, x1, y1, w, out) {
+      var pts = [[x0, y0]], n = 12, i; for (i = 1; i < n; i++) { var t = i / n; pts.push([x0 + (x1 - x0) * t + (Math.random() - 0.5) * 70 * (1 - Math.abs(t - 0.5)), y0 + (y1 - y0) * t]); } pts.push([x1, y1]);
+      out.push({ p: pts, w: w });
+      if (w > 1.2) for (i = 3; i < n - 2; i += 3) if (Math.random() < 0.6) { var q = pts[i]; mk(q[0], q[1], q[0] + (Math.random() - 0.5) * 220, q[1] + 90 + Math.random() * 140, w * 0.5, out); }
+    }
+    fxLoop(4200, function (k, now) {
+      fxx.clearRect(0, 0, innerWidth, innerHeight);
+      if (now > next && k < 0.85) { next = now + 260 + Math.random() * 380; var sg = [], sx = innerWidth * (0.1 + Math.random() * 0.8); mk(sx, -10, sx + (Math.random() - 0.5) * 240, innerHeight * (0.45 + Math.random() * 0.5), 3.2, sg); bolts.push({ s: sg, t: now }); }
+      bolts = bolts.filter(function (b) { return now - b.t < 420; });
+      bolts.forEach(function (b) {
+        var age = (now - b.t) / 420;
+        if (age < 0.12) { fxx.globalAlpha = 0.08 * (1 - age / 0.12); fxx.fillStyle = col; fxx.fillRect(0, 0, innerWidth, innerHeight); }
+        fxx.shadowColor = col; fxx.shadowBlur = 16; fxx.lineJoin = "round";
+        b.s.forEach(function (g) { fxx.globalAlpha = 1 - age; fxx.strokeStyle = hi; fxx.lineWidth = g.w; fxx.beginPath(); g.p.forEach(function (pt, i) { if (i) fxx.lineTo(pt[0], pt[1]); else fxx.moveTo(pt[0], pt[1]); }); fxx.stroke(); });
+        fxx.shadowBlur = 0;
+      });
+      fxx.globalAlpha = 1;
+    });
+  }
+  function fxHelix() {   // two rotating DNA-style strands of data
+    var cols = [cssv("--blue"), cssv("--purple"), cssv("--green")];
+    fxLoop(4600, function (k, now) {
+      fxx.clearRect(0, 0, innerWidth, innerHeight);
+      var W = innerWidth, H = innerHeight, amp = Math.min(90, H * 0.14), n = Math.ceil(W / 14), ph = now / 420;
+      [0.3, 0.72].forEach(function (fy, row) {
+        var cy = H * fy;
+        for (var i = 0; i < n; i++) {
+          var x = i * 14 + 7, t = x / 46 + ph * (row ? -1 : 1), y1 = cy + Math.sin(t) * amp, y2 = cy + Math.sin(t + Math.PI) * amp, d1 = (Math.cos(t) + 1) / 2, d2 = 1 - d1;
+          if (i % 3 === 0) { fxx.globalAlpha = 0.35; fxx.strokeStyle = cols[2]; fxx.lineWidth = 1.5; fxx.beginPath(); fxx.moveTo(x, y1); fxx.lineTo(x, y2); fxx.stroke(); }
+          fxx.globalAlpha = 0.35 + 0.65 * d1; fxx.fillStyle = cols[0]; fxx.beginPath(); fxx.arc(x, y1, 1.5 + 3 * d1, 0, 6.2832); fxx.fill();
+          fxx.globalAlpha = 0.35 + 0.65 * d2; fxx.fillStyle = cols[1]; fxx.beginPath(); fxx.arc(x, y2, 1.5 + 3 * d2, 0, 6.2832); fxx.fill();
+        }
+      });
+      fxx.globalAlpha = 1;
+    });
+  }
+  var FXN = { matrix: fxMatrix, warp: fxWarp, network: fxNetwork, lightning: fxLightning, helix: fxHelix };
   function playFx(n) { if (!FXN[n]) return; if (reduce) { say("Effects are paused (reduced motion is on)"); return; } FXN[n](); }
   function setFx(n) { fxCur = FXN[n] ? n : "none"; $("fxsel").value = fxCur; try { localStorage.setItem("thetye-fx", fxCur); } catch (e) {} }
   function fxAuto() { if (fxCur !== "none" && !game.on) playFx(fxCur); }
@@ -966,11 +1039,11 @@
     secUI(); var sc = SECRETS.filter(function (x) { return x.id === id; })[0];
     say("Secret found: " + sc.name + " (" + foundN() + "/" + SECRETS.length + ")"); sfx("win"); vib([30, 40, 30]);
     log("OK", "secret unlocked: " + sc.name);
-    if (foundN() === SECRETS.length) setTimeout(function () { if (!reduce) fxFireworks(); say("All secrets found. You win. Say hi to the owner."); }, 1400);
+    if (foundN() === SECRETS.length) setTimeout(function () { if (!reduce) fxWarp(); say("All secrets found. You win. Say hi to the owner."); }, 1400);
   }
   secUI();
   function hint() { var n = SECRETS.filter(function (x) { return !found[x.id]; })[0]; tprint(n ? "hint: " + n.clue : "no hints left. you found everything.", n ? "res" : "ok"); }
-  function konami() { unlock("konami"); if (reduce) { say("Konami! (animation paused: reduced motion is on)"); return; } fxChaos(); }
+  function konami() { unlock("konami"); if (reduce) { say("Konami! (animation paused: reduced motion is on)"); return; } fxLightning(); }
   function rmrf() {
     tprint("[sudo] password for guest: ********"); tprint("removing /warehouse/bronze ...", "err");
     setTimeout(function () { tprint("removing /warehouse/silver ...", "err"); }, 500);
@@ -1011,7 +1084,7 @@
     ["Fix the pipeline (puzzle)", "game", function () { $("play").click(); }]
   ];
   ["dark", "light", "terminal"].forEach(function (n) { CMDS.push(["Theme: " + n, "theme", function () { setTheme(n, true); }]); });
-  ["none", "confetti", "matrix", "fireworks", "chaos", "glitch"].forEach(function (n) { CMDS.push(["Effect: " + n, "effect", function () { setFx(n); if (n !== "none") playFx(n); }]); });
+  ["none", "matrix", "warp", "network", "lightning", "helix"].forEach(function (n) { CMDS.push(["Effect: " + n, "effect", function () { setFx(n); if (n !== "none") playFx(n); }]); });
   ["off", "tick", "chime", "8bit"].forEach(function (n) { CMDS.push(["Sound: " + n, "sound", function () { if (reduce) { say("Sound is paused (reduced motion is on)"); return; } setSnd(n); sfx("done"); }]); });
   CMDS.push(["Toggle vibration", "haptics", function () { setVib(!vibOn, true); }]);
   CMDS.push(["Copy my run summary", "share", share]);
