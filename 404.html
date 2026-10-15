@@ -148,6 +148,11 @@
   .dd .msg { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; padding: 20px; background: color-mix(in srgb, var(--bg) 80%, transparent); font-size: 14px; line-height: 1.6; }
   .dd .msg h2 { margin: 0; font-size: 20px; color: var(--blue); }
   .dd .msg[hidden] { display: none; }
+  .fl { position: fixed; inset: 0; z-index: 85; background: var(--bg); display: flex; flex-direction: column; font-family: var(--mono); touch-action: none; user-select: none; -webkit-user-select: none; }
+  .fl[hidden] { display: none; }
+  .fl .hud { display: flex; gap: 14px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--edge); font-size: 13px; }
+  .fl .hud b { color: var(--blue); } .fl .hud .fh { flex: 1; color: var(--muted); font-size: 12px; }
+  .fl canvas { flex: 1; width: 100%; display: block; min-height: 0; }
   .pal { position: fixed; inset: 0; z-index: 70; background: rgba(0,0,0,.5); display: flex; align-items: flex-start; justify-content: center; padding: 12vh 14px 0; }
   .pal[hidden] { display: none; }
   .pal .box { width: 100%; max-width: 460px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 20px 60px var(--shadow); overflow: hidden; }
@@ -368,6 +373,7 @@
   <div class="foot"><span>scheduler: healthy</span><span>webserver: healthy</span><span>page: not found</span></div>
 </main>
 <div class="dd" id="dd" hidden role="dialog" aria-label="Dedupe Dash mini game"><div class="hud"><span>score <b id="ddsc">0</b></span><span>time <b id="ddt">30</b>s</span><span>best <b id="ddbest">0</b></span><span class="sp"></span><button class="sbtn" id="ddx" type="button">Exit (Esc)</button></div><div class="field" id="ddf"><div class="lake">gold.site_pages (keep it clean)</div><div class="msg" id="ddmsg"><h2>Dedupe Dash</h2><div>Dirty rows are falling into the gold layer.<br>Tap the <span style="color:var(--red)">NULL / dup / garbage</span> rows to drop them (+1).<br>Don't touch valid rows (-2). Anything dirty that lands costs -1.</div><button class="sbtn" id="ddgo" type="button">Start (30s)</button></div></div></div>
+<div class="fl" id="fl" hidden role="dialog" aria-label="Flap 404 mini game"><div class="hud"><span>score <b id="flsc">0</b></span><span>best <b id="flbest">0</b></span><span class="fh">tap / click / space to flap</span><button class="sbtn" id="flx" type="button">Exit (Esc)</button></div><canvas id="flc"></canvas></div>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -723,7 +729,7 @@
     if (/^select\b/i.test(line)) { tprint("0 rows returned (0.004 s)"); return; }
     switch (c) {
       case "help":
-        tprint("commands:\n  help            this list\n  whoami          who are you?\n  ls              list the warehouse\n  cat contact     how to reach the owner\n  status          scheduler health\n  run             re-run the DAG\n  play            fix the pipeline puzzle\n  dedupe          Dedupe Dash mini game\n  theme <name>    dark | light | terminal\n  effect <name>   matrix | warp | network | lightning | helix | none\n  sound <name>    off | tick | chime | 8bit\n  vibrate on|off  haptics on supported phones\n  spark           open the Spark UI view\n  dag             back to the orchestrator view\n  hint            a clue for the next secret\n  secrets         how many you have found\n  share           copy your run summary\n  menu            command palette (Ctrl/Cmd+K)\n  date            current time\n  clear           clear the terminal\n  select ...      run any SQL (spoiler: 0 rows)"); break;
+        tprint("commands:\n  help            this list\n  whoami          who are you?\n  ls              list the warehouse\n  cat contact     how to reach the owner\n  status          scheduler health\n  run             re-run the DAG\n  play            fix the pipeline puzzle\n  dedupe          Dedupe Dash mini game\n  flap            Flap 404 (one-tap game)\n  theme <name>    dark | light | terminal\n  effect <name>   matrix | warp | network | lightning | helix | none\n  sound <name>    off | tick | chime | 8bit\n  vibrate on|off  haptics on supported phones\n  spark           open the Spark UI view\n  dag             back to the orchestrator view\n  hint            a clue for the next secret\n  secrets         how many you have found\n  share           copy your run summary\n  menu            command palette (Ctrl/Cmd+K)\n  date            current time\n  clear           clear the terminal\n  select ...      run any SQL (spoiler: 0 rows)"); break;
       case "whoami": tprint("guest@" + host + " (you were not supposed to be here)"); break;
       case "ls": tprint("bronze.requests/   silver.requests/   gold.site_pages/\n404.html   domain.purchased   README.md"); break;
       case "cat":
@@ -745,6 +751,7 @@
         if (arg.indexOf("blame") === 0) { tprint("^0000001 (the owner)  404.html: a page that doesn't exist\n1a2b3c4d (Claude)     404.html: everything else\nconclusion: everyone is to blame, nobody is at fault."); unlock("blame"); }
         else tprint("git: this repo is read-only here. try: git blame", "err"); break;
       case "dedupe": case "dash": tprint("opening Dedupe Dash...", "ok"); ddOpen(); break;
+      case "flap": case "game": tprint("opening Flap 404...", "ok"); flOpen(); break;
       case "konami": konami(); break;
       case "hint": hint(); break;
       case "secrets": tprint("secrets found: " + foundN() + "/" + SECRETS.length + (foundN() < SECRETS.length ? ". type hint for a clue." : ". all found. you win.")); break;
@@ -1228,13 +1235,63 @@
   }
   $("ddgo").addEventListener("click", ddStart); $("ddx").addEventListener("click", ddClose);
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("dd").hidden) { e.stopPropagation(); ddClose(); } }, true);
+  // mini game: Flap 404 (one-tap, for everyone)
+  var fl = { on: 0, s: 0, y: 0, vy: 0, p: [], t: 0, last: 0, raf: 0, dead: 0, dt0: 0, W: 0, H: 0, c: null, x: null };
+  function flBest() { try { return +localStorage.getItem("thetye-fl") || 0; } catch (e) { return 0; } }
+  function flSize() { var c = fl.c, r = c.getBoundingClientRect(), d = window.devicePixelRatio || 1; fl.W = r.width; fl.H = r.height; c.width = r.width * d; c.height = r.height * d; fl.x.setTransform(d, 0, 0, d, 0, 0); }
+  function flReset() { fl.on = 0; fl.dead = 0; fl.s = 0; fl.y = fl.H / 2; fl.vy = 0; fl.p = []; fl.t = 0; fl.last = 0; $("flsc").textContent = 0; }
+  function flOpen() { fl.c = $("flc"); fl.x = fl.c.getContext("2d"); $("fl").hidden = false; flSize(); flReset(); $("flbest").textContent = flBest(); cancelAnimationFrame(fl.raf); fl.raf = requestAnimationFrame(flLoop); }
+  function flClose() { cancelAnimationFrame(fl.raf); $("fl").hidden = true; }
+  function flFlap() {
+    if (fl.dead) { if (Date.now() - fl.dt0 > 450) flReset(); return; }
+    fl.on = 1; fl.vy = -Math.max(380, fl.H * 0.62); sfx("key");
+  }
+  function flDie() {
+    fl.dead = 1; fl.dt0 = Date.now(); sfx("nope"); if (vibOn && navigator.vibrate) try { navigator.vibrate(40); } catch (e) {}
+    if (fl.s > flBest()) { try { localStorage.setItem("thetye-fl", String(fl.s)); } catch (e) {} $("flbest").textContent = fl.s; fl.nb = 1; } else fl.nb = 0;
+  }
+  function flLoop(ts) {
+    var dt = fl.last ? Math.min((ts - fl.last) / 1000, 0.04) : 0; fl.last = ts;
+    var W = fl.W, H = fl.H, g = H * 1.9, bx = Math.min(110, W * 0.25), r = Math.max(11, Math.min(16, H * 0.035)), gap = Math.max(r * 7.2, H * 0.27), sp = Math.max(150, Math.min(240, W * 0.4)) + Math.min(fl.s, 30) * 3;
+    if (fl.on && !fl.dead) {
+      fl.vy += g * dt; fl.y += fl.vy * dt; fl.t -= dt;
+      if (fl.t <= 0) { fl.p.push({ x: W + 30, gy: gap / 2 + 24 + Math.random() * (H - gap - 48), ok: 0 }); fl.t = 1.55 * 200 / sp * 1.1; }
+      fl.p.forEach(function (q) { q.x -= sp * dt; });
+      fl.p = fl.p.filter(function (q) { return q.x > -70; });
+      fl.p.forEach(function (q) {
+        if (!q.ok && q.x + 26 < bx) { q.ok = 1; fl.s++; $("flsc").textContent = fl.s; sfx("task"); }
+        if (bx + r > q.x && bx - r < q.x + 52 && (fl.y - r < q.gy - gap / 2 || fl.y + r > q.gy + gap / 2)) flDie();
+      });
+      if (fl.y + r > H || fl.y - r < 0) { fl.y = Math.max(r, Math.min(H - r, fl.y)); flDie(); }
+    } else if (fl.dead) { fl.y = Math.min(H - r, fl.y + fl.vy * dt); fl.vy += g * dt; }
+    else { fl.y = H / 2 + Math.sin(ts / 300) * 8; }
+    var cs = getComputedStyle(document.documentElement), x = fl.x, gr = cs.getPropertyValue("--green").trim() || "#3fb950", bl = cs.getPropertyValue("--blue").trim() || "#58a6ff", fg = cs.getPropertyValue("--fg").trim() || "#ccc", rd = cs.getPropertyValue("--red").trim() || "#f55", mu = cs.getPropertyValue("--muted").trim() || "#888";
+    x.clearRect(0, 0, W, H); x.globalAlpha = 1;
+    fl.p.forEach(function (q) { x.fillStyle = gr; x.globalAlpha = 0.85; x.fillRect(q.x, 0, 52, q.gy - gap / 2); x.fillRect(q.x, q.gy + gap / 2, 52, H); x.globalAlpha = 1; x.fillStyle = fg; x.globalAlpha = 0.25; x.fillRect(q.x - 4, q.gy - gap / 2 - 10, 60, 10); x.fillRect(q.x - 4, q.gy + gap / 2, 60, 10); x.globalAlpha = 1; });
+    x.save(); x.translate(bx, fl.y); x.rotate(Math.max(-0.5, Math.min(1, fl.vy / 900))); x.fillStyle = fl.dead ? rd : bl; x.beginPath(); x.arc(0, 0, r, 0, 7); x.fill();
+    x.fillStyle = "#fff"; x.beginPath(); x.arc(r * 0.35, -r * 0.25, r * 0.32, 0, 7); x.fill(); x.fillStyle = "#000"; x.beginPath(); x.arc(r * 0.45, -r * 0.25, r * 0.15, 0, 7); x.fill();
+    x.fillStyle = bl; x.globalAlpha = 0.6; x.beginPath(); x.ellipse(-r * 0.5, r * 0.1 + Math.sin(ts / 70) * 3, r * 0.6, r * 0.3, 0, 0, 7); x.fill(); x.restore(); x.globalAlpha = 1;
+    x.textAlign = "center"; x.fillStyle = fg; x.font = "700 " + Math.round(Math.min(64, W / 5)) + "px " + "ui-monospace, Menlo, monospace"; x.globalAlpha = 0.12; x.fillText("404", W / 2, H * 0.28); x.globalAlpha = 1;
+    x.font = "600 15px ui-monospace, Menlo, monospace";
+    if (!fl.on && !fl.dead) { x.fillStyle = fg; x.fillText("Flap 404", W / 2, H * 0.62); x.fillStyle = mu; x.font = "13px ui-monospace, Menlo, monospace"; x.fillText("tap anywhere to start. squeeze through the gaps.", W / 2, H * 0.62 + 24); }
+    if (fl.dead) { x.fillStyle = fg; x.font = "700 22px ui-monospace, Menlo, monospace"; x.fillText("Score " + fl.s + (fl.nb && fl.s ? " - new best!" : ""), W / 2, H * 0.45); x.fillStyle = mu; x.font = "13px ui-monospace, Menlo, monospace"; x.fillText("tap to try again", W / 2, H * 0.45 + 26); }
+    fl.raf = requestAnimationFrame(flLoop);
+  }
+  document.addEventListener("pointerdown", function (e) { if (!$("fl").hidden && e.target === $("flc")) { e.preventDefault(); flFlap(); } });
+  document.addEventListener("keydown", function (e) {
+    if ($("fl").hidden) return;
+    if (e.key === "Escape") { e.stopPropagation(); flClose(); } else if (e.key === " " || e.key === "ArrowUp") { e.preventDefault(); flFlap(); }
+  }, true);
+  window.addEventListener("resize", function () { if (!$("fl").hidden) flSize(); });
+  $("flx").addEventListener("click", flClose);
   // command palette (Ctrl/Cmd+K or the menu button)
   var CMDS = [
     ["Open Spark UI", "view", function () { showTab("spark"); }],
     ["Open orchestrator view", "view", function () { showTab("orch"); }],
     ["Re-run the DAG", "run", function () { if ($("rerun").disabled) say("A run is already in progress"); else $("rerun").click(); }],
     ["Fix the pipeline (puzzle)", "game", function () { $("play").click(); }],
-    ["Play Dedupe Dash (mini game)", "game", ddOpen]
+    ["Play Dedupe Dash (mini game)", "game", ddOpen],
+    ["Play Flap 404 (mini game)", "game", flOpen]
   ];
   ["dark", "light", "terminal"].forEach(function (n) { CMDS.push(["Theme: " + n, "theme", function () { setTheme(n, true); }]); });
   ["none", "matrix", "warp", "network", "lightning", "helix"].forEach(function (n) { CMDS.push(["Effect: " + n, "effect", function () { setFx(n); if (n !== "none") playFx(n); }]); });
