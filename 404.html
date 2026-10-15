@@ -105,6 +105,8 @@
   .fxwrap { display: inline-flex; gap: 4px; align-items: center; }
   .fxsel { font: inherit; font-size: 11px; color: var(--fg); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 4px 6px; max-width: 120px; }
   .fxsel:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+  .sbtn[aria-pressed="true"] { color: var(--onblue); background: var(--blue); border-color: var(--blue); }
+  .sbtn:disabled { opacity: .45; cursor: default; }
   #fxc { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 45; }
   .node.chaosn rect { stroke: var(--purple); fill: color-mix(in srgb, var(--purple) 16%, var(--panel)); animation: shake .3s; }
   .glitch { animation: glitch 1.3s steps(2, end); }
@@ -218,6 +220,9 @@
       <span class="fxwrap"><select class="fxsel" id="fxsel" aria-label="Celebration effect, plays when a run completes">
         <option value="none">effect: none</option><option value="confetti">confetti</option><option value="matrix">matrix rain</option><option value="fireworks">fireworks</option><option value="chaos">chaos monkey</option><option value="glitch">glitch</option>
       </select><button class="sbtn" id="fxplay" type="button" aria-label="Play effect">&#9654;</button></span>
+      <span class="fxwrap"><select class="fxsel" id="sndsel" aria-label="Sound style">
+        <option value="off">sound: off</option><option value="tick">soft tick</option><option value="chime">chime</option><option value="8bit">8-bit</option>
+      </select><button class="sbtn" id="vibbtn" type="button" aria-pressed="false">vibrate: off</button></span>
       <div class="themes" role="group" aria-label="Theme">
         <button type="button" data-t="dark" aria-pressed="true">dark</button>
         <button type="button" data-t="light" aria-pressed="false">light</button>
@@ -455,6 +460,7 @@
     if (s === "running") times[t] = { start: now, end: null };
     else if ((s === "success" || s === "skipped") && times[t] && !times[t].end) times[t].end = now;
     states[t] = s; paintAll(); renderDrawer();
+    if (s === "success" || s === "skipped") sfx("task");
   }
   mq.addEventListener ? mq.addEventListener("change", drawDag) : mq.addListener(drawDag);
 
@@ -543,7 +549,7 @@
     setState("render_page", "skipped"); setBadge("success"); stopClock(); running = false;
     log("INFO", "skipped. no page at this path, domain is purchased", "render_page");
     log("OK", "dag run completed. result: 404 page not found");
-    $("rerun").disabled = false; fxAuto();
+    $("rerun").disabled = false; fxAuto(); sfx("done");
   }
   function run() {
     exitGame(true);
@@ -603,6 +609,7 @@
     if (!silent) { run(); }
   }
   function nope(a, b) {
+    sfx("nope"); vib([30, 40, 30]);
     [a, b].forEach(function (t) { var g = nodeEls[t]; if (!g) return; g.classList.remove("nope"); void g.getBoundingClientRect(); g.classList.add("nope"); });
   }
   function gameClick(t) {
@@ -615,7 +622,7 @@
     var reverse = EDGES.some(function (e) { return e[0] + ">" + e[1] === rev; });
     if (valid && !game.made[key]) {
       game.made[key] = true; states[a] = "success"; states[b] = "success";
-      log("OK", "linked " + a + " → " + b);
+      log("OK", "linked " + a + " → " + b); sfx("link"); vib(20);
     } else if (valid) {
       log("INFO", a + " → " + b + " is already linked");
     } else if (reverse) {
@@ -633,7 +640,7 @@
     log("OK", "pipeline repaired in " + game.moves + " moves");
     log("INFO", "rendered 1 page: 404.html (it's the best we can do)", "render_page");
     $("gamemsg").textContent = "Pipeline repaired. Nice work. The page still doesn't exist, but you've earned bragging rights" + (OWNER_EMAIL ? " (and the contact button is glowing for you)." : ".");
-    gameUI(); confetti();
+    gameUI(); confetti(); sfx("win"); vib([40, 60, 40, 60, 120]);
     var b = $("mail"); b.classList.remove("glow"); void b.offsetWidth; b.classList.add("glow");
     say("Pipeline repaired in " + game.moves + " moves");
     $("gameexit").textContent = "Close";
@@ -657,7 +664,7 @@
     if (/^select\b/i.test(line)) { tprint("0 rows returned (0.004 s)"); return; }
     switch (c) {
       case "help":
-        tprint("commands:\n  help            this list\n  whoami          who are you?\n  ls              list the warehouse\n  cat contact     how to reach the owner\n  status          scheduler health\n  run             re-run the DAG\n  play            fix the pipeline puzzle\n  theme <name>    dark | light | terminal\n  effect <name>   confetti | matrix | fireworks | chaos | glitch | none\n  date            current time\n  clear           clear the terminal\n  select ...      run any SQL (spoiler: 0 rows)"); break;
+        tprint("commands:\n  help            this list\n  whoami          who are you?\n  ls              list the warehouse\n  cat contact     how to reach the owner\n  status          scheduler health\n  run             re-run the DAG\n  play            fix the pipeline puzzle\n  theme <name>    dark | light | terminal\n  effect <name>   confetti | matrix | fireworks | chaos | glitch | none\n  sound <name>    off | tick | chime | 8bit\n  vibrate on|off  haptics on supported phones\n  date            current time\n  clear           clear the terminal\n  select ...      run any SQL (spoiler: 0 rows)"); break;
       case "whoami": tprint("guest@" + host + " (you were not supposed to be here)"); break;
       case "ls": tprint("bronze.requests/   silver.requests/   gold.site_pages/\n404.html   domain.purchased   README.md"); break;
       case "cat":
@@ -673,6 +680,12 @@
       case "exit": if (game.on || game.won) { tprint("leaving puzzle"); exitGame(false); } else tprint("nothing to exit. you live here now."); break;
       case "theme":
         if (setTheme(arg, true)) tprint("theme: " + arg, "ok"); else tprint("usage: theme dark | light | terminal", "err"); break;
+      case "sound": case "sfx":
+        if (["off", "tick", "chime", "8bit"].indexOf(arg) >= 0) { if (reduce) { tprint("sound is paused (reduced motion is on)", "err"); break; } setSnd(arg); tprint("sound: " + arg, "ok"); sfx("done"); }
+        else tprint("usage: sound off | tick | chime | 8bit", "err"); break;
+      case "vibrate":
+        if (arg === "on" || arg === "off") { setVib(arg === "on", true); tprint("vibrate: " + (vibOn ? "on" : (arg === "on" ? "not available here" : "off")), vibOn || arg === "off" ? "ok" : "err"); }
+        else tprint("usage: vibrate on | off", "err"); break;
       case "effect": case "fx":
         if (arg === "none" || FXN[arg]) { setFx(arg); tprint("effect: " + arg, "ok"); if (arg !== "none") playFx(arg); }
         else tprint("usage: effect confetti | matrix | fireworks | chaos | glitch | none", "err"); break;
@@ -762,6 +775,42 @@
   try { var sv = localStorage.getItem("thetye-fx"); if (sv && FXN[sv]) { fxCur = sv; $("fxsel").value = sv; } } catch (e) {}
   $("fxsel").addEventListener("change", function () { setFx(this.value); if (fxCur !== "none") playFx(fxCur); });
   $("fxplay").addEventListener("click", function () { if (fxCur === "none") say("Pick an effect first"); else playFx(fxCur); });
+
+  // ---------------- sound + haptics ----------------
+  var sndCur = "off", vibOn = false, actx = null;
+  var PACKS = {
+    tick: { type: "sine", task: [[1800, .03]], done: [[1200, .05], [1600, .07]], link: [[1400, .04]], nope: [[220, .09]], win: [[880, .07], [1100, .07], [1320, .09]], key: [[2400, .012]] },
+    chime: { type: "triangle", task: [[784, .09]], done: [[523, .12], [659, .12], [784, .2]], link: [[659, .1]], nope: [[196, .14]], win: [[523, .12], [659, .12], [784, .12], [1047, .3]] },
+    "8bit": { type: "square", task: [[660, .05]], done: [[392, .07], [523, .07], [659, .07], [784, .14]], link: [[880, .05]], nope: [[150, .12]], win: [[523, .07], [659, .07], [784, .07], [1047, .07], [784, .07], [1047, .2]], key: [[1200, .02]] }
+  };
+  function sfx(ev) {
+    var pk = PACKS[sndCur]; if (!pk || !pk[ev] || reduce) return;
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      if (actx.state === "suspended") actx.resume();
+      var t = actx.currentTime + 0.01, vol = (sndCur === "8bit" ? 0.035 : 0.06) * (ev === "key" ? 0.5 : 1);
+      pk[ev].forEach(function (n) {
+        var o = actx.createOscillator(), g = actx.createGain();
+        o.type = pk.type; o.frequency.value = n[0];
+        g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.0001, t + n[1]);
+        o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + n[1] + 0.02); t += n[1] * 0.9;
+      });
+    } catch (e) {}
+  }
+  function vib(p) { if (!vibOn || reduce || !navigator.vibrate) return; try { navigator.vibrate(p); } catch (e) {} }
+  function setSnd(n) { sndCur = (PACKS[n] && !reduce) ? n : "off"; $("sndsel").value = sndCur; try { localStorage.setItem("thetye-snd", sndCur); } catch (e) {} }
+  function setVib(on, fb) {
+    vibOn = !!on && !!navigator.vibrate && !reduce;
+    var b = $("vibbtn"); b.setAttribute("aria-pressed", vibOn ? "true" : "false");
+    b.textContent = "vibrate: " + (navigator.vibrate ? (vibOn ? "on" : "off") : "n/a");
+    try { localStorage.setItem("thetye-vib", vibOn ? "1" : "0"); } catch (e) {}
+    if (vibOn && fb) vib(60);
+  }
+  if (!navigator.vibrate) { $("vibbtn").disabled = true; $("vibbtn").title = "Vibration is not supported on this device"; $("vibbtn").textContent = "vibrate: n/a"; }
+  try { var ss = localStorage.getItem("thetye-snd"); if (ss && PACKS[ss] && !reduce) { sndCur = ss; $("sndsel").value = ss; } if (localStorage.getItem("thetye-vib") === "1") setVib(true, false); } catch (e) {}
+  $("sndsel").addEventListener("change", function () { if (reduce) { say("Sound is paused (reduced motion is on)"); this.value = "off"; return; } setSnd(this.value); sfx("done"); });
+  $("vibbtn").addEventListener("click", function () { setVib(!vibOn, true); });
+  tin.addEventListener("input", function () { sfx("key"); });
 
   // ---------------- go ----------------
   drawDag(); run();
