@@ -153,6 +153,20 @@
   .fl .hud { display: flex; gap: 14px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--edge); font-size: 13px; }
   .fl .hud b { color: var(--blue); } .fl .hud .fh { flex: 1; color: var(--muted); font-size: 12px; }
   .fl canvas { flex: 1; width: 100%; display: block; min-height: 0; }
+  .plugl { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 110; }
+  .plugl .pl { pointer-events: auto; cursor: grab; touch-action: none; }
+  .plugl .pl:active { cursor: grabbing; }
+  .plugl .pl:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
+  .offs { position: fixed; inset: 0; z-index: 105; background: #000; color: #7dffb0; font-family: var(--mono); display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; font-size: 13px; line-height: 1.8; }
+  .offs[hidden] { display: none; }
+  .offs .led { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #f33; margin-right: 8px; animation: ledb 1.6s ease-in-out infinite; }
+  .offs pre { margin: 0; font: inherit; text-align: left; white-space: pre-wrap; }
+  .offs .hint { color: #4a6; opacity: 0; transition: opacity 1.2s; margin-top: 8px; } .offs .hint.show { opacity: 1; }
+  @keyframes ledb { 50% { opacity: .25; } }
+  @keyframes crtoff { 0% { transform: scale(1,1); filter: brightness(1); } 55% { transform: scale(1,.006); filter: brightness(4); } 100% { transform: scale(0,.006); filter: brightness(4); opacity: 0; } }
+  @keyframes crton { 0% { transform: scale(0,.006); filter: brightness(4); } 45% { transform: scale(1,.006); filter: brightness(3); } 100% { transform: scale(1,1); filter: brightness(1); } }
+  main.crtoff { animation: crtoff .55s ease-in forwards; }
+  main.crton { animation: crton .6s ease-out; }
   .pal { position: fixed; inset: 0; z-index: 70; background: rgba(0,0,0,.5); display: flex; align-items: flex-start; justify-content: center; padding: 12vh 14px 0; }
   .pal[hidden] { display: none; }
   .pal .box { width: 100%; max-width: 460px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 20px 60px var(--shadow); overflow: hidden; }
@@ -374,6 +388,8 @@
 </main>
 <div class="dd" id="dd" hidden role="dialog" aria-label="Dedupe Dash mini game"><div class="hud"><span>score <b id="ddsc">0</b></span><span>time <b id="ddt">30</b>s</span><span>best <b id="ddbest">0</b></span><span class="sp"></span><button class="sbtn" id="ddx" type="button">Exit (Esc)</button></div><div class="field" id="ddf"><div class="lake">gold.site_pages (keep it clean)</div><div class="msg" id="ddmsg"><h2>Dedupe Dash</h2><div>Dirty rows are falling into the gold layer.<br>Tap the <span style="color:var(--red)">NULL / dup / garbage</span> rows to drop them (+1).<br>Don't touch valid rows (-2). Anything dirty that lands costs -1.</div><button class="sbtn" id="ddgo" type="button">Start (30s)</button></div></div></div>
 <div class="fl" id="fl" hidden role="dialog" aria-label="Flap 404 mini game"><div class="hud"><span>score <b id="flsc">0</b></span><span>best <b id="flbest">0</b></span><span class="fh">tap / click / space to flap</span><button class="sbtn" id="flx" type="button">Exit (Esc)</button></div><canvas id="flc"></canvas></div>
+<div class="offs" id="offs" hidden aria-live="polite"><div><div id="offmsg"><span class="led"></span>no signal</div><div class="hint" id="offhint">power is out. plug the cable back into the socket (drag it, or just tap it).</div><pre id="bios"></pre></div></div>
+<svg class="plugl" id="plugl" aria-label="Server power cable"><path id="plc" fill="none" stroke-width="4" stroke-linecap="round" style="stroke:var(--muted)"/><g id="rack"><rect width="34" height="44" rx="5" style="fill:var(--panel);stroke:var(--edge)" stroke-width="1.5"/><rect x="6" y="8" width="22" height="5" rx="2" style="fill:var(--edge)"/><rect x="6" y="17" width="22" height="5" rx="2" style="fill:var(--edge)"/><circle id="rled" cx="10" cy="34" r="3" style="fill:var(--green)"/></g><g id="sock"><rect x="-10" y="-14" width="20" height="28" rx="4" style="fill:var(--panel2);stroke:var(--edge)" stroke-width="1.5"/><rect x="-3" y="-8" width="9" height="3" rx="1" style="fill:var(--muted)"/><rect x="-3" y="5" width="9" height="3" rx="1" style="fill:var(--muted)"/></g><g class="pl" id="plg" tabindex="0" role="button" aria-label="Power plug. Press Enter to pull it out or plug it in."><rect x="-8" y="-9" width="3" height="3" opacity="0"/><rect x="-14" y="-8" width="8" height="3" rx="1" style="fill:var(--fg)"/><rect x="-14" y="5" width="8" height="3" rx="1" style="fill:var(--fg)"/><rect x="-6" y="-13" width="22" height="26" rx="6" style="fill:var(--blue);stroke:var(--fg)" stroke-width="1.5"/><text x="5" y="4" text-anchor="middle" font-size="10" font-family="monospace" style="fill:var(--onblue)">PULL</text></g></svg>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -729,7 +745,7 @@
     if (/^select\b/i.test(line)) { tprint("0 rows returned (0.004 s)"); return; }
     switch (c) {
       case "help":
-        tprint("commands:\n  help            this list\n  whoami          who are you?\n  ls              list the warehouse\n  cat contact     how to reach the owner\n  status          scheduler health\n  run             re-run the DAG\n  play            fix the pipeline puzzle\n  dedupe          Dedupe Dash mini game\n  flap            Flap 404 (one-tap game)\n  theme <name>    dark | light | terminal\n  effect <name>   matrix | warp | network | lightning | helix | none\n  sound <name>    off | tick | chime | 8bit\n  vibrate on|off  haptics on supported phones\n  spark           open the Spark UI view\n  dag             back to the orchestrator view\n  hint            a clue for the next secret\n  secrets         how many you have found\n  share           copy your run summary\n  menu            command palette (Ctrl/Cmd+K)\n  date            current time\n  clear           clear the terminal\n  select ...      run any SQL (spoiler: 0 rows)"); break;
+        tprint("commands:\n  help            this list\n  whoami          who are you?\n  ls              list the warehouse\n  cat contact     how to reach the owner\n  status          scheduler health\n  run             re-run the DAG\n  play            fix the pipeline puzzle\n  dedupe          Dedupe Dash mini game\n  flap            Flap 404 (one-tap game)\n  poweroff        pull the plug (or drag the cable, bottom-left)\n  theme <name>    dark | light | terminal\n  effect <name>   matrix | warp | network | lightning | helix | none\n  sound <name>    off | tick | chime | 8bit\n  vibrate on|off  haptics on supported phones\n  spark           open the Spark UI view\n  dag             back to the orchestrator view\n  hint            a clue for the next secret\n  secrets         how many you have found\n  share           copy your run summary\n  menu            command palette (Ctrl/Cmd+K)\n  date            current time\n  clear           clear the terminal\n  select ...      run any SQL (spoiler: 0 rows)"); break;
       case "whoami": tprint("guest@" + host + " (you were not supposed to be here)"); break;
       case "ls": tprint("bronze.requests/   silver.requests/   gold.site_pages/\n404.html   domain.purchased   README.md"); break;
       case "cat":
@@ -752,6 +768,7 @@
         else tprint("git: this repo is read-only here. try: git blame", "err"); break;
       case "dedupe": case "dash": tprint("opening Dedupe Dash...", "ok"); ddOpen(); break;
       case "flap": case "game": tprint("opening Flap 404...", "ok"); flOpen(); break;
+      case "poweroff": case "shutdown": tprint("pulling the plug...", "ok"); setTimeout(function () { pl.x = pl.sx + 160; pl.y = pl.sy - 40; plDraw(); powerOff(); }, 500); break;
       case "konami": konami(); break;
       case "hint": hint(); break;
       case "secrets": tprint("secrets found: " + foundN() + "/" + SECRETS.length + (foundN() < SECRETS.length ? ". type hint for a clue." : ". all found. you win.")); break;
@@ -1284,6 +1301,75 @@
   }, true);
   window.addEventListener("resize", function () { if (!$("fl").hidden) flSize(); });
   $("flx").addEventListener("click", flClose);
+  // pull the plug: drag the power cable out, the page shuts down; plug it back in to boot
+  var pl = { off: 0, x: 0, y: 0, sx: 0, sy: 0, ax: 0, ay: 0, drag: 0, moved: 0, dx: 0, dy: 0, raf: 0, bt: [] };
+  function plLayout() {
+    var H = window.innerHeight; pl.sx = 26; pl.sy = H - 26; pl.ax = 40; pl.ay = H - 64;
+    $("rack").setAttribute("transform", "translate(6," + (H - 90) + ")"); $("sock").setAttribute("transform", "translate(" + pl.sx + "," + pl.sy + ")");
+    if (!pl.drag) { if (!pl.off) { pl.x = pl.sx + 22; pl.y = pl.sy; } else { pl.x = Math.min(pl.x, window.innerWidth - 30); pl.y = Math.min(pl.y, H - 20); } }
+    plDraw();
+  }
+  function plDraw() {
+    $("plg").setAttribute("transform", "translate(" + pl.x + "," + pl.y + ")");
+    var sag = pl.off || pl.drag ? 60 : 24;
+    $("plc").setAttribute("d", "M" + pl.ax + " " + pl.ay + " C" + (pl.ax + 60) + " " + (pl.ay + sag) + " " + (pl.x + 60) + " " + (pl.y + sag) + " " + (pl.x + 14) + " " + pl.y);
+    $("plc").style.stroke = pl.off ? "#5a6" : "var(--muted)";
+  }
+  function plSpring() {
+    cancelAnimationFrame(pl.raf);
+    (function st() {
+      var tx = pl.sx + 22, ty = pl.sy; pl.x += (tx - pl.x) * 0.3; pl.y += (ty - pl.y) * 0.3; plDraw();
+      if (Math.abs(tx - pl.x) + Math.abs(ty - pl.y) > 0.6) pl.raf = requestAnimationFrame(st); else { pl.x = tx; pl.y = ty; plDraw(); }
+    })();
+  }
+  function plClear() { pl.bt.forEach(clearTimeout); pl.bt = []; }
+  function powerOff() {
+    if (pl.off) return; pl.off = 1; plClear();
+    try { ddClose(); flClose(); fxReset(); } catch (e) {}
+    $("rled").style.fill = "var(--red)"; sfx("nope"); if (vibOn && navigator.vibrate) try { navigator.vibrate([30, 40, 60]); } catch (e) {}
+    var m = document.querySelector("main"), o = $("offs");
+    $("bios").textContent = ""; $("offmsg").style.display = ""; $("offhint").classList.remove("show");
+    function dark() { o.hidden = false; pl.bt.push(setTimeout(function () { $("offhint").classList.add("show"); }, 1800)); }
+    m.classList.remove("crton");
+    if (reduce) { m.style.visibility = "hidden"; dark(); } else { m.classList.add("crtoff"); pl.bt.push(setTimeout(dark, 520)); }
+    plDraw();
+  }
+  function powerOn() {
+    if (!pl.off) return; pl.off = 0; plClear(); sfx("win"); plSpring(); $("rled").style.fill = "var(--green)";
+    var o = $("offs"), m = document.querySelector("main"), b = $("bios"), L = ["thetye BIOS v4.04", "memory test ........ 640K ok", "mounting bronze/ silver/ gold/ ... ok", "starting scheduler (*/5 * * * *) ... ok", "page: not found. everything else: fine."], i = 0;
+    $("offmsg").style.display = "none"; $("offhint").classList.remove("show"); b.textContent = "";
+    function nx() {
+      if (i < L.length) { b.textContent += (i ? "\n" : "") + L[i++]; pl.bt.push(setTimeout(nx, reduce ? 60 : 300)); return; }
+      pl.bt.push(setTimeout(function () {
+        o.hidden = true; m.style.visibility = ""; m.classList.remove("crtoff");
+        if (!reduce) { m.classList.add("crton"); pl.bt.push(setTimeout(function () { m.classList.remove("crton"); }, 700)); }
+        say("Power restored");
+      }, reduce ? 60 : 450));
+    }
+    nx();
+  }
+  (function () {
+    var g = $("plg"), id = null;
+    function pt(e) { return { x: Math.max(14, Math.min(window.innerWidth - 20, e.clientX)), y: Math.max(14, Math.min(window.innerHeight - 14, e.clientY)) }; }
+    g.addEventListener("pointerdown", function (e) { e.preventDefault(); id = e.pointerId; try { g.setPointerCapture(id); } catch (x) {} pl.drag = 1; pl.moved = 0; pl.dx = e.clientX; pl.dy = e.clientY; cancelAnimationFrame(pl.raf); });
+    g.addEventListener("pointermove", function (e) {
+      if (!pl.drag || e.pointerId !== id) return; var q = pt(e);
+      if (Math.abs(e.clientX - pl.dx) + Math.abs(e.clientY - pl.dy) > 8) pl.moved = 1;
+      if (pl.moved) { pl.x = q.x; pl.y = q.y; plDraw(); }
+    });
+    function end(e) {
+      if (!pl.drag || e.pointerId !== id) return; pl.drag = 0; var far = Math.hypot(pl.x - (pl.sx + 22), pl.y - pl.sy);
+      if (!pl.off) { if (pl.moved && far > 90) powerOff(); else plSpring(); }
+      else if (!pl.moved || far < 50) powerOn();
+      plDraw();
+    }
+    g.addEventListener("pointerup", end); g.addEventListener("pointercancel", end);
+    g.addEventListener("keydown", function (e) {
+      if (e.key !== "Enter" && e.key !== " ") return; e.preventDefault(); e.stopPropagation();
+      if (pl.off) powerOn(); else { pl.x = pl.sx + 160; pl.y = pl.sy - 40; plDraw(); powerOff(); }
+    });
+  })();
+  window.addEventListener("resize", plLayout); plLayout();
   // command palette (Ctrl/Cmd+K or the menu button)
   var CMDS = [
     ["Open Spark UI", "view", function () { showTab("spark"); }],
@@ -1291,7 +1377,8 @@
     ["Re-run the DAG", "run", function () { if ($("rerun").disabled) say("A run is already in progress"); else $("rerun").click(); }],
     ["Fix the pipeline (puzzle)", "game", function () { $("play").click(); }],
     ["Play Dedupe Dash (mini game)", "game", ddOpen],
-    ["Play Flap 404 (mini game)", "game", flOpen]
+    ["Play Flap 404 (mini game)", "game", flOpen],
+    ["Pull the plug", "power", function () { pl.x = pl.sx + 160; pl.y = pl.sy - 40; plDraw(); powerOff(); }]
   ];
   ["dark", "light", "terminal"].forEach(function (n) { CMDS.push(["Theme: " + n, "theme", function () { setTheme(n, true); }]); });
   ["none", "matrix", "warp", "network", "lightning", "helix"].forEach(function (n) { CMDS.push(["Effect: " + n, "effect", function () { setFx(n); if (n !== "none") playFx(n); }]); });
