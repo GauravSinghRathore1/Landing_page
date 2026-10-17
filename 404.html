@@ -154,6 +154,22 @@
   .fl .hud { display: flex; gap: 14px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--edge); font-size: 13px; }
   .fl .hud b { color: var(--blue); } .fl .hud .fh { flex: 1; color: var(--muted); font-size: 12px; }
   .fl canvas { flex: 1; width: 100%; display: block; min-height: 0; }
+  .offs .bar { width: min(320px, 70vw); height: 6px; border: 1px solid #2a6; border-radius: 3px; margin: 14px 0 0; overflow: hidden; display: none; }
+  .offs.boot .bar { display: block; }
+  .offs .bar i { display: block; height: 100%; width: 0; background: #7dffb0; box-shadow: 0 0 8px #7dffb0; }
+  .offs .ok { color: #7dffb0; font-weight: 700; }
+  .offs::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(circle at 8% 95%, #e6fff0, rgba(125,255,176,.35) 40%, transparent 72%); }
+  .offs.surge::after { animation: surge .6s linear; }
+  .offs.tear > div { animation: tear .3s steps(2, end); }
+  @keyframes surge { 0% { opacity: 0; } 8% { opacity: .95; } 16% { opacity: .1; } 28% { opacity: 1; } 38% { opacity: 0; } 52% { opacity: .6; } 64% { opacity: .05; } 78% { opacity: .35; } 100% { opacity: 0; } }
+  @keyframes tear { 0% { transform: none; } 25% { transform: translateX(-14px) skewX(8deg); filter: hue-rotate(90deg); } 50% { transform: translateX(18px) skewX(-6deg); filter: hue-rotate(-60deg); } 75% { transform: translateX(-6px); } 100% { transform: none; filter: none; } }
+  .bskip { position: fixed; top: 12px; right: 12px; z-index: 120; color: #7dffb0; background: #000; border-color: #2a6; }
+  .bskip[hidden] { display: none; }
+  .sweep { position: fixed; left: 0; right: 0; top: -170px; height: 160px; z-index: 104; pointer-events: none; mix-blend-mode: screen; background: linear-gradient(transparent, color-mix(in srgb, var(--blue) 20%, transparent) 70%, color-mix(in srgb, var(--blue) 60%, #fff) 98%, transparent); animation: sweep 1.6s ease-in-out forwards; }
+  @keyframes sweep { to { transform: translateY(calc(100vh + 170px)); } }
+  main > .pwr { opacity: 0; }
+  main > .pwr.on { animation: kidon .6s ease-out forwards; }
+  @keyframes kidon { 0% { opacity: 0; filter: brightness(4) drop-shadow(0 0 14px var(--blue)); } 25% { opacity: 1; filter: brightness(2.6) drop-shadow(0 0 14px var(--blue)); } 40% { opacity: .3; } 55% { opacity: 1; filter: brightness(1.8) drop-shadow(0 0 8px var(--blue)); } 100% { opacity: 1; filter: brightness(1) drop-shadow(0 0 0 transparent); } }
   html.pwroff main { visibility: hidden; }
   html.pwroff body { background: #000; }
   .plugl { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 110; }
@@ -391,8 +407,9 @@
 </main>
 <div class="dd" id="dd" hidden role="dialog" aria-label="Dedupe Dash mini game"><div class="hud"><span>score <b id="ddsc">0</b></span><span>time <b id="ddt">30</b>s</span><span>best <b id="ddbest">0</b></span><span class="sp"></span><button class="sbtn" id="ddx" type="button">Exit (Esc)</button></div><div class="field" id="ddf"><div class="lake">gold.site_pages (keep it clean)</div><div class="msg" id="ddmsg"><h2>Dedupe Dash</h2><div>Dirty rows are falling into the gold layer.<br>Tap the <span style="color:var(--red)">NULL / dup / garbage</span> rows to drop them (+1).<br>Don't touch valid rows (-2). Anything dirty that lands costs -1.</div><button class="sbtn" id="ddgo" type="button">Start (30s)</button></div></div></div>
 <div class="fl" id="fl" hidden role="dialog" aria-label="Flap 404 mini game"><div class="hud"><span>score <b id="flsc">0</b></span><span>best <b id="flbest">0</b></span><span class="fh">tap / click / space to flap</span><button class="sbtn" id="flx" type="button">Exit (Esc)</button></div><canvas id="flc"></canvas></div>
-<div class="offs" id="offs" hidden aria-live="polite"><div><div id="offmsg"><span class="led"></span>no signal</div><div class="hint" id="offhint">power is out. plug the cable back into the socket (drag it, or just tap it).</div><pre id="bios"></pre></div></div>
-<svg class="plugl" id="plugl" aria-label="Server power cable"><path id="plc" fill="none" stroke-width="4" stroke-linecap="round" style="stroke:var(--muted)"/><g id="rack"><rect width="34" height="44" rx="5" style="fill:var(--panel);stroke:var(--edge)" stroke-width="1.5"/><rect x="6" y="8" width="22" height="5" rx="2" style="fill:var(--edge)"/><rect x="6" y="17" width="22" height="5" rx="2" style="fill:var(--edge)"/><circle id="rled" cx="10" cy="34" r="3" style="fill:var(--green)"/></g><g id="sock"><rect x="-10" y="-14" width="20" height="28" rx="4" style="fill:var(--panel2);stroke:var(--edge)" stroke-width="1.5"/><rect x="-3" y="-8" width="9" height="3" rx="1" style="fill:var(--muted)"/><rect x="-3" y="5" width="9" height="3" rx="1" style="fill:var(--muted)"/></g><g class="pl" id="plg" tabindex="0" role="button" aria-label="Power plug. Press Enter to pull it out or plug it in."><circle cx="0" cy="0" r="30" fill="#000" fill-opacity="0.001"/><rect x="-14" y="-8" width="8" height="3" rx="1" style="fill:var(--fg)"/><rect x="-14" y="5" width="8" height="3" rx="1" style="fill:var(--fg)"/><rect x="-6" y="-13" width="22" height="26" rx="6" style="fill:var(--blue);stroke:var(--fg)" stroke-width="1.5"/><text x="5" y="4" text-anchor="middle" font-size="9" font-family="monospace" style="fill:var(--onblue)">PULL</text></g></svg>
+<button class="sbtn bskip" id="bskip" type="button" hidden>Skip &#9656;</button>
+<div class="offs" id="offs" hidden aria-live="polite"><div><div id="offmsg"><span class="led"></span>no signal</div><div class="hint" id="offhint">power is out. plug the cable back into the socket (drag it, or just tap it).</div><pre id="bios"></pre><div class="bar"><i id="bfill"></i></div></div></div>
+<svg class="plugl" id="plugl" aria-label="Server power cable"><path id="plc" fill="none" stroke-width="4" stroke-linecap="round" style="stroke:var(--muted)"/><g id="spk"></g><g id="rack"><rect width="34" height="44" rx="5" style="fill:var(--panel);stroke:var(--edge)" stroke-width="1.5"/><rect x="6" y="8" width="22" height="5" rx="2" style="fill:var(--edge)"/><rect x="6" y="17" width="22" height="5" rx="2" style="fill:var(--edge)"/><circle id="rled" cx="10" cy="34" r="3" style="fill:var(--green)"/></g><g id="sock"><rect x="-10" y="-14" width="20" height="28" rx="4" style="fill:var(--panel2);stroke:var(--edge)" stroke-width="1.5"/><rect x="-3" y="-8" width="9" height="3" rx="1" style="fill:var(--muted)"/><rect x="-3" y="5" width="9" height="3" rx="1" style="fill:var(--muted)"/></g><g class="pl" id="plg" tabindex="0" role="button" aria-label="Power plug. Press Enter to pull it out or plug it in."><circle cx="0" cy="0" r="30" fill="#000" fill-opacity="0.001"/><rect x="-14" y="-8" width="8" height="3" rx="1" style="fill:var(--fg)"/><rect x="-14" y="5" width="8" height="3" rx="1" style="fill:var(--fg)"/><rect x="-6" y="-13" width="22" height="26" rx="6" style="fill:var(--blue);stroke:var(--fg)" stroke-width="1.5"/><text x="5" y="4" text-anchor="middle" font-size="9" font-family="monospace" style="fill:var(--onblue)">PULL</text></g></svg>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -1327,7 +1344,7 @@
   }
   function plClear() { pl.bt.forEach(clearTimeout); pl.bt = []; }
   function powerOff() {
-    if (pl.off) return; pl.off = 1; plClear(); try { localStorage.setItem("thetye-power", "off"); } catch (e) {}
+    if (pl.off) return; pl.off = 1; bootClean(); try { localStorage.setItem("thetye-power", "off"); } catch (e) {}
     try { ddClose(); flClose(); fxReset(); } catch (e) {}
     $("rled").style.fill = "var(--red)"; sfx("nope"); if (vibOn && navigator.vibrate) try { navigator.vibrate([30, 40, 60]); } catch (e) {}
     var m = document.querySelector("main"), o = $("offs");
@@ -1337,20 +1354,51 @@
     if (reduce) { m.style.visibility = "hidden"; dark(); } else { m.classList.add("crtoff"); pl.bt.push(setTimeout(dark, 520)); }
     plDraw();
   }
-  function powerOn() {
-    if (!pl.off) return; pl.off = 0; plClear(); try { localStorage.removeItem("thetye-power"); } catch (e) {} sfx("win"); plSpring(); $("rled").style.fill = "var(--green)";
-    var o = $("offs"), m = document.querySelector("main"), b = $("bios"), L = ["thetye BIOS v4.04", "memory test ........ 640K ok", "mounting bronze/ silver/ gold/ ... ok", "starting scheduler (*/5 * * * *) ... ok", "page: not found. everything else: fine."], i = 0;
-    $("offmsg").style.display = "none"; $("offhint").classList.remove("show"); b.textContent = "";
-    function nx() {
-      if (i < L.length) { b.textContent += (i ? "\n" : "") + L[i++]; pl.bt.push(setTimeout(nx, reduce ? 60 : 300)); return; }
-      pl.bt.push(setTimeout(function () {
-        o.hidden = true; m.style.visibility = ""; m.classList.remove("crtoff");
-        if (!reduce) { m.classList.add("crton"); pl.bt.push(setTimeout(function () { m.classList.remove("crton"); }, 700)); }
-        say("Power restored");
-      }, reduce ? 60 : 450));
-    }
-    nx();
+  function bootClean() {
+    plClear(); clearInterval(pl.iv); cancelAnimationFrame(pl.sraf);
+    var o = $("offs"), m = document.querySelector("main"); o.classList.remove("boot", "surge", "tear"); $("bskip").hidden = true; $("spk").textContent = "";
+    Array.prototype.forEach.call(m.children, function (k) { k.classList.remove("pwr", "on"); });
+    var w = document.querySelector(".sweep"); if (w) w.remove(); m.classList.remove("crton", "crtoff");
   }
+  function bootDone() { bootClean(); $("offs").hidden = true; document.querySelector("main").style.visibility = ""; $("bios").textContent = ""; }
+  function plSpark() {
+    var g = $("spk"), n = 12, ps = [], t0 = performance.now(); g.textContent = "";
+    for (var i = 0; i < n; i++) { var l = document.createElementNS("http://www.w3.org/2000/svg", "line"); l.setAttribute("stroke", "#ffe08a"); l.setAttribute("stroke-width", "2"); l.setAttribute("stroke-linecap", "round"); g.appendChild(l); ps.push({ l: l, a: -Math.PI * (0.05 + Math.random() * 0.9), v: 80 + Math.random() * 160 }); }
+    (function f(t) {
+      var k = (t - t0) / 450; if (k >= 1) { g.textContent = ""; return; }
+      ps.forEach(function (q) { var d1 = q.v * k, d2 = q.v * Math.max(0, k - 0.15); q.l.setAttribute("x1", pl.sx + Math.cos(q.a) * d2); q.l.setAttribute("y1", pl.sy + Math.sin(q.a) * d2 + 30 * k * k); q.l.setAttribute("x2", pl.sx + Math.cos(q.a) * d1); q.l.setAttribute("y2", pl.sy + Math.sin(q.a) * d1 + 30 * k * k); q.l.setAttribute("opacity", 1 - k); });
+      pl.sraf = requestAnimationFrame(f);
+    })(t0);
+  }
+  function powerOn() {
+    if (!pl.off) return; pl.off = 0; bootClean(); try { localStorage.removeItem("thetye-power"); } catch (e) {} sfx("win"); plSpring(); $("rled").style.fill = "var(--green)";
+    var o = $("offs"), m = document.querySelector("main"), b = $("bios"), kids = Array.prototype.slice.call(m.children), sk = $("bskip");
+    $("offmsg").style.display = "none"; $("offhint").classList.remove("show"); b.textContent = "";
+    if (reduce) { bootDone(); say("Power restored"); return; }
+    sk.hidden = false; o.classList.add("boot", "surge"); plSpark();
+    function at(ms, fn) { pl.bt.push(setTimeout(fn, ms)); }
+    function line(txt, ok) { var d = document.createElement("div"); d.appendChild(document.createTextNode(txt)); if (ok) { var k = document.createElement("span"); k.className = "ok"; k.textContent = " OK"; d.appendChild(k); } b.appendChild(d); return d; }
+    var bf = $("bfill"); bf.style.transition = "none"; bf.style.width = "0"; void bf.offsetWidth; bf.style.transition = "width 1.6s linear";
+    at(500, function () { bf.style.width = "100%"; line("thetye BIOS v4.04"); });
+    at(700, function () {
+      var d = line("memory test ........ "), c = document.createElement("span"), n = 0; d.appendChild(c);
+      pl.iv = setInterval(function () { n += 40; c.textContent = Math.min(n, 640) + "K"; if (n >= 640) { clearInterval(pl.iv); var k = document.createElement("span"); k.className = "ok"; k.textContent = " OK"; d.appendChild(k); } }, 28);
+    });
+    at(1250, function () { line("mounting bronze/ silver/ gold/ ...", 1); });
+    at(1500, function () { line("starting scheduler (*/5 * * * *) ...", 1); });
+    at(1650, function () { o.classList.add("tear"); });
+    at(1750, function () { line("page: not found. everything else: fine."); });
+    at(2150, function () {
+      o.hidden = true; o.classList.remove("boot", "surge", "tear"); sk.hidden = true; b.textContent = "";
+      kids.forEach(function (k) { k.classList.add("pwr"); });
+      m.style.visibility = ""; m.classList.remove("crtoff"); m.classList.add("crton");
+      var sw = document.createElement("div"); sw.className = "sweep"; document.body.appendChild(sw);
+      kids.forEach(function (k, i) { at(120 + i * 95, function () { k.classList.add("on"); }); });
+      at(120 + kids.length * 95 + 800, function () { bootClean(); say("Power restored"); });
+    });
+  }
+  $("bskip").addEventListener("click", function () { bootDone(); say("Power restored"); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("bskip").hidden) { e.stopPropagation(); bootDone(); } }, true);
   (function () {
     var g = $("plg"), id = null;
     function pt(e) { return { x: Math.max(14, Math.min(window.innerWidth - 20, e.clientX)), y: Math.max(14, Math.min(window.innerHeight - 14, e.clientY)) }; }
