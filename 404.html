@@ -15,6 +15,7 @@
       else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) t = "light";
     } catch (e) {}
     document.documentElement.setAttribute("data-theme", t);
+    try { if (localStorage.getItem("thetye-power") === "off") document.documentElement.className += " pwroff"; } catch (e) {}
   })();
 </script>
 <style>
@@ -153,6 +154,8 @@
   .fl .hud { display: flex; gap: 14px; align-items: center; padding: 10px 14px; border-bottom: 1px solid var(--edge); font-size: 13px; }
   .fl .hud b { color: var(--blue); } .fl .hud .fh { flex: 1; color: var(--muted); font-size: 12px; }
   .fl canvas { flex: 1; width: 100%; display: block; min-height: 0; }
+  html.pwroff main { visibility: hidden; }
+  html.pwroff body { background: #000; }
   .plugl { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 110; }
   .plugl .pl { pointer-events: auto; cursor: grab; touch-action: none; }
   .plugl .pl:active { cursor: grabbing; }
@@ -1324,7 +1327,7 @@
   }
   function plClear() { pl.bt.forEach(clearTimeout); pl.bt = []; }
   function powerOff() {
-    if (pl.off) return; pl.off = 1; plClear();
+    if (pl.off) return; pl.off = 1; plClear(); try { localStorage.setItem("thetye-power", "off"); } catch (e) {}
     try { ddClose(); flClose(); fxReset(); } catch (e) {}
     $("rled").style.fill = "var(--red)"; sfx("nope"); if (vibOn && navigator.vibrate) try { navigator.vibrate([30, 40, 60]); } catch (e) {}
     var m = document.querySelector("main"), o = $("offs");
@@ -1335,7 +1338,7 @@
     plDraw();
   }
   function powerOn() {
-    if (!pl.off) return; pl.off = 0; plClear(); sfx("win"); plSpring(); $("rled").style.fill = "var(--green)";
+    if (!pl.off) return; pl.off = 0; plClear(); try { localStorage.removeItem("thetye-power"); } catch (e) {} sfx("win"); plSpring(); $("rled").style.fill = "var(--green)";
     var o = $("offs"), m = document.querySelector("main"), b = $("bios"), L = ["thetye BIOS v4.04", "memory test ........ 640K ok", "mounting bronze/ silver/ gold/ ... ok", "starting scheduler (*/5 * * * *) ... ok", "page: not found. everything else: fine."], i = 0;
     $("offmsg").style.display = "none"; $("offhint").classList.remove("show"); b.textContent = "";
     function nx() {
@@ -1371,6 +1374,12 @@
     });
   })();
   window.addEventListener("resize", plLayout); plLayout();
+  if (document.documentElement.className.indexOf("pwroff") >= 0) {
+    pl.off = 1; pl.x = Math.min(pl.sx + 170, window.innerWidth - 30); pl.y = pl.sy - 40; plDraw();
+    $("rled").style.fill = "var(--red)"; $("offs").hidden = false; document.querySelector("main").style.visibility = "hidden";
+    document.documentElement.className = document.documentElement.className.replace(" pwroff", "");
+    pl.bt.push(setTimeout(function () { $("offhint").classList.add("show"); }, 1200));
+  }
   // command palette (Ctrl/Cmd+K or the menu button)
   var CMDS = [
     ["Open Spark UI", "view", function () { showTab("spark"); }],
