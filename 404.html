@@ -209,6 +209,22 @@
   .panel > .actions { padding-top: 10px; }
   @media (max-width: 520px) { .dagid small { display: none; } .setpop { left: 12px; } .hero { padding-top: 20px; } }
   @media (prefers-reduced-motion: reduce) { .hero h1, .panel:not([hidden]) { animation: none; } }
+  .scene { position: relative; margin: 16px; height: 270px; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: radial-gradient(420px 220px at 50% 40%, color-mix(in srgb, var(--blue) 14%, transparent), transparent 70%), var(--panel2); touch-action: pan-y; }
+  .big404 { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(96px, 28vw, 180px); font-weight: 800; letter-spacing: -.04em; background: linear-gradient(90deg, var(--blue), var(--purple), var(--green), var(--blue)); background-size: 240% auto; -webkit-background-clip: text; background-clip: text; color: transparent; opacity: .9; animation: shim 10s linear infinite, bob 5s ease-in-out infinite; pointer-events: none; user-select: none; }
+  @keyframes bob { 50% { transform: translateY(-8px); } }
+  .shapes { position: absolute; inset: 0; }
+  .sh { position: absolute; transform: translate(calc(var(--mx, 0) * var(--d) * 22px), calc(var(--my, 0) * var(--d) * 22px)); transition: transform .25s ease-out; }
+  .si { display: block; cursor: pointer; opacity: .85; animation: drift var(--t) ease-in-out infinite alternate; transition: transform .25s, opacity .25s; }
+  .si.pop { transform: scale(2.2); opacity: 0; pointer-events: none; }
+  .si:hover { opacity: 1; filter: brightness(1.15); }
+  @keyframes drift { from { transform: translateY(-10px) rotate(-8deg); } to { transform: translateY(12px) rotate(10deg); } }
+  .bit { position: absolute; width: 6px; height: 6px; border-radius: 50%; pointer-events: none; animation: bit .6s ease-out forwards; }
+  @keyframes bit { to { transform: translate(var(--bx), var(--by)); opacity: 0; } }
+  .scap { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-size: 12px; color: var(--muted); padding: 0 12px; pointer-events: none; }
+  .scap #popn { color: var(--fg); font-weight: 600; }
+  .sched { justify-content: center; }
+  .top .badge, #runid { display: none; }
+  @media (prefers-reduced-motion: reduce) { .big404, .si { animation: none; } .sh { transition: none; } }
   .pal { position: fixed; inset: 0; z-index: 70; background: rgba(0,0,0,.5); display: flex; align-items: flex-start; justify-content: center; padding: 12vh 14px 0; }
   .pal[hidden] { display: none; }
   .pal .box { width: 100%; max-width: 460px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 20px 60px var(--shadow); overflow: hidden; }
@@ -327,7 +343,7 @@
   <div class="top">
     <div class="brand">
       <svg class="logo" id="logo" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 12 L19 8" stroke="#bc8cff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/></svg>
-      <div class="dagid"><span id="dagid">serve_site</span><small id="runid"></small></div>
+      <div class="dagid"><span id="dagid">thetye.store</span><small id="runid"></small></div>
     </div>
     <div class="right">
       <span class="badge running" id="badge">running</span>
@@ -341,7 +357,7 @@
         <button type="button" data-t="terminal" aria-pressed="false">terminal</button>
       </div></div>
       <div class="srow"><span>Effect</span><span class="fxwrap"><select class="fxsel" id="fxsel" aria-label="Celebration effect, plays when a run completes">
-        <option value="none">effect: none</option><option value="matrix">matrix rain</option><option value="warp">hyperspace</option><option value="network">lineage burst</option><option value="lightning">lightning</option><option value="helix">dna helix</option>
+        <option value="none">effect: none</option><option value="matrix">matrix rain</option><option value="warp">hyperspace</option><option value="network">network burst</option><option value="lightning">lightning</option><option value="helix">dna helix</option>
       </select><button class="sbtn" id="fxplay" type="button" aria-label="Play effect">&#9654;</button></span></div>
       <div class="srow"><span>Sound</span><span class="fxwrap"><select class="fxsel" id="sndsel" aria-label="Sound style">
         <option value="off">sound: off</option><option value="tick">soft tick</option><option value="chime">chime</option><option value="8bit">8-bit</option>
@@ -356,23 +372,27 @@
     <div class="cta"><a class="btn primary" id="mail" href="#">Contact the owner</a><button class="btn ghost" id="copy" type="button">Copy email</button></div>
   </div>
 
-  <div class="sched" aria-label="Scheduler">
-    <span>schedule <b>*/5 * * * *</b></span>
-    <span>next run in <b id="nextrun">--:--</b></span>
-    <span><i class="hb" id="hb"></i>heartbeat <b id="hbt">--:--:--</b></span>
-    <span>secrets <b id="secn">0/6</b></span><span id="fri" hidden>never deploy on a Friday</span>
+  <div class="sched" aria-label="Hidden surprises">
+    <span>&#10022; hidden surprises found <b id="secn">0/6</b></span>
+    <span hidden><b id="nextrun">--:--</b><i class="hb" id="hb"></i><b id="hbt">--:--:--</b><span id="fri" hidden></span></span>
   </div>
 
 
   <div class="ptabs" role="tablist" aria-label="Sections">
-    <button type="button" role="tab" id="tab_orch" aria-selected="true">Pipeline</button>
-    <button type="button" role="tab" id="tab_spark" aria-selected="false">Spark UI</button>
-    <button type="button" role="tab" id="tab_term" aria-selected="false">Terminal</button>
+    <button type="button" role="tab" id="tab_orch" aria-selected="true">Home</button>
+    <button type="button" role="tab" id="tab_spark" aria-selected="false" hidden>Spark UI</button>
+    <button type="button" role="tab" id="tab_term" aria-selected="false" hidden>Terminal</button>
     <button type="button" role="tab" id="tab_games" aria-selected="false">Games</button>
     <button type="button" role="tab" id="tab_about" aria-selected="false">About</button>
   </div>
 
   <div class="panel" id="pn_pipe">
+    <div class="scene" id="scene" aria-label="Decorative animated scene">
+      <div class="big404" aria-hidden="true">404</div>
+      <div class="shapes" id="shapes" aria-hidden="true"></div>
+      <div class="scap">Nothing to see here, but the domain has a new owner. <span id="popn">Pop the shapes!</span></div>
+    </div>
+    <div id="nerd" hidden>
   <h2 id="grapht">Graph &middot; run view</h2>
   <div class="gamebar" id="gamebar" hidden>
     <div class="msg" id="gamemsg"></div>
@@ -402,7 +422,9 @@
   <h2><span id="logtitle">Logs &middot; all tasks</span><button class="chip" id="showall" type="button" hidden>show all</button></h2>
   <div class="log" id="log" role="log" aria-live="polite"></div>
 
-  <div class="actions"><button class="btn ghost" id="rerun" type="button" disabled>Clear task &amp; re-run</button></div>
+  <div class="actions"><button class="btn ghost" id="play" type="button">Fix the pipeline</button><button class="btn ghost" id="rerun" type="button" disabled>Clear task &amp; re-run</button></div>
+  
+    </div>
   </div>
 
   <div class="panel" id="pn_term" hidden>
@@ -418,24 +440,23 @@
 
   <div class="panel" id="pn_games" hidden>
     <div class="gcards">
-      <div class="gcard"><b>Fix the pipeline</b><p>Link the tasks in the right order.</p><button class="btn ghost" id="play" type="button">Fix the pipeline</button></div>
-      <div class="gcard"><b>Dedupe Dash</b><p>Tap the dirty rows before they land.</p><button class="btn ghost" id="g_dd" type="button">Play</button></div>
+      <div class="gcard"><b>Clean Sweep</b><p>Tap the junk before it lands. Leave the good stuff.</p><button class="btn ghost" id="g_dd" type="button">Play</button></div>
       <div class="gcard"><b>Flap 404</b><p>One tap. Squeeze through the gaps.</p><button class="btn ghost" id="g_fl" type="button">Play</button></div>
-      <div class="gcard"><b>Pull the plug</b><p>Cut the power. Plug it back in to boot.</p><button class="btn ghost" id="g_pl" type="button">Pull it</button></div>
+      <div class="gcard"><b>Pull the plug</b><p>Cut the power. Plug it back in to wake the page.</p><button class="btn ghost" id="g_pl" type="button">Pull it</button></div>
     </div>
   </div>
 
   <div class="panel" id="pn_about" hidden>
-  <h2>Task instance details</h2>
+  <h2>About this page</h2>
   <div class="kv">
-    <div class="k">domain</div><div id="host">thetye.store</div>
-    <div class="k">requested path</div><div id="path"></div>
-    <div class="k">state</div><div id="state">running</div>
-    <div class="k">duration</div><div id="dur">0.0s</div>
-    <div class="k">owner</div><div>data-engineer</div>
+    <div class="k">Domain</div><div id="host">thetye.store</div>
+    <div class="k">You asked for</div><div id="path"></div>
+    <div class="k" hidden>state</div><div id="state" hidden>running</div>
+    <div class="k" hidden>duration</div><div id="dur" hidden>0.0s</div>
+    <div class="k" hidden>owner</div><div hidden>data-engineer</div>
   </div>
 
-  <h2>Owner</h2>
+  <h2>Who&rsquo;s behind it</h2>
   <div class="owner" id="owner">
     <div class="avatar" id="avatar" aria-hidden="true">DE</div>
     <div>
@@ -447,9 +468,9 @@
 
   </div>
 
-  <div class="foot"><span>scheduler: healthy</span><span>webserver: healthy</span><span>page: not found</span></div>
+  <div class="foot"><span>page not found</span><span>domain purchased</span><span>everything else is fine</span></div>
 </main>
-<div class="dd" id="dd" hidden role="dialog" aria-label="Dedupe Dash mini game"><div class="hud"><span>score <b id="ddsc">0</b></span><span>time <b id="ddt">30</b>s</span><span>best <b id="ddbest">0</b></span><span class="sp"></span><button class="sbtn" id="ddx" type="button">Exit (Esc)</button></div><div class="field" id="ddf"><div class="lake">gold.site_pages (keep it clean)</div><div class="msg" id="ddmsg"><h2>Dedupe Dash</h2><div>Dirty rows are falling into the gold layer.<br>Tap the <span style="color:var(--red)">NULL / dup / garbage</span> rows to drop them (+1).<br>Don't touch valid rows (-2). Anything dirty that lands costs -1.</div><button class="sbtn" id="ddgo" type="button">Start (30s)</button></div></div></div>
+<div class="dd" id="dd" hidden role="dialog" aria-label="Clean Sweep mini game"><div class="hud"><span>score <b id="ddsc">0</b></span><span>time <b id="ddt">30</b>s</span><span>best <b id="ddbest">0</b></span><span class="sp"></span><button class="sbtn" id="ddx" type="button">Exit (Esc)</button></div><div class="field" id="ddf"><div class="lake">the clean zone (keep it tidy)</div><div class="msg" id="ddmsg"><h2>Clean Sweep</h2><div>Messy items are falling into the clean zone.<br>Tap the <span style="color:var(--red)">spam, junk and typos</span> to sweep them away (+1).<br>Don't touch the good stuff (-2). Anything messy that lands costs -1.</div><button class="sbtn" id="ddgo" type="button">Start (30s)</button></div></div></div>
 <div class="fl" id="fl" hidden role="dialog" aria-label="Flap 404 mini game"><div class="hud"><span>score <b id="flsc">0</b></span><span>best <b id="flbest">0</b></span><span class="fh">tap / click / space to flap</span><button class="sbtn" id="flx" type="button">Exit (Esc)</button></div><canvas id="flc"></canvas></div>
 <button class="sbtn bskip" id="bskip" type="button" hidden>Skip &#9656;</button>
 <div class="offs" id="offs" hidden aria-live="polite"><div><div id="offmsg"><span class="led"></span>no signal</div><div class="hint" id="offhint">power is out. plug the cable back into the socket (drag it, or just tap it).</div><pre id="bios"></pre><div class="bar"><i id="bfill"></i></div></div></div>
@@ -475,7 +496,7 @@
   var shown = rawPath.length > 48 ? rawPath.slice(0, 45) + "..." : rawPath;
   $("host").textContent = host;
   $("path").textContent = rawPath;
-  $("dagid").textContent = "serve_" + host.replace(/[^a-z0-9]+/gi, "_").toLowerCase();
+  $("dagid").textContent = host;
   document.title = "404 – Page not found | " + host;
 
   function pad(n) { return (n < 10 ? "0" : "") + n; }
@@ -810,7 +831,7 @@
     if (/^select\b/i.test(line)) { tprint("0 rows returned (0.004 s)"); return; }
     switch (c) {
       case "help":
-        tprint("commands:\n  help            this list\n  whoami          who are you?\n  ls              list the warehouse\n  cat contact     how to reach the owner\n  status          scheduler health\n  run             re-run the DAG\n  play            fix the pipeline puzzle\n  dedupe          Dedupe Dash mini game\n  flap            Flap 404 (one-tap game)\n  poweroff        pull the plug (or drag the cable, bottom-left)\n  theme <name>    dark | light | terminal\n  effect <name>   matrix | warp | network | lightning | helix | none\n  sound <name>    off | tick | chime | 8bit\n  vibrate on|off  haptics on supported phones\n  spark           open the Spark UI view\n  dag             back to the orchestrator view\n  hint            a clue for the next secret\n  secrets         how many you have found\n  share           copy your run summary\n  menu            command palette (Ctrl/Cmd+K)\n  date            current time\n  clear           clear the terminal\n  select ...      run any SQL (spoiler: 0 rows)"); break;
+        tprint("commands:\n  help            this list\n  whoami          who are you?\n  ls              list the warehouse\n  cat contact     how to reach the owner\n  sweep           Clean Sweep mini game\n  flap            Flap 404 (one-tap game)\n  poweroff        pull the plug (or drag the cable, bottom-left)\n  theme <name>    dark | light | terminal\n  effect <name>   matrix | warp | network | lightning | helix | none\n  sound <name>    off | tick | chime | 8bit\n  vibrate on|off  haptics on supported phones\n  hint            a clue for the next secret\n  secrets         how many you have found\n  share           copy your run summary\n  menu            command palette (Ctrl/Cmd+K)\n  date            current time\n  clear           clear the terminal\n  select ...      run any SQL (spoiler: 0 rows)"); break;
       case "whoami": tprint("guest@" + host + " (you were not supposed to be here)"); break;
       case "ls": tprint("bronze.requests/   silver.requests/   gold.site_pages/\n404.html   domain.purchased   README.md"); break;
       case "cat":
@@ -822,7 +843,7 @@
         break;
       case "status": tprint("scheduler: healthy\nwebserver: healthy\npage: not found\ndomain: purchased", "ok"); break;
       case "run": case "rerun": tprint("triggering dag run..."); run(); break;
-      case "play": tprint("starting puzzle..."); $("gameexit").textContent = "Exit puzzle"; startGame(); break;
+      case "play": tprint("that old puzzle has retired. try: sweep, flap, poweroff"); break;
       case "exit": if (game.on || game.won) { tprint("leaving puzzle"); exitGame(false); } else tprint("nothing to exit. you live here now."); break;
       case "theme":
         if (setTheme(arg, true)) tprint("theme: " + arg, "ok"); else tprint("usage: theme dark | light | terminal", "err"); break;
@@ -831,7 +852,7 @@
       case "git":
         if (arg.indexOf("blame") === 0) { tprint("^0000001 (the owner)  404.html: a page that doesn't exist\n1a2b3c4d (Claude)     404.html: everything else\nconclusion: everyone is to blame, nobody is at fault."); unlock("blame"); }
         else tprint("git: this repo is read-only here. try: git blame", "err"); break;
-      case "dedupe": case "dash": tprint("opening Dedupe Dash...", "ok"); ddOpen(); break;
+      case "dedupe": case "dash": case "sweep": tprint("opening Clean Sweep...", "ok"); ddOpen(); break;
       case "flap": case "game": tprint("opening Flap 404...", "ok"); flOpen(); break;
       case "poweroff": case "shutdown": tprint("pulling the plug...", "ok"); setTimeout(function () { pl.x = pl.sx + 160; pl.y = pl.sy - 40; plDraw(); powerOff(); }, 500); break;
       case "konami": konami(); break;
@@ -1001,7 +1022,7 @@
   }
   function fxTargets() {
     var out = [];
-    Array.prototype.forEach.call(document.querySelectorAll(".top, .sched, .hero, .ptabs, .drawer, .log, .term, .kv, .owner, .actions, .note, .sp, g.node"), function (el) {
+    Array.prototype.forEach.call(document.querySelectorAll(".top, .sched, .hero, .ptabs, .scene, .scene .si, .gcard, .drawer, .log, .term, .kv, .owner, .actions, .note, .sp, g.node"), function (el) {
       var r = el.getBoundingClientRect(); if (r.width < 4 || r.height < 4 || r.bottom < 0 || r.top > innerHeight) return; out.push(el);
     });
     return out;
@@ -1204,6 +1225,29 @@
       if (done) { sfx("task"); si++; ti = 0; if (si >= plan.length) { spStop(); spFinal(); sfx("done"); } }
     }, 70);
   }
+  // friendly home scene: floating shapes that follow the pointer and pop when tapped
+  (function () {
+    var sc = $("scene"), box = $("shapes"), COL = ["--blue", "--green", "--purple", "--amber", "--red"], pops = 0, won = 0;
+    var KIND = [function (e, c) { e.style.borderRadius = "50%"; }, function (e, c) { e.style.borderRadius = "6px"; }, function (e, c) { e.style.clipPath = "polygon(50% 0, 100% 100%, 0 100%)"; }, function (e, c) { e.style.borderRadius = "50%"; e.style.background = "transparent"; e.style.border = "4px solid var(" + c + ")"; e.style.boxSizing = "border-box"; }, function (e, c) { e.style.clipPath = "polygon(50% 0, 62% 36%, 100% 38%, 70% 60%, 82% 100%, 50% 76%, 18% 100%, 30% 60%, 0 38%, 38% 36%)"; }];
+    function make() {
+      var w = document.createElement("div"), i = document.createElement("span"), c = COL[Math.floor(Math.random() * COL.length)], z = 20 + Math.random() * 28;
+      w.className = "sh"; w.style.left = (4 + Math.random() * 88) + "%"; w.style.top = (6 + Math.random() * 70) + "%"; w.style.setProperty("--d", (0.4 + Math.random() * 1.1).toFixed(2));
+      i.className = "si"; i.style.width = i.style.height = z + "px"; i.style.background = "var(" + c + ")"; i.style.setProperty("--t", (3 + Math.random() * 4).toFixed(1) + "s"); i.style.animationDelay = (-Math.random() * 4).toFixed(1) + "s";
+      KIND[Math.floor(Math.random() * KIND.length)](i, c);
+      i.addEventListener("pointerdown", function (e) {
+        e.preventDefault(); if (i.classList.contains("pop")) return; i.classList.add("pop"); pops++; $("popn").textContent = "Popped " + pops;
+        var r = w.getBoundingClientRect(), b = sc.getBoundingClientRect();
+        for (var k = 0; k < 7; k++) { var d = document.createElement("span"), a = Math.random() * 6.28, m = 20 + Math.random() * 34; d.className = "bit"; d.style.left = (r.left - b.left + r.width / 2) + "px"; d.style.top = (r.top - b.top + r.height / 2) + "px"; d.style.background = "var(" + c + ")"; d.style.setProperty("--bx", Math.cos(a) * m + "px"); d.style.setProperty("--by", Math.sin(a) * m + "px"); sc.appendChild(d); (function (x) { setTimeout(function () { x.remove(); }, 650); })(d); }
+        sfx("task"); if (vibOn && navigator.vibrate) try { navigator.vibrate(12); } catch (x) {}
+        if (pops >= 25 && !won) { won = 1; say("25 popped! Nice reflexes."); try { confetti(); } catch (x) {} }
+        setTimeout(function () { i.classList.remove("pop"); }, 1500);
+      });
+      w.appendChild(i); box.appendChild(w);
+    }
+    for (var n = 0; n < 14; n++) make();
+    function mv(e) { var b = sc.getBoundingClientRect(); sc.style.setProperty("--mx", ((e.clientX - b.left) / b.width * 2 - 1).toFixed(2)); sc.style.setProperty("--my", ((e.clientY - b.top) / b.height * 2 - 1).toFixed(2)); }
+    sc.addEventListener("pointermove", mv); sc.addEventListener("pointerleave", function () { sc.style.setProperty("--mx", 0); sc.style.setProperty("--my", 0); });
+  })();
   // sections (tabs): pipeline/spark share one panel; terminal, games, about have their own
   var PANELS = { term: "pn_term", games: "pn_games", about: "pn_about" };
   function showPanel(n) {
@@ -1290,11 +1334,11 @@
     function fb() { var a = document.createElement("textarea"); a.value = t; document.body.appendChild(a); a.select(); try { document.execCommand("copy"); ok(); } catch (e) { say(t); } document.body.removeChild(a); }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok, fb); else fb();
   }
-  // mini game: Dedupe Dash
+  // mini game: Clean Sweep
   var dd = { on: false, sc: 0, t: 30, rows: [], raf: 0, last: 0, spawn: 0, el: null };
-  var DDBAD = ["NULL", "NULL", "id=NaN", "dup#2", "dup#3", "N/A", "???", "\\x00\\x00", "id=-1", "dup#7"];
+  var DDBAD = ["SPAM", "junk", "typo", "oops", "???", "404", "lag", "bug", "ads", "ugh"], DDGOOD = ["hello", "friend", "coffee", "idea", "music", "smile", "cake", "sunny"];
   function ddBest() { try { return +localStorage.getItem("thetye-dd") || 0; } catch (e) { return 0; } }
-  function ddOpen() { dd.el = $("dd"); dd.el.hidden = false; $("ddbest").textContent = ddBest(); $("ddmsg").hidden = false; $("ddmsg").querySelector("h2").textContent = "Dedupe Dash"; $("ddgo").focus(); }
+  function ddOpen() { dd.el = $("dd"); dd.el.hidden = false; $("ddbest").textContent = ddBest(); $("ddmsg").hidden = false; $("ddmsg").querySelector("h2").textContent = "Clean Sweep"; $("ddgo").focus(); }
   function ddStop() { dd.on = false; cancelAnimationFrame(dd.raf); }
   function ddClose() { ddStop(); $("dd").hidden = true; dd.rows.forEach(function (r) { r.el.remove(); }); dd.rows = []; }
   function ddScore(n) { dd.sc = Math.max(0, dd.sc + n); $("ddsc").textContent = dd.sc; }
@@ -1304,7 +1348,7 @@
   }
   function ddMake() {
     var f = $("ddf"), bad = Math.random() < 0.6, el = document.createElement("div");
-    el.className = "row" + (bad ? " bad" : ""); el.textContent = bad ? DDBAD[Math.floor(Math.random() * DDBAD.length)] : "id=" + (1000 + Math.floor(Math.random() * 9000));
+    el.className = "row" + (bad ? " bad" : ""); el.textContent = bad ? DDBAD[Math.floor(Math.random() * DDBAD.length)] : DDGOOD[Math.floor(Math.random() * DDGOOD.length)];
     f.appendChild(el);
     var w = el.offsetWidth, x = Math.random() * Math.max(10, f.clientWidth - w - 10), r = { el: el, x: x, y: -34, bad: bad, v: 90 + (30 - dd.t) * 6 + Math.random() * 50 };
     el.style.left = x + "px"; el.style.transform = "translateY(-34px)";
@@ -1329,8 +1373,8 @@
   function ddEnd() {
     ddStop(); dd.rows.forEach(function (r) { r.el.remove(); }); dd.rows = [];
     var b = ddBest(), nb = dd.sc > b; if (nb) { try { localStorage.setItem("thetye-dd", String(dd.sc)); } catch (e) {} $("ddbest").textContent = dd.sc; }
-    var g = dd.sc >= 30 ? "Principal Data Engineer" : dd.sc >= 20 ? "Senior Data Engineer" : dd.sc >= 10 ? "Data Engineer" : "Intern (the lake is murky)";
-    var m = $("ddmsg"); m.hidden = false; m.querySelector("h2").textContent = "Pipeline clean: " + dd.sc + " pts";
+    var g = dd.sc >= 30 ? "Legend" : dd.sc >= 20 ? "Pro" : dd.sc >= 10 ? "Rookie" : "Beginner (the mess wins)";
+    var m = $("ddmsg"); m.hidden = false; m.querySelector("h2").textContent = "Sweep complete: " + dd.sc + " pts";
     m.querySelector("div").textContent = "Rank: " + g + (nb ? " - new personal best!" : ""); $("ddgo").textContent = "Play again"; $("ddgo").focus(); sfx("win");
   }
   $("ddgo").addEventListener("click", ddStart); $("ddx").addEventListener("click", ddClose);
@@ -1442,15 +1486,15 @@
     function at(ms, fn) { pl.bt.push(setTimeout(fn, ms)); }
     function line(txt, ok) { var d = document.createElement("div"); d.appendChild(document.createTextNode(txt)); if (ok) { var k = document.createElement("span"); k.className = "ok"; k.textContent = " OK"; d.appendChild(k); } b.appendChild(d); return d; }
     var bf = $("bfill"); bf.style.transition = "none"; bf.style.width = "0"; void bf.offsetWidth; bf.style.transition = "width 1.6s linear";
-    at(500, function () { bf.style.width = "100%"; line("thetye BIOS v4.04"); });
+    at(500, function () { bf.style.width = "100%"; line("thetye power-on v4.04"); });
     at(700, function () {
-      var d = line("memory test ........ "), c = document.createElement("span"), n = 0; d.appendChild(c);
+      var d = line("warming up ........ "), c = document.createElement("span"), n = 0; d.appendChild(c);
       pl.iv = setInterval(function () { n += 40; c.textContent = Math.min(n, 640) + "K"; if (n >= 640) { clearInterval(pl.iv); var k = document.createElement("span"); k.className = "ok"; k.textContent = " OK"; d.appendChild(k); } }, 28);
     });
-    at(1250, function () { line("mounting bronze/ silver/ gold/ ...", 1); });
-    at(1500, function () { line("starting scheduler (*/5 * * * *) ...", 1); });
+    at(1250, function () { line("checking the lights ...", 1); });
+    at(1500, function () { line("saying hello to the page ...", 1); });
     at(1650, function () { o.classList.add("tear"); });
-    at(1750, function () { line("page: not found. everything else: fine."); });
+    at(1750, function () { line("page: not found. everything else: fine. welcome."); });
     at(2150, function () {
       o.hidden = true; o.classList.remove("boot", "surge", "tear"); sk.hidden = true; b.textContent = "";
       kids.forEach(function (k) { k.classList.add("pwr"); });
@@ -1493,11 +1537,7 @@
   }
   // command palette (Ctrl/Cmd+K or the menu button)
   var CMDS = [
-    ["Open Spark UI", "view", function () { showTab("spark"); }],
-    ["Open orchestrator view", "view", function () { showTab("orch"); }],
-    ["Re-run the DAG", "run", function () { if ($("rerun").disabled) say("A run is already in progress"); else $("rerun").click(); }],
-    ["Fix the pipeline (puzzle)", "game", function () { $("play").click(); }],
-    ["Play Dedupe Dash (mini game)", "game", ddOpen],
+    ["Play Clean Sweep (mini game)", "game", ddOpen],
     ["Play Flap 404 (mini game)", "game", flOpen],
     ["Pull the plug", "power", function () { pl.x = pl.sx + 160; pl.y = pl.sy - 40; plDraw(); powerOff(); }]
   ];
@@ -1507,7 +1547,8 @@
   CMDS.push(["Toggle vibration", "haptics", function () { setVib(!vibOn, true); }]);
   CMDS.push(["Copy my run summary", "share", share]);
   CMDS.push(["Show a hint", "secrets", function () { var n = SECRETS.filter(function (x) { return !found[x.id]; })[0]; say(n ? "Hint: " + n.clue : "No hints left. You found everything."); }]);
-  CMDS.push(["Focus the terminal", "terminal", function () { tin.scrollIntoView({ block: "center" }); tin.focus(); }]);
+  CMDS.push(["Open the secret console", "secret", function () { showPanel("term"); setTimeout(function () { tin.focus(); }, 50); }]);
+  CMDS.push(["Go to games", "tabs", function () { showPanel("games"); }]);
   var pal = document.createElement("div"); pal.className = "pal"; pal.hidden = true;
   pal.setAttribute("role", "dialog"); pal.setAttribute("aria-modal", "true"); pal.setAttribute("aria-label", "Command palette");
   pal.innerHTML = '<div class="box"><input type="text" id="palin" placeholder="type a command..." aria-label="Filter commands" autocomplete="off" autocapitalize="off" spellcheck="false"><ul id="palist" role="listbox"></ul></div>';
