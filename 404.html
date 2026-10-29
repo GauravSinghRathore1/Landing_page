@@ -186,6 +186,29 @@
   @keyframes crton { 0% { transform: scale(0,.006); filter: brightness(4); } 45% { transform: scale(1,.006); filter: brightness(3); } 100% { transform: scale(1,1); filter: brightness(1); } }
   main.crtoff { animation: crtoff .55s ease-in forwards; }
   main.crton { animation: crton .6s ease-out; }
+  .top { position: relative; }
+  .setpop { position: absolute; right: 12px; top: calc(100% + 6px); z-index: 40; background: var(--panel); border: 1px solid var(--edge); border-radius: 12px; padding: 12px; display: grid; gap: 10px; box-shadow: 0 12px 32px var(--shadow); }
+  .setpop[hidden] { display: none; }
+  .setpop .srow { display: flex; align-items: center; gap: 10px; justify-content: space-between; font-size: 12px; color: var(--muted); }
+  .hero { padding: 26px 20px 4px; text-align: center; }
+  .hero h1 { font-size: clamp(22px, 5.4vw, 32px); line-height: 1.15; letter-spacing: -.01em; margin: 14px 0 6px; background: linear-gradient(90deg, var(--green), var(--blue), var(--purple), var(--green)); background-size: 220% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shim 9s linear infinite; }
+  .hero p { color: var(--muted); margin: 0 0 16px; font-size: 14px; }
+  .hero .cta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  @keyframes shim { to { background-position: 220% center; } }
+  .ptabs { display: flex; gap: 2px; margin: 18px 16px 0; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
+  .ptabs button { background: none; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; color: var(--muted); font: inherit; font-size: 13px; padding: 9px 12px; cursor: pointer; white-space: nowrap; }
+  .ptabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--blue); font-weight: 600; }
+  .ptabs button:hover { color: var(--fg); }
+  .ptabs button:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+  .panel:not([hidden]) { animation: pin .28s ease; }
+  .panel[hidden] { display: none; }
+  @keyframes pin { from { opacity: 0; transform: translateY(6px); } }
+  .gcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; padding: 16px; }
+  .gcard { border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: var(--panel2); display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+  .gcard p { margin: 0 0 6px; color: var(--muted); font-size: 12px; }
+  .panel > .actions { padding-top: 10px; }
+  @media (max-width: 520px) { .dagid small { display: none; } .setpop { left: 12px; } .hero { padding-top: 20px; } }
+  @media (prefers-reduced-motion: reduce) { .hero h1, .panel:not([hidden]) { animation: none; } }
   .pal { position: fixed; inset: 0; z-index: 70; background: rgba(0,0,0,.5); display: flex; align-items: flex-start; justify-content: center; padding: 12vh 14px 0; }
   .pal[hidden] { display: none; }
   .pal .box { width: 100%; max-width: 460px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 20px 60px var(--shadow); overflow: hidden; }
@@ -307,19 +330,30 @@
       <div class="dagid"><span id="dagid">serve_site</span><small id="runid"></small></div>
     </div>
     <div class="right">
-      <span class="fxwrap"><select class="fxsel" id="fxsel" aria-label="Celebration effect, plays when a run completes">
-        <option value="none">effect: none</option><option value="matrix">matrix rain</option><option value="warp">hyperspace</option><option value="network">lineage burst</option><option value="lightning">lightning</option><option value="helix">dna helix</option>
-      </select><button class="sbtn" id="fxplay" type="button" aria-label="Play effect">&#9654;</button></span>
-      <span class="fxwrap"><select class="fxsel" id="sndsel" aria-label="Sound style">
-        <option value="off">sound: off</option><option value="tick">soft tick</option><option value="chime">chime</option><option value="8bit">8-bit</option>
-      </select><button class="sbtn" id="vibbtn" type="button" aria-pressed="false">vibrate: off</button></span>
-      <div class="themes" role="group" aria-label="Theme">
+      <span class="badge running" id="badge">running</span>
+      <button class="sbtn" id="setbtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="setpop">&#9881; settings</button>
+      <button class="sbtn" id="kbtn" type="button" aria-haspopup="dialog">menu &#8984;K</button>
+    </div>
+    <div class="setpop" id="setpop" hidden>
+      <div class="srow"><span>Theme</span><div class="themes" role="group" aria-label="Theme">
         <button type="button" data-t="dark" aria-pressed="true">dark</button>
         <button type="button" data-t="light" aria-pressed="false">light</button>
         <button type="button" data-t="terminal" aria-pressed="false">terminal</button>
-      </div>
-      <span class="badge running" id="badge">running</span>
+      </div></div>
+      <div class="srow"><span>Effect</span><span class="fxwrap"><select class="fxsel" id="fxsel" aria-label="Celebration effect, plays when a run completes">
+        <option value="none">effect: none</option><option value="matrix">matrix rain</option><option value="warp">hyperspace</option><option value="network">lineage burst</option><option value="lightning">lightning</option><option value="helix">dna helix</option>
+      </select><button class="sbtn" id="fxplay" type="button" aria-label="Play effect">&#9654;</button></span></div>
+      <div class="srow"><span>Sound</span><span class="fxwrap"><select class="fxsel" id="sndsel" aria-label="Sound style">
+        <option value="off">sound: off</option><option value="tick">soft tick</option><option value="chime">chime</option><option value="8bit">8-bit</option>
+      </select><button class="sbtn" id="vibbtn" type="button" aria-pressed="false">vibrate: off</button></span></div>
     </div>
+  </div>
+
+  <div class="hero">
+    <span class="pill">PURCHASED</span>
+    <h1>This domain has been purchased.</h1>
+    <p>The page you asked for doesn&rsquo;t exist.</p>
+    <div class="cta"><a class="btn primary" id="mail" href="#">Contact the owner</a><button class="btn ghost" id="copy" type="button">Copy email</button></div>
   </div>
 
   <div class="sched" aria-label="Scheduler">
@@ -327,18 +361,18 @@
     <span>next run in <b id="nextrun">--:--</b></span>
     <span><i class="hb" id="hb"></i>heartbeat <b id="hbt">--:--:--</b></span>
     <span>secrets <b id="secn">0/6</b></span><span id="fri" hidden>never deploy on a Friday</span>
-    <button class="sbtn" id="kbtn" type="button" aria-haspopup="dialog">menu &#8984;K</button>
   </div>
 
-  <div class="banner">
-    <span class="pill">PURCHASED</span>
-    <span><b>This domain has been purchased.</b> <span style="color:var(--muted)">The page you asked for doesn&rsquo;t exist.</span></span>
-  </div>
 
-  <div class="tabs" role="tablist" aria-label="View">
-    <button type="button" role="tab" id="tab_orch" aria-selected="true">Orchestrator</button>
+  <div class="ptabs" role="tablist" aria-label="Sections">
+    <button type="button" role="tab" id="tab_orch" aria-selected="true">Pipeline</button>
     <button type="button" role="tab" id="tab_spark" aria-selected="false">Spark UI</button>
+    <button type="button" role="tab" id="tab_term" aria-selected="false">Terminal</button>
+    <button type="button" role="tab" id="tab_games" aria-selected="false">Games</button>
+    <button type="button" role="tab" id="tab_about" aria-selected="false">About</button>
   </div>
+
+  <div class="panel" id="pn_pipe">
   <h2 id="grapht">Graph &middot; run view</h2>
   <div class="gamebar" id="gamebar" hidden>
     <div class="msg" id="gamemsg"></div>
@@ -368,7 +402,10 @@
   <h2><span id="logtitle">Logs &middot; all tasks</span><button class="chip" id="showall" type="button" hidden>show all</button></h2>
   <div class="log" id="log" role="log" aria-live="polite"></div>
 
-  <h2>Terminal</h2>
+  <div class="actions"><button class="btn ghost" id="rerun" type="button" disabled>Clear task &amp; re-run</button></div>
+  </div>
+
+  <div class="panel" id="pn_term" hidden>
   <div class="term">
     <div class="termout" id="termout" aria-live="polite"></div>
     <form class="termin" id="termform" autocomplete="off">
@@ -377,6 +414,18 @@
     </form>
   </div>
 
+  </div>
+
+  <div class="panel" id="pn_games" hidden>
+    <div class="gcards">
+      <div class="gcard"><b>Fix the pipeline</b><p>Link the tasks in the right order.</p><button class="btn ghost" id="play" type="button">Fix the pipeline</button></div>
+      <div class="gcard"><b>Dedupe Dash</b><p>Tap the dirty rows before they land.</p><button class="btn ghost" id="g_dd" type="button">Play</button></div>
+      <div class="gcard"><b>Flap 404</b><p>One tap. Squeeze through the gaps.</p><button class="btn ghost" id="g_fl" type="button">Play</button></div>
+      <div class="gcard"><b>Pull the plug</b><p>Cut the power. Plug it back in to boot.</p><button class="btn ghost" id="g_pl" type="button">Pull it</button></div>
+    </div>
+  </div>
+
+  <div class="panel" id="pn_about" hidden>
   <h2>Task instance details</h2>
   <div class="kv">
     <div class="k">domain</div><div id="host">thetye.store</div>
@@ -396,11 +445,6 @@
     </div>
   </div>
 
-  <div class="actions">
-    <button class="btn ghost" id="rerun" type="button" disabled>Clear task &amp; re-run</button>
-    <button class="btn ghost" id="play" type="button">Fix the pipeline</button>
-    <a class="btn primary" id="mail" href="#">Contact the owner</a>
-    <button class="btn ghost" id="copy" type="button">Copy email</button>
   </div>
 
   <div class="foot"><span>scheduler: healthy</span><span>webserver: healthy</span><span>page: not found</span></div>
@@ -691,6 +735,7 @@
     $("gamestat").textContent = "linked " + made + "/" + EDGES.length + " · moves " + game.moves;
   }
   function startGame() {
+    if ($("pn_pipe").hidden || spTab !== "orch") showTab("orch");
     if (game.on) return;
     timers.forEach(clearTimeout); timers = []; clearInterval(durTimer); running = false;
     game.on = true; game.won = false; game.made = {}; game.sel = null; game.moves = 0; sel = null;
@@ -956,7 +1001,7 @@
   }
   function fxTargets() {
     var out = [];
-    Array.prototype.forEach.call(document.querySelectorAll(".top, .sched, .banner, .tabs, .drawer, .log, .term, .kv, .owner, .actions, .note, .sp, g.node"), function (el) {
+    Array.prototype.forEach.call(document.querySelectorAll(".top, .sched, .hero, .ptabs, .drawer, .log, .term, .kv, .owner, .actions, .note, .sp, g.node"), function (el) {
       var r = el.getBoundingClientRect(); if (r.width < 4 || r.height < 4 || r.bottom < 0 || r.top > innerHeight) return; out.push(el);
     });
     return out;
@@ -1159,7 +1204,25 @@
       if (done) { sfx("task"); si++; ti = 0; if (si >= plan.length) { spStop(); spFinal(); sfx("done"); } }
     }, 70);
   }
+  // sections (tabs): pipeline/spark share one panel; terminal, games, about have their own
+  var PANELS = { term: "pn_term", games: "pn_games", about: "pn_about" };
+  function showPanel(n) {
+    var pipe = !PANELS[n]; $("pn_pipe").hidden = !pipe;
+    Object.keys(PANELS).forEach(function (k) { $(PANELS[k]).hidden = (k !== n); $("tab_" + k).setAttribute("aria-selected", String(k === n)); });
+    if (!pipe) { $("tab_orch").setAttribute("aria-selected", "false"); $("tab_spark").setAttribute("aria-selected", "false"); if (n === "term") tout.scrollTop = tout.scrollHeight; }
+  }
+  Object.keys(PANELS).forEach(function (k) { $("tab_" + k).addEventListener("click", function () { showPanel(k); }); });
+  $("g_dd").addEventListener("click", function () { ddOpen(); });
+  $("g_fl").addEventListener("click", function () { flOpen(); });
+  $("g_pl").addEventListener("click", function () { pl.x = pl.sx + 160; pl.y = pl.sy - 40; plDraw(); powerOff(); });
+  var sp_ = $("setpop"), sb_ = $("setbtn");
+  function setPop(o) { sp_.hidden = !o; sb_.setAttribute("aria-expanded", String(o)); }
+  sb_.addEventListener("click", function (e) { e.stopPropagation(); setPop(sp_.hidden); });
+  sp_.addEventListener("click", function (e) { e.stopPropagation(); });
+  document.addEventListener("click", function () { if (!sp_.hidden) setPop(false); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !sp_.hidden) setPop(false); });
   function showTab(n) {
+    showPanel("pipe");
     spTab = n === "spark" ? "spark" : "orch"; var o = spTab === "orch";
     ov.hidden = !o; sv.hidden = o;
     $("tab_orch").setAttribute("aria-selected", String(o)); $("tab_spark").setAttribute("aria-selected", String(!o));
@@ -1168,7 +1231,7 @@
   $("tab_orch").addEventListener("click", function () { showTab("orch"); });
   $("tab_spark").addEventListener("click", function () { showTab("spark"); });
   $("sp_replay").addEventListener("click", spRun);
-  ["play", "rerun"].forEach(function (id) { $(id).addEventListener("click", function () { if (spTab !== "orch") showTab("orch"); }, true); });
+  ["play", "rerun"].forEach(function (id) { $(id).addEventListener("click", function () { if (spTab !== "orch" || $("pn_pipe").hidden) showTab("orch"); }, true); });
 
   // ---------------- secrets, share, command palette ----------------
   var NOTE = (OWNER && OWNER.note) || "Thanks for poking around. If you are interested in this domain, say hi.";
@@ -1211,7 +1274,7 @@
   var noteEl = document.createElement("div"); noteEl.className = "note"; noteEl.hidden = true;
   noteEl.innerHTML = '<b>note from the owner</b><p></p><button class="sbtn" type="button">Close</button>';
   noteEl.querySelector("p").textContent = NOTE;
-  document.querySelector(".banner").insertAdjacentElement("afterend", noteEl);
+  document.querySelector(".hero").insertAdjacentElement("afterend", noteEl);
   noteEl.querySelector("button").addEventListener("click", function () { noteEl.hidden = true; });
   var lt = 0, lts = 0;
   $("logo").addEventListener("click", function () {
