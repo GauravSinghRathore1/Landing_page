@@ -210,21 +210,25 @@
   @media (max-width: 520px) { .dagid small { display: none; } .setpop { left: 12px; } .hero { padding-top: 20px; } }
   @media (prefers-reduced-motion: reduce) { .hero h1, .panel:not([hidden]) { animation: none; } }
   .scene { position: relative; margin: 16px; height: 270px; border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: radial-gradient(420px 220px at 50% 40%, color-mix(in srgb, var(--blue) 14%, transparent), transparent 70%), var(--panel2); touch-action: pan-y; }
-  .big404 { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(96px, 28vw, 180px); font-weight: 800; letter-spacing: -.04em; background: linear-gradient(90deg, var(--blue), var(--purple), var(--green), var(--blue)); background-size: 240% auto; -webkit-background-clip: text; background-clip: text; color: transparent; opacity: .9; animation: shim 10s linear infinite, bob 5s ease-in-out infinite; pointer-events: none; user-select: none; }
+  .big404 { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: block; margin: 0; padding: 0; border: 0; background: none; -webkit-appearance: none; appearance: none; font-family: inherit; font-size: clamp(96px, 28vw, 180px); font-weight: 800; line-height: 1; letter-spacing: -.04em; color: transparent; opacity: .9; cursor: pointer; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+  .big404 span { display: block; background: linear-gradient(90deg, var(--blue), var(--purple), var(--green), var(--blue)); background-size: 240% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: shim 10s linear infinite, bob 5s ease-in-out infinite; }
+  .big404:hover span { filter: brightness(1.15); }
+  .big404.is-spin span { filter: saturate(.5); }
+  .big404:focus-visible { outline: 2px solid var(--blue); outline-offset: 8px; border-radius: 12px; }
   @keyframes bob { 50% { transform: translateY(-8px); } }
-  .shapes { position: absolute; inset: 0; }
+  .shapes { position: absolute; inset: 0; pointer-events: none; }
   .sh { position: absolute; transform: translate(calc(var(--mx, 0) * var(--d) * 22px), calc(var(--my, 0) * var(--d) * 22px)); transition: transform .25s ease-out; }
-  .si { display: block; cursor: pointer; opacity: .85; animation: drift var(--t) ease-in-out infinite alternate; transition: transform .25s, opacity .25s; }
+  .si { display: block; cursor: pointer; opacity: .85; pointer-events: auto; animation: drift var(--t) ease-in-out infinite alternate; transition: transform .25s, opacity .25s; }
   .si.pop { transform: scale(2.2); opacity: 0; pointer-events: none; }
   .si:hover { opacity: 1; filter: brightness(1.15); }
   @keyframes drift { from { transform: translateY(-10px) rotate(-8deg); } to { transform: translateY(12px) rotate(10deg); } }
   .bit { position: absolute; width: 6px; height: 6px; border-radius: 50%; pointer-events: none; animation: bit .6s ease-out forwards; }
   @keyframes bit { to { transform: translate(var(--bx), var(--by)); opacity: 0; } }
-  .scap { position: absolute; left: 0; right: 0; bottom: 10px; text-align: center; font-size: 12px; color: var(--muted); padding: 0 12px; pointer-events: none; }
+  .scap { position: absolute; left: 0; right: 0; bottom: 10px; z-index: 3; text-align: center; font-size: 12px; color: var(--muted); padding: 0 12px; pointer-events: none; text-shadow: 0 1px 2px var(--panel2), 0 0 6px var(--panel2); }
   .scap #popn { color: var(--fg); font-weight: 600; }
   .sched { justify-content: center; }
   .top .badge, #runid { display: none; }
-  @media (prefers-reduced-motion: reduce) { .big404, .si { animation: none; } .sh { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .big404 span, .si { animation: none; } .sh { transition: none; } }
   .pal { position: fixed; inset: 0; z-index: 70; background: rgba(0,0,0,.5); display: flex; align-items: flex-start; justify-content: center; padding: 12vh 14px 0; }
   .pal[hidden] { display: none; }
   .pal .box { width: 100%; max-width: 460px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 20px 60px var(--shadow); overflow: hidden; }
@@ -439,13 +443,13 @@
 
   <div class="hero">
     <span class="pill">PURCHASED</span>
-    <h1>This domain has been purchased.</h1>
+    <h1 id="heroTitle">This domain has been purchased.</h1>
     <p>The page you asked for doesn&rsquo;t exist.</p>
     <div class="cta"><a class="btn primary" id="mail" href="#">Contact the owner</a><button class="btn ghost" id="copy" type="button">Copy email</button></div>
   </div>
 
   <div class="sched" aria-label="Hidden surprises">
-    <span>&#10022; hidden surprises found <b id="secn">0/6</b></span>
+    <span>&#10022; hidden surprises found <b id="secn">0/7</b></span>
     <span hidden><b id="nextrun">--:--</b><i class="hb" id="hb"></i><b id="hbt">--:--:--</b><span id="fri" hidden></span></span>
   </div>
 
@@ -460,9 +464,9 @@
 
   <div class="panel" id="pn_pipe">
     <div class="scene" id="scene" aria-label="Decorative animated scene">
-      <div class="big404" aria-hidden="true">404</div>
+      <button class="big404" id="big404" type="button" aria-label="Spin the 404"><span id="b404">404</span></button>
       <div class="shapes" id="shapes" aria-hidden="true"></div>
-      <div class="scap">Nothing to see here, but the domain has a new owner. <span id="popn">Pop the shapes!</span></div>
+      <div class="scap">Nothing to see here, but the domain has a new owner. <span id="popn">Pop the shapes, or spin the 404!</span></div>
     </div>
     <div id="nerd" hidden>
   <h2 id="grapht">Graph &middot; run view</h2>
@@ -1307,7 +1311,7 @@
       i.className = "si"; i.style.width = i.style.height = z + "px"; i.style.background = "var(" + c + ")"; i.style.setProperty("--t", (3 + Math.random() * 4).toFixed(1) + "s"); i.style.animationDelay = (-Math.random() * 4).toFixed(1) + "s";
       KIND[Math.floor(Math.random() * KIND.length)](i, c);
       i.addEventListener("pointerdown", function (e) {
-        e.preventDefault(); if (i.classList.contains("pop")) return; i.classList.add("pop"); pops++; $("popn").textContent = "Popped " + pops;
+        e.preventDefault(); if (i.classList.contains("pop")) return; i.classList.add("pop"); pops++; $("popn").textContent = "Popped " + pops + ", spin the 404!";
         var r = w.getBoundingClientRect(), b = sc.getBoundingClientRect();
         for (var k = 0; k < 7; k++) { var d = document.createElement("span"), a = Math.random() * 6.28, m = 20 + Math.random() * 34; d.className = "bit"; d.style.left = (r.left - b.left + r.width / 2) + "px"; d.style.top = (r.top - b.top + r.height / 2) + "px"; d.style.background = "var(" + c + ")"; d.style.setProperty("--bx", Math.cos(a) * m + "px"); d.style.setProperty("--by", Math.sin(a) * m + "px"); sc.appendChild(d); (function (x) { setTimeout(function () { x.remove(); }, 650); })(d); }
         sfx("task"); if (vibOn && navigator.vibrate) try { navigator.vibrate(12); } catch (x) {}
@@ -1357,7 +1361,8 @@
     { id: "vacuum", name: "vacuum", clue: "storage cleanup, but dangerous for time travel" },
     { id: "zorder", name: "optimize zorder", clue: "make a table faster to filter" },
     { id: "logo", name: "the logo", clue: "tap the little logo at the top five times" },
-    { id: "blame", name: "git blame", clue: "find out who is responsible" }
+    { id: "blame", name: "git blame", clue: "find out who is responsible" },
+    { id: "teapot", name: "the teapot", clue: "spin the big 404 until it stops saying 404" }
   ];
   var found = {};
   try { found = JSON.parse(localStorage.getItem("thetye-secrets") || "{}") || {}; } catch (e) { found = {}; }
@@ -1369,9 +1374,52 @@
     secUI(); var sc = SECRETS.filter(function (x) { return x.id === id; })[0];
     say("Secret found: " + sc.name + " (" + foundN() + "/" + SECRETS.length + ")"); sfx("win"); vib([30, 40, 30]);
     log("OK", "secret unlocked: " + sc.name);
-    if (foundN() === SECRETS.length) setTimeout(function () { if (!reduce) playFx("warp"); say("All secrets found. You win. Say hi to the owner."); }, 1400);
+    if (foundN() === SECRETS.length) setTimeout(function () { confetti(); if (!reduce) playFx("warp"); say("All secrets found. You win. Say hi to the owner."); }, 1400);
   }
   secUI();
+  // spin the 404: a small slot machine, one very rare outcome
+  (function () {
+    var b = $("big404"), out = $("b404"), busy = 0, cool = 0;
+    var Q = {
+      "404": ["still not your page.", "the page remains missing.", "no luck. still a 404.", "the void says hi."],
+      "200": ["200 OK. the page is still missing, though.", "200, but don't get your hopes up."],
+      "503": ["503: the page is taking a break.", "service unavailable. unlike the domain."],
+      "418": ["418: i'm a teapot. want some tea?", "the teapot has spoken."]
+    };
+    function pick(a) { return a[(Math.random() * a.length) | 0]; }
+    function settle(code) {
+      out.textContent = code; busy = 0; cool = Date.now() + 600;
+      b.classList.remove("is-spin");
+      if (code === "418") {
+        sfx("win");
+        if (!found.teapot) { confetti(); unlock("teapot"); } else { say(pick(Q["418"])); }
+      } else { say(pick(Q[code] || Q["404"])); sfx("nope"); }
+    }
+    b.addEventListener("click", function () {
+      if (busy || Date.now() < cool) return;
+      var r = Math.random(), code = r < 0.12 ? "418" : r < 0.20 ? "200" : r < 0.27 ? "503" : "404";
+      if (reduce) { settle(code); return; }
+      busy = 1; b.classList.add("is-spin");
+      var n = 0, total = 13 + ((Math.random() * 8) | 0), iv = setInterval(function () {
+        if (++n >= total) { clearInterval(iv); settle(code); return; }
+        out.textContent = String(100 + ((Math.random() * 900) | 0));
+        if (n % 3 === 0) sfx("key");
+      }, 60);
+    });
+  })();
+  // the headline intercepts: a quick decode on hover or tap
+  (function () {
+    var t = $("heroTitle"), cool = 0;
+    function intercept() {
+      var now = Date.now(); if (reduce || now < cool) return;
+      cool = now + 1500;
+      var items = fxCollect(t);
+      items.forEach(function (it) { it.hold = 90 + Math.random() * 90; it.res = 380 + Math.random() * 140; });
+      fxTextRun(items, 700); sfx("key");
+    }
+    t.addEventListener("pointerenter", function (e) { if (e.pointerType !== "touch") intercept(); });
+    t.addEventListener("click", intercept);
+  })();
   function hint() { var n = SECRETS.filter(function (x) { return !found[x.id]; })[0]; tprint(n ? "hint: " + n.clue : "no hints left. you found everything.", n ? "res" : "ok"); }
   function konami() { unlock("konami"); if (reduce) { say("Konami! (animation paused: reduced motion is on)"); return; } playFx("lightning"); }
   function rmrf() {
@@ -1399,7 +1447,10 @@
   });
   var fd = new Date(); if (fd.getDay() === 5 && fd.getHours() >= 17) $("fri").hidden = false;
   // share
-  function shareText() { return host + " 404: " + (game.won ? "fixed the pipeline in " + game.moves + " moves, " : "") + "found " + foundN() + "/" + SECRETS.length + " secrets."; }
+  function shareText() {
+    var n = foundN(), all = n === SECRETS.length;
+    return host + " 404: " + (game.won ? "fixed the pipeline in " + game.moves + " moves, " : "") + "found " + n + "/" + SECRETS.length + " secrets" + (all ? " (all of them)." : ".");
+  }
   function share() {
     var t = shareText();
     function ok() { say("Run summary copied"); }

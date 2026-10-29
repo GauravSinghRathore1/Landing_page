@@ -53,7 +53,7 @@ A **single-file, zero-dependency** website for [thetye.store](https://thetye.sto
 
 - The visual language is a **data-pipeline orchestrator**: DAG view, scheduler strip, task drawer, log stream, Spark-style job view and a command terminal.
 - The copy is honest about the situation — *"This domain has been purchased."* / *"The page you asked for doesn't exist."*
-- Visitors can repair the pipeline, play three mini-games, reskin the page, pull the server's power cable and hunt six secrets.
+- Visitors can repair the pipeline, play three mini-games, reskin the page, pull the server's power cable and hunt seven secrets.
 - Everything runs client-side. There is no backend, no database and no tracking.
 
 The page is deliberately a **404 document** so it works as GitHub Pages' custom not-found page for any unknown URL under the domain.
@@ -63,7 +63,7 @@ The page is deliberately a **404 document** so it works as GitHub Pages' custom 
 ## Feature highlights
 
 - **Three themes** — `dark`, `light` and a CRT-style `terminal`, persisted and applied before first paint.
-- **Animated 404 scene** — interactive shapes that pop, parallax on pointer move.
+- **Animated 404 scene** — interactive shapes that pop and parallax on pointer move, plus a clickable 404 slot machine.
 - **Live DAG simulation** — five tasks, five dependencies, timestamped logs, status legend and a per-task inspector.
 - **"Fix the pipeline" puzzle** — reconnect the wiped dependencies in as few moves as possible.
 - **Three mini-games** — Clean Sweep, Flap 404 and Pull the plug.
@@ -72,7 +72,7 @@ The page is deliberately a **404 document** so it works as GitHub Pages' custom 
 - **Celebration effects** — matrix rain, hyperspace, network burst, lightning and a DNA helix.
 - **Synthesised sound** — three packs generated with the Web Audio API, plus optional vibration.
 - **Power system** — yank the cable to shut the page down; state survives a reload until you plug it back in.
-- **Six hidden secrets** — with an in-page hint system and a progress counter.
+- **Seven hidden secrets** — with an in-page hint system and a progress counter.
 - **Accessible by default** — ARIA roles, live regions, keyboard paths and full `prefers-reduced-motion` handling.
 
 ---
@@ -114,7 +114,7 @@ receive_request ──> resolve_dns ──┐
 - The log panel is timestamped, level-tagged, capped at 300 entries and announces new lines to screen readers.
 - Clicking a task opens a drawer with its operator, state, duration, upstream, downstream and description; it also filters the log stream. **show all** clears the filter.
 - **Clear task & re-run** replays the simulation.
-- The scheduler strip tracks how many hidden secrets you have found (`0/6`).
+- The scheduler strip tracks how many hidden secrets you have found (`0/7`).
 
 ---
 
@@ -171,7 +171,7 @@ The terminal is hidden from the public tab strip. Open it with **`Ctrl`/`Cmd` + 
 | `sound <name>` | `sfx` | `off`, `tick`, `chime`, `8bit` |
 | `vibrate on\|off` | | Haptics where supported |
 | `hint` | | Clue for the next unfound secret |
-| `secrets` | | Progress, e.g. `secrets found: 2/6` |
+| `secrets` | | Progress, e.g. `secrets found: 2/7` |
 | `share` | | Copies your run summary |
 | `menu` | `palette` | Opens the command palette |
 | `spark` | | Opens the hidden Spark UI |
@@ -192,7 +192,7 @@ The terminal is hidden from the public tab strip. Open it with **`Ctrl`/`Cmd` + 
 Open with **`Ctrl`/`Cmd` + `K`**, the **menu ⌘K** button, or the terminal's `menu` command.
 
 - Type to filter, `↑`/`↓` to move, `Enter` to run, `Esc` to close.
-- Includes every theme, every effect, every sound pack, both games, the power cable, vibration, share, hints, the terminal and the games tab.
+- Includes every theme, every effect, every sound pack, all three games, the power cable, vibration, share, hints, the terminal and the games tab.
 
 ---
 
@@ -227,17 +227,17 @@ The **settings** popover in the top bar controls:
 
 ## Hidden secrets
 
-There are **six** collectible secrets. The strip under the hero shows progress (`hidden surprises found 0/6`), and the terminal exposes hints:
+There are **seven** collectible secrets. The strip under the hero shows progress (`hidden surprises found 0/7`), and the terminal exposes hints:
 
 ```text
 hint      → clue for the next secret you haven't found
 secrets   → how many you have found
 ```
 
-Progress is stored in `thetye-secrets` as a JSON map, so it survives reloads. Finding all six triggers a hyperspace effect and a small congratulation.
+Progress is stored in `thetye-secrets` as a JSON map, so it survives reloads. Finding all seven triggers confetti, a hyperspace effect and a small congratulation.
 
 <details>
-<summary><strong>Spoilers — what the six secrets are</strong></summary>
+<summary><strong>Spoilers — what the seven secrets are</strong></summary>
 
 | # | Secret | Hint |
 |---|---|---|
@@ -247,6 +247,7 @@ Progress is stored in `thetye-secrets` as a JSON map, so it survives reloads. Fi
 | 4 | Optimize Z-Order | Try `optimize … zorder` in the terminal |
 | 5 | The logo | Tap the little logo in the header five times |
 | 6 | Git blame | Type `git blame` in the terminal |
+| 7 | The teapot | Spin the big 404 on the home scene until it stops saying 404 |
 
 Secret 5 also reveals the owner's note (`OWNER.note`).
 
@@ -261,7 +262,7 @@ The **About** tab shows the domain, the requested path and an owner card generat
 - With `OWNER_EMAIL` empty, the contact button reads **"Contact details coming soon"**, is disabled for interaction and the copy button is hidden.
 - With an email set, the button opens a pre-filled `mailto:` and **Copy email** uses the Clipboard API with a `textarea` fallback.
 - Winning the pipeline puzzle adds a glow to the contact button.
-- A **share** action copies a summary of your run: `host 404: fixed the pipeline in N moves, found X/6 secrets.`
+- A **share** action copies a summary of your run: `host 404: fixed the pipeline in N moves, found X/7 secrets.` Finding every secret appends `(all of them)`.
 
 ---
 
@@ -425,7 +426,7 @@ There are no automated tests. Before merging a change, verify:
 - [ ] Power cable pulls, state persists across reload, plugging back runs the boot (and **Skip** works).
 - [ ] Command palette opens with `Ctrl`/`Cmd` + `K`; filtering, arrows and `Enter` work.
 - [ ] Terminal opens from the palette; `help`, `theme`, `effect`, `sound`, `secrets`, `hint` behave.
-- [ ] Secret counter increments and persists; all six can be unlocked.
+- [ ] Secret counter increments and persists; all seven can be unlocked.
 - [ ] Contact/copy buttons degrade correctly with `OWNER_EMAIL` empty.
 - [ ] Layout at 360 px, 768 px and desktop widths; no horizontal scroll.
 - [ ] Reduced motion: animations, sound, confetti and vibration are suppressed.
