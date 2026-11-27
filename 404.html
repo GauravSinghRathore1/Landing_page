@@ -18,6 +18,7 @@
     try { if (localStorage.getItem("thetye-power") === "off") document.documentElement.className += " pwroff"; } catch (e) {}
   })();
 </script>
+<link rel="stylesheet" href="./playground.css">
 <style>
   :root, [data-theme="dark"] {
     --bg: #090d13; --panel: #0f141c; --panel2: #0c1118; --logbg: #080b10;
@@ -413,28 +414,19 @@
   @media (max-width: 899.98px) { .foot { padding-left: 72px; } }
   @media (min-width: 900px) and (max-width: 1299px) { .foot { padding-left: 76px; } }
   .arcade-view .hero,.arcade-view .sched{display:none}
-  .arcade-view .ptabs{margin-top:12px}
+  #tye-arcade-header{display:none}
+  body.arcade-view{display:block;padding:0 0 40px;background:var(--tye-backdrop);color:var(--tye-text);font:1rem/1.55 var(--tye-font)}
+  .arcade-view::before,html body.arcade-view::after{display:none}
+  .arcade-view #tye-arcade-header{display:flex}
+  .arcade-view .app{width:min(72rem,calc(100% - 2rem));max-width:none;margin:clamp(1rem,4vw,3rem) auto 0;background:var(--tye-panel);border-color:var(--tye-line);box-shadow:none;border-radius:1.25rem}
+  .arcade-view .app > .top,.arcade-view .app > .ptabs{display:none}
+  .arcade-view .arcade{background:transparent;font-family:inherit}
+  .arcade-view .arcade h2{letter-spacing:-.06em}
   .arcade{background:#131724;color:#f4f1ff;padding:clamp(16px,4vw,38px);border-radius:inherit;font:16px/1.5 system-ui,sans-serif}
   .arcade-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .arcade h2{font-size:clamp(38px,8vw,72px);line-height:1;letter-spacing:-.07em;margin:0;color:inherit}
   .arcade a,.arcade strong{color:#d9ff86}
   .arcade p{color:#c1c9df;margin:8px 0}
-  .arcade-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:24px 0}
-  .arcade-grid article{display:flex;flex-direction:column;border:1px solid #414862;border-radius:18px;overflow:hidden;background:#1e2335}
-  .arcade-art{height:clamp(110px,20vw,195px);position:relative;overflow:hidden;background-size:20px 20px;background-image:linear-gradient(#ffffff13 1px,transparent 1px),linear-gradient(90deg,#ffffff13 1px,transparent 1px)}
-  .arcade-art i{position:absolute;display:block}
-  .sweep-art{background-color:#4c326e}
-  .sweep-art i{width:44px;height:44px;border:2px solid #e7c8ff;border-radius:8px;transform:rotate(20deg);background:#7e52ba;box-shadow:0 0 24px #e7c8ff60}
-  .sweep-art i:nth-child(1){left:18%;top:20%}.sweep-art i:nth-child(2){left:40%;top:53%;background:#d9ff86;border-color:#d9ff86}.sweep-art i:nth-child(3){left:69%;top:30%}
-  .flight-art{background-color:#183952}
-  .flight-art i{width:13%;height:33%;background:#80dfdb;border-radius:4px;box-shadow:0 0 20px #80dfdb60}
-  .flight-art i:nth-child(1){left:62%;top:0}.flight-art i:nth-child(2){left:62%;bottom:0}.flight-art i:nth-child(3){left:24%;top:40%;width:33px;height:33px;border-radius:50%;background:#d9ff86}
-  .arcade-copy{padding:clamp(14px,3vw,24px);display:flex;flex-direction:column;flex:1}
-  .arcade-copy h3{font-size:24px;margin:0;color:inherit}
-  .arcade-copy p:nth-of-type(2){margin-top:auto;padding-top:10px}
-  .raccoon-art{display:grid;place-items:center;background-color:#50352e;font-size:clamp(48px,10vw,88px)}
-  .arcade-copy .play-link{display:grid;place-items:center;text-decoration:none}
-  .arcade-copy button,.arcade-copy .play-link{min-height:44px;border:0;border-radius:8px;background:#d9ff86;color:#19210f;padding:8px 12px;font:700 15px system-ui;cursor:pointer}
   .arcade button:focus-visible,.dd button.row:focus-visible{outline:2px solid #e7c8ff;outline-offset:3px}
   .arcade-extra{padding-top:16px;border-top:1px solid #414862}
   .dd button.row{min-height:44px;touch-action:manipulation;font:700 14px system-ui}
@@ -442,6 +434,7 @@
 </style>
 </head>
 <body>
+<header class="tye-header" id="tye-arcade-header"><a class="tye-brand" href="./">The Tye Playground</a><nav aria-label="Main"><a href="./">Playground</a><a href="./#pattern">Puzzle</a><a href="./#daily">Daily</a><a href="./404.html#games" aria-current="page">Arcade</a></nav></header>
 <main class="app" id="app">
   <div class="top">
     <div class="brand">
@@ -543,7 +536,7 @@
 
   <div class="panel" id="pn_games" hidden>
     <section class="arcade">
-      <div class="arcade-head"><div><h2>The Arcade</h2><p>Chase a personal best or pull off a bread heist.</p></div><a href="./">Back to Playground</a></div>
+      <div class="arcade-head"><div><h2>The Arcade</h2><p>Chase a personal best or pull off a bread heist.</p></div><a href="./404.html">Workshop</a></div>
       <div class="arcade-grid">
         <article><div class="arcade-art sweep-art" aria-hidden="true"><i></i><i></i><i></i></div><div class="arcade-copy">
           <h3>Clean Sweep</h3><p>Clear the junk in 30 seconds. Keep the streak going by catching junk and leaving good items alone.</p>
@@ -1378,6 +1371,7 @@
   }
   function showPanel(n) {
     document.body.classList.toggle("arcade-view", n === "games");
+    document.title = n === "games" ? "The Arcade — The Tye Playground" : "404 – Page not found";
     if (n === "games") refreshArcade();
     var pipe = !PANELS[n]; $("pn_pipe").hidden = !pipe;
     Object.keys(PANELS).forEach(function (k) { $(PANELS[k]).hidden = (k !== n); $("tab_" + k).setAttribute("aria-selected", String(k === n)); });
@@ -1758,8 +1752,15 @@
 
   // ---------------- go ----------------
   drawDag(); run();
-  if (location.hash === "#games") showPanel("games");
-  window.addEventListener("hashchange", function () { if (location.hash === "#games") showPanel("games"); });
+  function openArcadeFromHash() {
+    var hash = location.hash;
+    if (hash !== "#games" && hash !== "#games-clean-sweep" && hash !== "#games-flap") return;
+    showPanel("games");
+    if (hash === "#games-clean-sweep") ddOpen();
+    if (hash === "#games-flap") flOpen();
+  }
+  openArcadeFromHash();
+  window.addEventListener("hashchange", openArcadeFromHash);
   if (!reduce) requestAnimationFrame(flow);
 </script>
 </body>
