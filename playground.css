@@ -32,3 +32,11 @@
 .playground-games .arcade-copy a{margin-top:auto}
 @media(max-width:850px){.arcade-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:590px){.arcade-grid{grid-template-columns:minmax(0,1fr)}.arcade-art{height:115px}}
+
+.feature-art{display:grid;place-items:center;font-size:clamp(2rem,6vw,4.5rem)}
+.town-that-copies-you-art{background-color:#284b41}
+.haunted-mall-art{background-color:#462b5f}
+.dungeon-landlord-art{background-color:#594137}
+.midnight-delivery-art{background-color:#203d5c}
+.pocket-planet-art{background-color:#343466}
+.arcade-copy .play-link{margin-top:auto}
