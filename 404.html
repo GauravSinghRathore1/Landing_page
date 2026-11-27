@@ -432,7 +432,9 @@
   .arcade-copy{padding:clamp(14px,3vw,24px);display:flex;flex-direction:column;flex:1}
   .arcade-copy h3{font-size:24px;margin:0;color:inherit}
   .arcade-copy p:nth-of-type(2){margin-top:auto;padding-top:10px}
-  .arcade-copy button{min-height:44px;border:0;border-radius:8px;background:#d9ff86;color:#19210f;padding:8px 12px;font:700 15px system-ui;cursor:pointer}
+  .raccoon-art{display:grid;place-items:center;background-color:#50352e;font-size:clamp(48px,10vw,88px)}
+  .arcade-copy .play-link{display:grid;place-items:center;text-decoration:none}
+  .arcade-copy button,.arcade-copy .play-link{min-height:44px;border:0;border-radius:8px;background:#d9ff86;color:#19210f;padding:8px 12px;font:700 15px system-ui;cursor:pointer}
   .arcade button:focus-visible,.dd button.row:focus-visible{outline:2px solid #e7c8ff;outline-offset:3px}
   .arcade-extra{padding-top:16px;border-top:1px solid #414862}
   .dd button.row{min-height:44px;touch-action:manipulation;font:700 14px system-ui}
@@ -541,7 +543,7 @@
 
   <div class="panel" id="pn_games" hidden>
     <section class="arcade">
-      <div class="arcade-head"><div><h2>The Arcade</h2><p>Two quick games. A new personal best to chase.</p></div><a href="./">Back to Playground</a></div>
+      <div class="arcade-head"><div><h2>The Arcade</h2><p>Chase a personal best or pull off a bread heist.</p></div><a href="./">Back to Playground</a></div>
       <div class="arcade-grid">
         <article><div class="arcade-art sweep-art" aria-hidden="true"><i></i><i></i><i></i></div><div class="arcade-copy">
           <h3>Clean Sweep</h3><p>Clear the junk in 30 seconds. Keep the streak going by catching junk and leaving good items alone.</p>
@@ -552,6 +554,11 @@
           <h3>Flap 404</h3><p>Tap or press Space to stay airborne. The course speeds up as you clear gates.</p>
           <p>Best <strong id="flightPB">0</strong> · Next target <strong id="flightTarget">5</strong> gates</p>
           <button id="g_fl" type="button">Play Flap 404</button>
+        </div></article>
+        <article><div class="arcade-art raccoon-art" aria-hidden="true">🦝🥖</div><div class="arcade-copy">
+          <h3>Three Raccoons in a Trench Coat</h3><p>Switch between Mouth, Paws, and Legs to swipe a bread basket and sneak out before the staff catches on.</p>
+          <p><strong>Restaurant heist</strong> · Three endings</p>
+          <a class="play-link" href="./games/three-raccoons/">Play Three Raccoons</a>
         </div></article>
       </div>
       <div class="arcade-head arcade-extra"><p><strong>Power switch</strong> · Shut down the workshop and reboot it.</p><button class="sbtn" id="g_pl" type="button">Pull the plug</button></div>
