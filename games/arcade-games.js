@@ -175,51 +175,6 @@ const landlord = {
   }
 };
 
-const deliveryRoutes = [
-  { name:'Market', road:[['Broad avenue',0],['Produce stand',2],['Market straight',0],['Crowded corner',2],['Boulevard',0]] },
-  { name:'Canal', road:[['Canal bend',1],['Old bridge',2],['Towpath',1],['Waterfront straight',0]] },
-  { name:'Warehouse', road:[['Warehouse straight',0],['Loading ramp',2],['Back road',0],['Forklift crossing',2],['Overpass',1]] }
-];
-const delivery = {
-  title:'Midnight Delivery League',
-  intro:'Race a rival courier through a city that changes each night. Choose a route and decide how hard to take each turn. The wedding cake has to survive the ride.',
-  start() {
-    return { night:1, leg:0, speed:1, time:0, cake:100, straps:false, route:null, wins:0, rival:6, msg:'Choose a route and decide whether to strap down the cake.' };
-  },
-  view(s) {
-    const drive = change => {
-      const [name, sharpness] = s.route.road[s.leg++];
-      s.speed = clamp(s.speed+change,1,3);
-      s.time += 4-s.speed;
-      const damage = sharpness ? Math.max(0, s.speed*s.speed*sharpness*3 - (s.straps?13:3)) : 0;
-      s.cake = Math.max(0,s.cake-damage);
-      s.msg = name+' cleared. '+(damage?damage+' points of cake damage.':'Cake intact.');
-      if (s.cake===0) s.end='The cake is now frosting across the windshield.';
-      else if(s.leg===s.route.road.length) {
-        const win = s.time <= s.rival && s.cake >= 35;
-        if(win) s.wins++;
-        s.result = win?'You beat the rival and delivered an intact cake.':s.time>s.rival?'The rival arrived first.':'The customer rejected the battered cake.';
-        s.msg += ' '+s.result;
-        if(s.night===3) s.end = s.wins>=2?'League won. The bakery is naming a cake after your van.':'League finished. You won '+s.wins+' of three races.';
-      }
-    };
-    const available = deliveryRoutes.filter((_,i)=>i!==((s.night+1)%3));
-    const moves = s.result ? [action('Next night',()=>{
-      Object.assign(s,{night:s.night+1,leg:0,speed:1,time:0,cake:100,straps:false,route:null,result:'',rival:s.night===2?8:6,msg:'The city has rerouted traffic. Pick tonight’s route.'});
-    },false,true)] : !s.route ? [
-      action(s.straps?'Remove straps (save 1 beat)':'Strap down cake (costs 1 beat)',()=>{s.straps=!s.straps;s.time=s.straps?1:0;}),
-      ...available.map(route=>action('Drive via '+route.name,()=>{s.route=route;s.msg='You’re on the '+route.name.toLowerCase()+' route.';}))
-    ] : [action('Brake',()=>drive(-1),s.speed===1),action('Coast',()=>drive(0)),action('Accelerate',()=>drive(1),s.speed===3,true)];
-    return {
-      stats:[row('Night',s.night+'/3'),row('Race wins',s.wins),row('Speed',s.speed+'/3'),row('Time',s.time+' / '+s.rival),row('Cake',s.cake+'%')],
-      heading:s.route?s.route.name+' route':'Open routes',
-      items:s.route?s.route.road.map(([name,turn],i)=>row((i<s.leg?'Passed · ':i===s.leg?'Next · ':'')+name,['Straight','Bend','Sharp turn'][turn])):available.map(route=>row(route.name,route.road.map(([_,turn])=>['straight','bend','sharp turn'][turn]).join(' · '))),
-      help:'Fast driving saves time. Taking sharp turns at high speed damages the cake. Finish on or before the rival’s time with at least 35% cake intact.',
-      actions:moves
-    };
-  }
-};
-
 const buildings = {
   Farm: { cost:3, detail:'Makes 4 food. Uses 1 power.' },
   Solar: { cost:3, detail:'Makes 4 power in sunlight, 1 in shadow.' },
@@ -264,7 +219,7 @@ const planet = {
   }
 };
 
-const games = { 'town-that-copies-you':town, 'haunted-mall':haunted, 'dungeon-landlord':landlord, 'midnight-delivery':delivery, 'pocket-planet':planet };
+const games = { 'town-that-copies-you':town, 'haunted-mall':haunted, 'dungeon-landlord':landlord, 'pocket-planet':planet };
 const game = games[document.body.dataset.game];
 const get = id => document.getElementById(id);
 let state;
