@@ -4,11 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The Tye Playground — Free Mini Games & Hidden Surprises</title>
-<meta name="description" content="Play a tiny daily game, explore seven hidden surprises, and challenge a friend at The Tye Playground.">
+<meta name="description" content="Solve a Pixel Logic picture puzzle, play a daily game, and find seven hidden surprises at The Tye Playground.">
 <link rel="canonical" href="https://thetye.store/">
 <meta property="og:title" content="The Tye Playground">
 <meta property="og:description" content="A tiny daily game and seven hidden surprises. Come play.">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 *{box-sizing:border-box}
 body{margin:0;background:#f7f2e7;color:#212421;font:1rem/1.55 system-ui,sans-serif}
 header,main,footer{width:min(68rem,calc(100% - 2rem));margin:auto}
@@ -33,20 +34,64 @@ section.card{background:#fff9ed;border:2px solid #212421;border-radius:1.5rem;pa
 .status{min-height:1.55em;margin:.8rem 0}
 [hidden]{display:none!important}
 @media(max-width:680px){.hero{grid-template-columns:1fr;gap:1rem;padding-top:1rem}.scene{min-height:17rem}}
+
+:root{color-scheme:dark;--ink:#10131e;--panel:#171c2a;--line:#343c53;--paper:#f0f2ff;--muted:#b4bdd4;--accent:#d8ff84;--violet:#ab9bff}
+body{background:radial-gradient(ellipse at 76% 0%,#252442 0%,transparent 42rem),var(--ink);color:var(--paper);font-family:'Space Grotesk',system-ui,sans-serif}
+header,main,footer{width:min(72rem,calc(100% - 2rem))}
+header{border-bottom:1px solid var(--line);padding:1.15rem 0}
+header nav{display:flex;gap:1rem;flex-wrap:wrap;font-size:.9rem}
+header #logo{border:0;padding:.2rem 0;background:none;color:var(--paper)}
+header #logo::before{content:"";display:inline-block;width:.65em;height:.65em;background:var(--accent);border-radius:50%;margin-right:.55em;box-shadow:0 0 15px #d8ff8470}
+h1,h2{font-family:'Space Grotesk',system-ui,sans-serif;color:var(--paper);letter-spacing:-.06em}
+h1{font-size:clamp(3.15rem,8vw,7rem);line-height:.93;margin-bottom:1.25rem}
+h2{font-size:clamp(2rem,5vw,3.1rem)}
+h3{margin:.75rem 0 .25rem}
+p,footer{color:var(--muted)}
+.hero{gap:clamp(1.5rem,5vw,5rem);padding:clamp(2.5rem,7vw,6.5rem) 0 2.5rem}
+.hero p{max-width:31rem;margin-bottom:1.4rem}
+button,.action{border:1px solid var(--line);border-radius:.65rem;background:#222a3d;color:var(--paper);padding:.68rem .95rem;min-height:44px}
+button:not(:disabled):hover,.action:hover{border-color:var(--accent)}
+button:focus-visible,a:focus-visible{outline-color:var(--violet)}
+button:disabled{opacity:.48;cursor:default}
+.primary{background:var(--accent);color:#15200a;border-color:var(--accent)}
+.scene{isolation:isolate;overflow:hidden;min-width:0;min-height:21rem;border:1px solid #605a88;border-radius:1.25rem;background:radial-gradient(ellipse at 50% 45%,#634ab0,#292143 70%);padding:1.25rem}
+.scene::before{position:absolute;inset:0;content:"";z-index:-1;background:linear-gradient(90deg,#b7aaff25 1px,transparent 1px),linear-gradient(#b7aaff25 1px,transparent 1px);background-size:24px 24px;mask-image:radial-gradient(ellipse,#000,transparent 82%)}
+.scene.night{background:radial-gradient(ellipse at 50% 45%,#253c57,#101522 75%)}
+.scene.night button{background:#262e44;color:var(--paper)}
+.spinner{border:1px solid #eee9ff;background:#b3a1ff;color:#19132e;box-shadow:0 0 4rem #b3a1ff55,7px 8px #261943;padding:.15em .32em .24em .2em}
+.scene .toys{justify-content:center}
+.scene .toys button{font-size:.82rem}
+section.card{background:var(--panel);border:1px solid var(--line);border-radius:1.25rem;margin:1.25rem 0}
+#daily .board .lit{background:var(--accent);color:#16200c}
+#daily .board button[aria-pressed=true]{outline:2px solid var(--violet)}
+.puzzle-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:clamp(1rem,4vw,4rem)}
+.puzzle-board{--cell:clamp(38px,10vw,57px);display:grid;grid-template-columns:repeat(6,var(--cell));grid-auto-rows:var(--cell);gap:4px;justify-content:center;margin-block:1rem}
+.puzzle-board > *{min-width:0;min-height:0}
+.puzzle-board span{display:grid;place-content:center;font:700 .8rem 'Space Mono',monospace;color:var(--violet);text-align:center}
+.puzzle-board button{padding:0;border-radius:.3rem;background:#2a3147;font-weight:700;color:var(--paper);touch-action:manipulation;min-height:0}
+.puzzle-board button[data-state=filled]{background:var(--accent);color:#18230d;border-color:var(--accent)}
+.puzzle-board button[data-state=marked]{background:#232839;color:var(--violet)}
+.puzzle-board button[data-hint=true]{outline:2px solid var(--violet);outline-offset:1px}
+.puzzle-board span[data-match=true]{color:var(--accent)}
+footer{border-top:1px solid var(--line)}
+#collection{display:flex;flex-wrap:wrap;gap:.5rem;list-style:none;padding:0}
+#collection li{padding:.25rem .65rem;border:1px solid var(--line);border-radius:.35rem}
+@media(max-width:720px){.hero,.puzzle-layout{grid-template-columns:1fr}.hero{padding-top:2.4rem}.scene{min-height:16rem}.puzzle-board{justify-content:start}}
+@media(max-width:360px){.puzzle-board{--cell:clamp(30px,10vw,36px)}header nav{gap:.55rem}}
 </style>
 </head>
 <body>
 <header>
 <button id="logo" type="button">The Tye Playground</button>
-<a href="#games">Games</a>
+<nav aria-label="Main"><a href="#pattern">Puzzle</a><a href="#daily">Daily</a><a href="#games">Arcade</a></nav>
 </header>
 <main>
 <div class="hero">
 <div>
-<h1>A tiny playground for curious people</h1>
-<p>Play a daily mini-game, poke around, and see what you can find.</p>
+<h1>A little play goes a long way.</h1>
+<p>Decode a hidden picture, take on the daily challenge, or explore the site for seven collectible secrets.</p>
 <div class="actions">
-<a class="action primary" href="#daily">Play today’s challenge</a>
+<a class="action primary" href="#pattern">Play Pixel Logic</a><a class="action" href="#daily">Daily challenge</a>
 <a class="action" href="#secrets">Find 7 secrets</a>
 </div>
 </div>
@@ -59,6 +104,24 @@ section.card{background:#fff9ed;border:2px solid #212421;border-radius:1.5rem;pa
 </div>
 </div>
 </div>
+<section class="card puzzle-layout" id="pattern">
+<div>
+<h2>Pixel Logic</h2>
+<p>Reveal the hidden picture. Each number tells you how many consecutive squares to fill in that row or column. Leave at least one empty square between groups.</p>
+<p id="puzzleNumber"></p>
+<div class="row">
+<button class="primary" id="markMode" type="button" aria-pressed="false">Mark empty</button>
+<button id="puzzleHint" type="button">Get a clue</button>
+<button id="puzzleReset" type="button">Clear board</button>
+</div>
+<p class="status" id="puzzleStatus" role="status"></p>
+<div class="row">
+<button id="puzzlePrev" type="button">Previous puzzle</button>
+<button id="puzzleNext" type="button">Next puzzle</button>
+</div>
+</div>
+<div id="puzzleBoard" class="puzzle-board" role="group" aria-label="Pixel Logic puzzle"></div>
+</section>
 <section class="card" id="daily">
 <h2>Today’s tiny challenge</h2>
 <p id="dailyDate"></p>
@@ -358,6 +421,151 @@ byId("shareHunt").onclick = () => {
   share("I found " + collected.size + "/7 secrets at The Tye Playground. How many can you find?", url.href,
     message => { byId("hintText").textContent = message; });
 };
+
+const pictures = [
+  ["Arrow", "00100 01110 11111 00100 00100"],
+  ["Flower", "01110 11011 11111 11011 01110"],
+  ["Diamond", "00100 01110 11111 01110 00100"],
+  ["Heart", "11011 11111 11111 01110 00100"],
+  ["Stamp", "11111 10001 10101 10001 11111"],
+  ["Rocket", "00100 01110 10101 00100 01110"]
+];
+const puzzleBoard = byId("puzzleBoard");
+const puzzleStatus = byId("puzzleStatus");
+const markMode = byId("markMode");
+const savedPuzzles = read("tye-pixel-boards", {});
+const boards = savedPuzzles && typeof savedPuzzles === "object" ? savedPuzzles : {};
+const savedCompletions = read("tye-pixel-completed", []);
+const completedPuzzles = new Set(Array.isArray(savedCompletions) ? savedCompletions : []);
+let puzzleIndex = Number(read("tye-pixel-index", 0));
+if (!Number.isInteger(puzzleIndex) || !pictures[puzzleIndex]) puzzleIndex = 0;
+let marking = false;
+let cells = [];
+let cellButtons = [];
+let clueLabels = [];
+let hinted = -1;
+const indices = Array.from({length: 5}, (_, i) => i);
+const lines = [
+  ...indices.map(r => indices.map(c => r * 5 + c)),
+  ...indices.map(c => indices.map(r => r * 5 + c))
+];
+const possibleLines = Array.from({length: 32}, (_, i) => i.toString(2).padStart(5, "0"));
+const clues = bits => (bits.match(/1+/g) || [""]).map(group => group.length).join(" ");
+const solution = () => pictures[puzzleIndex][1].replaceAll(" ", "");
+const lineBits = (line, bits) => line.map(i => bits[i]).join("");
+
+function refreshPuzzle() {
+  const answer = solution();
+  const filled = cells.map(value => value === 1 ? "1" : "0");
+  const solved = filled.join("") === answer;
+  if (solved) {
+    completedPuzzles.add(puzzleIndex);
+    write("tye-pixel-completed", [...completedPuzzles]);
+  }
+  byId("puzzleNumber").textContent = "Puzzle " + (puzzleIndex + 1) + " of " + pictures.length
+    + " · " + completedPuzzles.size + " solved";
+  clueLabels.forEach((label, i) => {
+    label.dataset.match = clues(lineBits(lines[i], filled)) === clues(lineBits(lines[i], answer));
+  });
+  cellButtons.forEach((button, i) => {
+    const state = ["blank", "filled", "marked"][cells[i]];
+    button.dataset.state = state;
+    button.dataset.hint = i === hinted;
+    button.textContent = state === "marked" ? "×" : "";
+    button.setAttribute("aria-label", "Row " + (Math.floor(i / 5) + 1) + ", column " + (i % 5 + 1) + ", " + state);
+    button.setAttribute("aria-pressed", cells[i] === 1);
+  });
+  if (solved) puzzleStatus.textContent = "Solved! You revealed the " + pictures[puzzleIndex][0].toLowerCase() + ".";
+  return solved;
+}
+
+function savePuzzle() {
+  boards[puzzleIndex] = cells.join("");
+  write("tye-pixel-boards", boards);
+}
+
+function showPuzzle(index) {
+  puzzleIndex = index;
+  write("tye-pixel-index", index);
+  const savedBoard = boards[index];
+  cells = typeof savedBoard === "string" && /^[012]{25}$/.test(savedBoard)
+    ? Array.from(savedBoard, Number) : Array(25).fill(0);
+  hinted = -1;
+  cellButtons = [];
+  clueLabels = [];
+  puzzleBoard.replaceChildren();
+  puzzleStatus.textContent = "Matching clue patterns turn green.";
+  const answer = solution();
+  function label(lineIndex, name) {
+    const element = document.createElement("span");
+    const numbers = clues(lineBits(lines[lineIndex], answer));
+    element.textContent = numbers;
+    element.setAttribute("aria-label", name + ": " + numbers);
+    clueLabels[lineIndex] = element;
+    puzzleBoard.append(element);
+  }
+  puzzleBoard.append(document.createElement("span"));
+  indices.forEach(c => label(c + 5, "Column " + (c + 1)));
+  indices.forEach(r => {
+    label(r, "Row " + (r + 1));
+    indices.forEach(c => {
+      const i = r * 5 + c;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.onclick = () => {
+        const next = marking ? 2 : 1;
+        cells[i] = cells[i] === next ? 0 : next;
+        hinted = -1;
+        puzzleStatus.textContent = "Matching clue patterns turn green.";
+        savePuzzle();
+        refreshPuzzle();
+      };
+      cellButtons.push(button);
+      puzzleBoard.append(button);
+    });
+  });
+  byId("puzzlePrev").disabled = index === 0;
+  byId("puzzleNext").disabled = index === pictures.length - 1;
+  refreshPuzzle();
+}
+markMode.onclick = () => {
+  marking = !marking;
+  markMode.setAttribute("aria-pressed", marking);
+  markMode.textContent = marking ? "Mark empty: on" : "Mark empty";
+};
+byId("puzzlePrev").onclick = () => showPuzzle(puzzleIndex - 1);
+byId("puzzleNext").onclick = () => showPuzzle(puzzleIndex + 1);
+byId("puzzleReset").onclick = () => {
+  cells.fill(0);
+  hinted = -1;
+  savePuzzle();
+  puzzleStatus.textContent = "Board cleared.";
+  refreshPuzzle();
+};
+byId("puzzleHint").onclick = () => {
+  const answer = solution();
+  const mismatch = cells.findIndex((value, i) => (value === 1 && answer[i] === "0") || (value === 2 && answer[i] === "1"));
+  let index = mismatch;
+  let reason = "Recheck";
+  if (index < 0) {
+    for (const line of lines) {
+      const candidates = possibleLines.filter(bits => clues(bits) === clues(lineBits(line, answer))
+        && line.every((i, offset) => cells[i] === 0 || bits[offset] === (cells[i] === 1 ? "1" : "0")));
+      const offset = line.findIndex((i, n) => cells[i] === 0 && candidates.every(bits => bits[n] === "1"));
+      if (offset >= 0) { index = line[offset]; reason = "The clues require you to fill"; break; }
+    }
+  }
+  if (index < 0) {
+    index = cells.findIndex((value, i) => value === 0 && answer[i] === "1");
+    reason = "Try filling";
+  }
+  hinted = index;
+  if (!refreshPuzzle() && index >= 0) {
+    puzzleStatus.textContent = reason + " row " + (Math.floor(index / 5) + 1) + ", column " + (index % 5 + 1) + ".";
+  }
+};
+showPuzzle(puzzleIndex);
+
 </script>
 </body>
 </html>
