@@ -223,6 +223,204 @@ const games = { 'town-that-copies-you':town, 'haunted-mall':haunted, 'dungeon-la
 const game = games[document.body.dataset.game];
 const get = id => document.getElementById(id);
 let state;
+const slug = document.body.dataset.game;
+let drag = null;
+const icons = {
+  'Vending machine':'🥤','Escalator':'🛗','Speakers':'🔊','Security camera':'📹','Mannequin':'🧥','Lost and found':'📦',
+  Farm:'🌾', Solar:'☀️', Housing:'🏠', Battery:'🔋', Market:'🛒', Parking:'🅿️',
+  Lobby:'🛎️','Vault':'🏆','Plate':'◉','Gate':'🚪','Cellar':'▥','Crate':'📦','Latch':'⚙','Exit':'↩'
+};
+const rooms = [
+  ['Vending machine','Possess vending machine'],['Escalator','Possess escalator'],['Speakers','Possess speakers'],
+  ['Security camera','Loop security footage'],['Mannequin','Frame mannequin'],['Lost and found','Hide in lost and found']
+];
+function target(label, icon, style, run, detail = '') {
+  const element = make('button','',style);
+  element.type='button';
+  if (!run) element.setAttribute('aria-disabled','true');
+  element.append(make('b',icon),make('span',label));
+  if(detail) element.append(make('small',detail));
+  element.onclick=event=>{if(!state.end && (event.detail===0 || !suppressClick)) run?.();};
+  return element;
+}
+let suppressClick = false;
+function byLabel(data,label) {
+  const item=data.actions.find(option=>option.label===label&&!option.disabled);
+  return item ? ()=>{item.run();render();} : null;
+}
+function surface(board,name) {
+  const el=make('div','',name);
+  board.append(el);
+  return el;
+}
+function guidance() {
+  return {
+    'town-that-copies-you':'Drag across the town to walk. Tap a neighboring square for one step. Tap the trophy or crate to use it.',
+    'haunted-mall':'Drag the ghost onto a fixture to haunt it. The camera, mannequin, and lost and found change what the crew suspects.',
+    'dungeon-landlord':'Drag a card to the center of the dungeon to play it. Between weeks, drag a new card there to draft it.',
+    'pocket-planet':'Drag buildings from the project tray into an orbital zone. New construction replaces the building already there.'
+  }[slug];
+}
+function dragBoard(data, board) {
+  board.onpointerdown=null;
+  const note = get('gesture-help');
+  note.textContent = guidance();
+  board.classList.toggle('complete',Boolean(state.end));
+  if(slug==='town-that-copies-you') {
+    const grid=surface(board,'map town-map');
+    const movement = state => {
+      const [x,y]=state.position;
+      return [['North',x,y-1],['West',x-1,y],['South',x,y+1],['East',x+1,y]];
+    };
+    const moveTile = i => {
+      const move=movement(state).find(([,x,y])=>x===i%5&&y===Math.floor(i/5));
+      return move?byLabel(game.view(state),move[0]):null;
+    };
+    data.map.forEach((tile,i)=>{
+      const special=tile.player ? byLabel(data,tile.label==='Vault'?'Take trophy':tile.label==='Crate'?'Wedge crate on plate':'') : null;
+      const el=target(tile.label,tile.player?'◆':tile.echo?'◇':icons[tile.label]||'',[
+        'tile',tile.player?'player':'',tile.echo?'echo':'',tile.blocked?'blocked':''
+      ].join(' '),special||moveTile(i));
+      el.dataset.tile=i;
+      grid.append(el);
+    });
+    if(!state.end) wireGesture(grid,{
+      start:event=>({x:event.clientX,y:event.clientY,last:-1,tile:event.target.closest('[data-tile]')}),
+      move:(event,gesture)=>{
+        if(Math.hypot(gesture.x-event.clientX,gesture.y-event.clientY)<14&&!gesture.moved) return;
+        gesture.moved=true;
+        const tile=document.elementFromPoint(event.clientX,event.clientY)?.closest('[data-tile]');
+        if(!tile || !board.contains(tile)) return;
+        const i=Number(tile.dataset.tile);
+        if(i===gesture.last || state.end) return;
+        gesture.last=i;
+        moveTile(i)?.();
+      },
+      end:(_,gesture)=>{
+        if(gesture.moved || !gesture.tile) return;
+        const tile=gesture.tile;
+        tile.click();
+      }
+    });
+    return;
+  }
+  if(slug==='haunted-mall') {
+    const mall=surface(board,'mall-floor');
+    rooms.forEach(([label,command])=>{
+      const el=target(label,icons[label],'room-object',byLabel(data,command));
+      el.dataset.drop=command;
+      mall.append(el);
+    });
+    const ghost=target('Ghost','👻','ghost-piece',null);
+    ghost.setAttribute('aria-label','Drag ghost onto a mall fixture');
+    ghost.removeAttribute('aria-disabled');
+    ghost.dataset.grab='ghost';
+    mall.append(ghost);
+    if(!state.end) wireDrop(board,token=>token==='ghost',(_,drop)=>byLabel(data,drop)?.());
+    appendNotes(board,data.items);
+    return;
+  }
+  if(slug==='dungeon-landlord') {
+    const stage=surface(board,'dungeon-stage');
+    appendNotes(stage,data.items.slice(0,3));
+    const drop=make('div',state.offers.length?'Drop here to draft':'Drop here to play','drop-zone');
+    drop.dataset.drop='dungeon';
+    stage.append(drop);
+    const tray=surface(board,'object-tray');
+    const offering=Boolean(state.offers.length);
+    const picks=data.actions.filter(item=>item.label.startsWith(offering?'Draft ':'Play '));
+    picks.forEach((item,i)=>{
+      const name=item.label.replace(/^(Draft|Play) /,'');
+      const el=target(name,offering?'✧':'♜','game-card',item.disabled?null:()=>{item.run();render();},landlordCards[name].text);
+      if(!item.disabled) el.dataset.grab=i;
+      tray.append(el);
+    });
+    if(!state.end) wireDrop(board,()=>true,(token,zone)=>{
+      if(zone!=='dungeon')return;
+      const item=picks[Number(token)];
+      if(item&&!item.disabled){item.run();render();}
+    });
+    return;
+  }
+  const planet=surface(board,'planet-surface');
+  data.items.forEach(([name,detail],i)=>{
+    const type=state.zones[i];
+    const el=target('Zone '+(i+1),icons[type]||'·','orbit-zone'+(name.includes('Shadow')?' shadow':''),null,
+      (type||'Empty')+' · '+(name.includes('Shadow')?'Shadow':'Sun'));
+    el.tabIndex=-1;
+    el.dataset.drop=i;
+    planet.append(el);
+  });
+  const tray=surface(board,'object-tray');
+  Object.entries(buildings).forEach(([name,{detail,cost}])=>{
+    const el=target(name+' · '+cost,icons[name],'game-card',null,detail);
+    if(state.credits>=cost) el.dataset.grab=name;
+    tray.append(el);
+  });
+  if(!state.end) wireDrop(board,()=>true,(name,zone)=>{
+    const select=data.actions.find(item=>item.label==='Select zone '+(Number(zone)+1));
+    if(!select)return;
+    if(!select.disabled)select.run();
+    const build=byLabel(game.view(state),name+' · '+buildings[name].cost);
+    if(build) build();
+    else render();
+  });
+}
+function appendNotes(parent,items) {
+  const notes=make('ul','','list scene-notes');
+  items.forEach(([title,detail])=>{
+    const entry=make('li','');
+    entry.append(make('strong',title),document.createTextNode(' · '+detail));
+    notes.append(entry);
+  });
+  parent.append(notes);
+}
+function wireGesture(surface,{start,move,end}) {
+  surface.onpointerdown=event=>{
+    if(drag||state.end||event.button!==0)return;
+    const payload=start(event);
+    if(!payload)return;
+    const capture=get('board');
+    capture.setPointerCapture(event.pointerId);
+    drag={...payload,id:event.pointerId};
+    capture.onpointermove=event=>{if(drag?.id===event.pointerId) move?.(event,drag);};
+    const release=(event,cancelled)=>{
+      if(drag?.id!==event.pointerId)return;
+      const current=drag;
+      drag=null;
+      current.ghost?.remove();
+      if(current.moved || current.token!==undefined) {
+        suppressClick=true;
+        setTimeout(()=>{suppressClick=false;},0);
+      }
+      if(!cancelled) end?.(event,current);
+    };
+    capture.onpointerup=event=>release(event,false);
+    capture.onpointercancel=event=>release(event,true);
+    capture.onlostpointercapture=event=>release(event,true);
+  };
+}
+function wireDrop(board,accept,drop) {
+  wireGesture(board,{
+    start:event=>{
+      const piece=event.target.closest('[data-grab]');
+      if(!piece||!accept(piece.dataset.grab))return null;
+      const ghost=make('div',piece.querySelector('b').textContent,'drag-ghost');
+      document.body.append(ghost);
+      placeGhost(ghost,event);
+      return {token:piece.dataset.grab,ghost};
+    },
+    move:(event,gesture)=>placeGhost(gesture.ghost,event),
+    end:(event,gesture)=>{
+      const zone=document.elementFromPoint(event.clientX,event.clientY)?.closest('[data-drop]');
+      if(zone&&board.contains(zone))drop(gesture.token,zone.dataset.drop);
+    }
+  });
+}
+function placeGhost(ghost,event) {
+  ghost.style.transform='translate('+event.clientX+'px,'+(event.clientY-27)+'px) translate(-50%,-50%)';
+}
+
 function make(tag,text,cls) {
   const el = document.createElement(tag);
   el.textContent = text;
@@ -242,43 +440,30 @@ function render() {
   get('board-title').textContent=data.heading;
   const board = get('board');
   board.replaceChildren();
-  if(data.map) {
-    const grid = make('div','','map');
-    data.map.forEach(tile=>{
-      const el=make('div','',['tile',tile.player?'player':'',tile.echo?'echo':'',tile.blocked?'blocked':''].join(' '));
-      if(tile.player||tile.echo) el.append(make('b',(tile.player?'◆':'')+(tile.echo?'◇':'')));
-      el.append(make('span',tile.label));
-      grid.append(el);
-    });
-    board.append(grid);
-  } else {
-    const list=make('ul','','list');
-    data.items.forEach(([title,detail])=>{
-      const li=make('li','');
-      li.append(make('strong',title),document.createTextNode(' · '+detail));
-      list.append(li);
-    });
-    board.append(list);
-  }
+  dragBoard(data,board);
   get('help').textContent=data.help;
   const status=get('status');
   status.textContent=state.end||state.msg;
   status.classList.toggle('outcome',Boolean(state.end));
   const actions=get('actions');
   actions.replaceChildren();
+  const fallback=get('fallback-actions');
+  fallback.replaceChildren();
   if(state.end) return;
   data.actions.forEach((item,index)=>{
+    const primary= /^(Wait|Start heist day|End week|Skip draft|Advance week)$/.test(item.label);
+    const group=primary ? actions : fallback;
     const button=make('button',item.label,item.primary?'primary':'');
     button.type='button';
     button.disabled=item.disabled;
     button.addEventListener('click',()=>{
       item.run();
       render();
-      const sameButton=[...actions.children].find(el=>!el.disabled&&el.textContent===item.label);
-      const adjacent=[...actions.children].slice(index).find(el=>!el.disabled);
-      (sameButton||adjacent||actions.querySelector('button:not(:disabled)')||get('restart')).focus();
+      const sameButton=[...group.children].find(el=>!el.disabled&&el.textContent===item.label);
+      const adjacent=[...group.children].slice(index).find(el=>!el.disabled);
+      (sameButton||adjacent||group.querySelector('button:not(:disabled)')||get('restart')).focus();
     });
-    actions.append(button);
+    group.append(button);
   });
 }
 get('intro').textContent=game.intro;

@@ -428,13 +428,14 @@
   .arcade a,.arcade strong{color:#d9ff86}
   .arcade p{color:#c1c9df;margin:8px 0}
   .arcade button:focus-visible,.dd button.row:focus-visible{outline:2px solid #e7c8ff;outline-offset:3px}
+  #ddf{touch-action:none}
   .arcade-extra{padding-top:16px;border-top:1px solid #414862}
   .dd button.row{min-height:44px;touch-action:manipulation;font:700 14px system-ui}
   @media(max-width:590px){.arcade-grid{grid-template-columns:minmax(0,1fr)}.arcade-art{height:115px}}
 </style>
 </head>
 <body>
-<header class="tye-header" id="tye-arcade-header"><a class="tye-brand" href="./">The Tye Playground</a><nav aria-label="Main"><a href="./">Playground</a><a href="./#pattern">Puzzle</a><a href="./#daily">Daily</a><a href="./404.html#games" aria-current="page">Arcade</a></nav></header>
+<header class="tye-header" id="tye-arcade-header"><a class="tye-brand" href="./">The Tye Playground</a><nav aria-label="Main"><a href="./">Playground</a><a href="./#pattern">Puzzle</a><a href="./#daily">Daily</a><a href="./404.html#games" aria-current="page">High End Games Live</a></nav></header>
 <main class="app" id="app">
   <div class="top">
     <div class="brand">
@@ -536,10 +537,10 @@
 
   <div class="panel" id="pn_games" hidden>
     <section class="arcade">
-      <div class="arcade-head"><div><h2>The Arcade</h2><p>Play a quick round or settle in for a longer challenge.</p></div><a href="./404.html">Workshop</a></div>
+      <div class="arcade-head"><div><h2>High End Games Live</h2><p>Play with taps, swipes, and drags.</p></div><a href="./404.html">Workshop</a></div>
       <div class="arcade-grid">
         <article><div class="arcade-art sweep-art" aria-hidden="true"><i></i><i></i><i></i></div><div class="arcade-copy">
-          <h3>Clean Sweep</h3><p>Clear the junk in 30 seconds. Keep the streak going by catching junk and leaving good items alone.</p>
+          <h3>Clean Sweep</h3><p>Swipe through falling junk and keep your streak going.</p>
           <p>Best <strong id="sweepPB">0</strong> · Next target <strong id="sweepTarget">10</strong> points</p>
           <button id="g_dd" type="button">Play Clean Sweep</button>
         </div></article>
@@ -549,15 +550,15 @@
           <button id="g_fl" type="button">Play Flap 404</button>
         </div></article>
         <article><div class="arcade-art raccoon-art" aria-hidden="true">🦝🥖</div><div class="arcade-copy">
-          <h3>Three Raccoons in a Trench Coat</h3><p>Switch between Mouth, Paws, and Legs to swipe a bread basket and sneak out before the staff catches on.</p>
+          <h3>Three Raccoons in a Trench Coat</h3><p>Steer through the restaurant, swipe the bread, and sneak past patrolling staff.</p>
           <p><strong>Restaurant heist</strong> · Three endings</p>
           <a class="play-link" href="./games/three-raccoons/">Play Three Raccoons</a>
         </div></article>
-        <article><div class="arcade-art feature-art town-that-copies-you-art" aria-hidden="true">🏘️ 🏆</div><div class="arcade-copy"><h3>The Town That Copies You</h3><p>Use a resident’s replay of yesterday’s moves to steal the mayor’s trophy.</p><p><strong>Replay puzzle</strong></p><a class="play-link" aria-label="Play The Town That Copies You" href="./games/town-that-copies-you/">Play game</a></div></article>
-        <article><div class="arcade-art feature-art haunted-mall-art" aria-hidden="true">👻 🛒</div><div class="arcade-copy"><h3>Haunted Mall After Hours</h3><p>Haunt the mall, fool its security crew, and pin the blame on a mannequin.</p><p><strong>Social deduction</strong></p><a class="play-link" aria-label="Play Haunted Mall After Hours" href="./games/haunted-mall/">Play game</a></div></article>
-        <article><div class="arcade-art feature-art dungeon-landlord-art" aria-hidden="true">🗝️ 🧌</div><div class="arcade-copy"><h3>Dungeon Landlord</h3><p>Build a deck, collect rent from monsters, and keep the dungeon solvent.</p><p><strong>Deckbuilding</strong></p><a class="play-link" aria-label="Play Dungeon Landlord" href="./games/dungeon-landlord/">Play game</a></div></article>
+        <article><div class="arcade-art feature-art town-that-copies-you-art" aria-hidden="true">🏘️ 🏆</div><div class="arcade-copy"><h3>The Town That Copies You</h3><p>Drag through town and use yesterday’s path to steal the mayor’s trophy.</p><p><strong>Replay puzzle</strong></p><a class="play-link" aria-label="Play The Town That Copies You" href="./games/town-that-copies-you/">Play game</a></div></article>
+        <article><div class="arcade-art feature-art haunted-mall-art" aria-hidden="true">👻 🛒</div><div class="arcade-copy"><h3>Haunted Mall After Hours</h3><p>Drag a ghost across the mall to haunt fixtures and fool security.</p><p><strong>Social deduction</strong></p><a class="play-link" aria-label="Play Haunted Mall After Hours" href="./games/haunted-mall/">Play game</a></div></article>
+        <article><div class="arcade-art feature-art dungeon-landlord-art" aria-hidden="true">🗝️ 🧌</div><div class="arcade-copy"><h3>Dungeon Landlord</h3><p>Drag cards into the dungeon to collect rent and keep your monster tenants happy.</p><p><strong>Deckbuilding</strong></p><a class="play-link" aria-label="Play Dungeon Landlord" href="./games/dungeon-landlord/">Play game</a></div></article>
         <article><div class="arcade-art feature-art midnight-delivery-art" aria-hidden="true">🚐 🎂</div><div class="arcade-copy"><h3>Midnight Delivery League</h3><p>Drag to steer through nighttime traffic and deliver a wedding cake before your rival.</p><p><strong>Real-time driving</strong></p><a class="play-link" aria-label="Play Midnight Delivery League" href="./games/midnight-delivery/">Play game</a></div></article>
-        <article><div class="arcade-art feature-art pocket-planet-art" aria-hidden="true">🪐 🏡</div><div class="arcade-copy"><h3>Pocket Planet, Big Problems</h3><p>Build a colony and keep it fed as sunlight shifts around its orbit.</p><p><strong>Colony simulation</strong></p><a class="play-link" aria-label="Play Pocket Planet, Big Problems" href="./games/pocket-planet/">Play game</a></div></article>
+        <article><div class="arcade-art feature-art pocket-planet-art" aria-hidden="true">🪐 🏡</div><div class="arcade-copy"><h3>Pocket Planet, Big Problems</h3><p>Drag buildings into orbit and keep the colony supplied as sunlight shifts.</p><p><strong>Colony simulation</strong></p><a class="play-link" aria-label="Play Pocket Planet, Big Problems" href="./games/pocket-planet/">Play game</a></div></article>
       </div>
       <div class="arcade-head arcade-extra"><p><strong>Power switch</strong> · Shut down the workshop and reboot it.</p><button class="sbtn" id="g_pl" type="button">Pull the plug</button></div>
     </section>
@@ -587,7 +588,7 @@
 
   <div class="foot"><span>page not found</span><span>domain purchased</span><span>everything else is fine</span></div>
 </main>
-<div class="dd" id="dd" hidden role="dialog" aria-label="Clean Sweep mini game"><div class="hud"><span>score <b id="ddsc">0</b></span><span>time <b id="ddt">30</b>s</span><span>streak <b id="ddStreak">0</b></span><span>best <b id="ddbest">0</b></span><span class="sp"></span><button class="sbtn" id="ddx" type="button">Exit (Esc)</button></div><div class="field" id="ddf"><div class="lake">the clean zone (keep it tidy)</div><div class="msg" id="ddmsg"><h2>Clean Sweep</h2><div>Messy items are falling into the clean zone.<br>Tap the <span style="color:var(--red)">spam, junk and typos</span> to sweep them away (+1).<br>Don't touch the good stuff (-2). Anything messy that lands costs -1.</div><button class="sbtn" id="ddgo" type="button">Start (30s)</button></div></div></div>
+<div class="dd" id="dd" hidden role="dialog" aria-label="Clean Sweep mini game"><div class="hud"><span>score <b id="ddsc">0</b></span><span>time <b id="ddt">30</b>s</span><span>streak <b id="ddStreak">0</b></span><span>best <b id="ddbest">0</b></span><span class="sp"></span><button class="sbtn" id="ddx" type="button">Exit (Esc)</button></div><div class="field" id="ddf"><div class="lake">the clean zone (keep it tidy)</div><div class="msg" id="ddmsg"><h2>Clean Sweep</h2><div>Messy items are falling into the clean zone.<br>Swipe through <span style="color:var(--red)">spam, junk and typos</span> to sweep them away (+1).<br>Don't touch the good stuff (-2). Anything messy that lands costs -1.</div><button class="sbtn" id="ddgo" type="button">Start (30s)</button></div></div></div>
 <div class="fl" id="fl" hidden role="dialog" aria-label="Flap 404 mini game"><div class="hud"><span>score <b id="flsc">0</b></span><span>best <b id="flbest">0</b></span><span class="fh">tap / click / space to flap</span><button class="sbtn" id="flx" type="button">Exit (Esc)</button></div><canvas id="flc"></canvas></div>
 <button class="sbtn bskip" id="bskip" type="button" hidden>Skip &#9656;</button>
 <div class="offs" id="offs" hidden aria-live="polite"><div><div id="offmsg"><span class="led"></span>no signal</div><div class="hint" id="offhint">power is out. plug the cable back into the socket (drag it, or just tap it).</div><pre id="bios"></pre><div class="bar"><i id="bfill"></i></div></div></div>
@@ -1376,7 +1377,7 @@
   }
   function showPanel(n) {
     document.body.classList.toggle("arcade-view", n === "games");
-    document.title = n === "games" ? "The Arcade — The Tye Playground" : "404 – Page not found";
+    document.title = n === "games" ? "High End Games Live — The Tye Playground" : "404 – Page not found";
     if (n === "games") refreshArcade();
     var pipe = !PANELS[n]; $("pn_pipe").hidden = !pipe;
     Object.keys(PANELS).forEach(function (k) { $(PANELS[k]).hidden = (k !== n); $("tab_" + k).setAttribute("aria-selected", String(k === n)); });
@@ -1512,9 +1513,9 @@
   var dd = { on: false, sc: 0, t: 30, rows: [], raf: 0, last: 0, spawn: 0, el: null };
   var DDBAD = ["SPAM", "junk", "typo", "oops", "???", "404", "lag", "bug", "ads", "ugh"], DDGOOD = ["hello", "friend", "coffee", "idea", "music", "smile", "cake", "sunny"];
   function ddBest() { try { return +localStorage.getItem("thetye-dd") || 0; } catch (e) { return 0; } }
-  function ddOpen() { $("ddgo").textContent = "Start (30s)"; $("ddmsg").querySelector("div").textContent = "Tap junk to score (+1). Good items cost 2 points and missed junk costs 1. Both break your streak."; dd.el = $("dd"); dd.el.hidden = false; $("ddbest").textContent = ddBest(); $("ddmsg").hidden = false; $("ddmsg").querySelector("h2").textContent = "Clean Sweep"; $("ddgo").focus(); }
+  function ddOpen() { $("ddgo").textContent = "Start (30s)"; $("ddmsg").querySelector("div").textContent = "Swipe through junk to score (+1). Good items cost 2 points and missed junk costs 1. Both break your streak."; dd.el = $("dd"); dd.el.hidden = false; $("ddbest").textContent = ddBest(); $("ddmsg").hidden = false; $("ddmsg").querySelector("h2").textContent = "Clean Sweep"; $("ddgo").focus(); }
   function ddStop() { dd.on = false; cancelAnimationFrame(dd.raf); }
-  function ddClose() { ddStop(); $("dd").hidden = true; refreshArcade(); if (!$("pn_games").hidden) $("g_dd").focus(); dd.rows.forEach(function (r) { r.el.remove(); }); dd.rows = []; }
+  function ddClose() { ddStop(); sweepPointer = null; $("dd").hidden = true; refreshArcade(); if (!$("pn_games").hidden) $("g_dd").focus(); dd.rows.forEach(function (r) { r.el.remove(); }); dd.rows = []; }
   function ddScore(n) { dd.streak = n > 0 ? dd.streak + 1 : 0; dd.longest = Math.max(dd.longest, dd.streak); $("ddStreak").textContent = dd.streak; dd.sc = Math.max(0, dd.sc + n); $("ddsc").textContent = dd.sc; }
   function ddStart() {
     dd.rows.forEach(function (r) { r.el.remove(); }); dd.rows = []; dd.sc = 0; dd.t = 30; dd.spawn = 0; dd.last = 0; dd.streak = 0; dd.longest = 0; dd.on = true; $("ddStreak").textContent = "0";
@@ -1526,13 +1527,37 @@
     f.appendChild(el);
     var w = el.offsetWidth, x = Math.random() * Math.max(10, f.clientWidth - w - 10), r = { el: el, x: x, y: -44, bad: bad, v: 90 + (30 - dd.t) * 6 + Math.random() * 50 };
     el.style.left = x + "px"; el.style.transform = "translateY(-44px)";
-    el.addEventListener("click", function () {
+    r.sweep = function () {
       if (!dd.on || r.dead) return; r.dead = true;
       if (bad) { ddScore(1); sfx("task"); } else { ddScore(-2); sfx("nope"); if (navigator.vibrate && vibOn) try { navigator.vibrate(30); } catch (e) {} }
       el.classList.add("pop"); setTimeout(function () { el.remove(); }, 200);
-    });
+    };
+    el.addEventListener("click", r.sweep);
     dd.rows.push(r);
   }
+  var sweepPointer = null;
+  var sweepField = $("ddf");
+  function sweepAt(x, y) {
+    var item = document.elementFromPoint(x, y);
+    var row = item && dd.rows.find(function (row) { return row.el === item || row.el.contains(item); });
+    if (row) row.sweep();
+  }
+  sweepField.addEventListener("pointerdown", function (e) {
+    if (!dd.on || e.button !== 0 || sweepPointer) return;
+    sweepPointer = { id:e.pointerId, x:e.clientX, y:e.clientY };
+    sweepField.setPointerCapture(e.pointerId);
+    sweepAt(e.clientX, e.clientY);
+  });
+  sweepField.addEventListener("pointermove", function (e) {
+    var p = sweepPointer;
+    if (!dd.on || !p || p.id !== e.pointerId) return;
+    var steps = Math.max(1, Math.ceil(Math.hypot(e.clientX-p.x, e.clientY-p.y)/11));
+    for (var i=1;i<=steps;i++) sweepAt(p.x+(e.clientX-p.x)*i/steps,p.y+(e.clientY-p.y)*i/steps);
+    p.x=e.clientX; p.y=e.clientY;
+  });
+  ["pointerup","pointercancel","lostpointercapture"].forEach(function (event) {
+    sweepField.addEventListener(event,function (e) { if (sweepPointer && sweepPointer.id === e.pointerId) sweepPointer = null; });
+  });
   function ddTick(ts) {
     if (!dd.on) return; var dt = dd.last ? Math.min((ts - dd.last) / 1000, 0.05) : 0; dd.last = ts;
     dd.t -= dt; dd.spawn -= dt; $("ddt").textContent = Math.max(0, Math.ceil(dd.t));

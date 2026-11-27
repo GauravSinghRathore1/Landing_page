@@ -1,0 +1,29 @@
+#board{position:relative}
+#board.complete{opacity:.68}
+#board.complete button{pointer-events:none}
+.town-map,.mall-floor,.object-tray{touch-action:none}
+.town-map .tile,.room-object,.orbit-zone,.game-card,.ghost-piece{display:grid;place-content:center;gap:.2rem;text-align:center}
+.town-map .tile{min-height:clamp(54px,10vw,88px);padding:2px;cursor:grab}
+.town-map .tile b:empty{display:none}
+.town-map .tile.blocked{opacity:.6}
+.mall-floor,.planet-surface{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.5rem;padding:.6rem;border-radius:1rem;background:radial-gradient(ellipse,#384165,#121727 75%);margin-bottom:1rem}
+.room-object,.orbit-zone{min-height:89px;padding:.35rem;font-size:clamp(.78rem,2.8vw,.99rem)}
+.room-object b,.orbit-zone b,.game-card b,.ghost-piece b{font-size:1.6rem}
+.ghost-piece{grid-column:2;min-height:62px;cursor:grab;border-color:var(--tye-focus);background:#40336c}
+.scene-notes{margin:.55rem 0}
+.scene-notes li{font-size:.9rem}
+.drop-zone{padding:1rem;border:2px dashed var(--tye-focus);border-radius:.6rem;text-align:center;color:var(--tye-muted);margin-block:.7rem;background:#16192a}
+.object-tray{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,115px),1fr));gap:.45rem}
+.game-card{padding:.4rem;min-height:106px;font-size:.89rem;cursor:grab;background:#303351;border-color:#786ca1}
+.game-card small,.orbit-zone small{font-size:.76rem;color:var(--tye-muted)}
+.game-card[aria-disabled=true]:not([data-grab]){opacity:.55}
+.orbit-zone{min-height:99px;background:#3b4554;border-color:#8c8d75}
+.orbit-zone.shadow{background:#242840;border-color:#575273}
+.drag-ghost{position:fixed;z-index:1000;left:0;top:0;pointer-events:none;font-size:2.3rem;filter:drop-shadow(0 4px 8px #000)}
+.layout{grid-template-columns:minmax(0,1.65fr) minmax(0,1fr)}
+#actions:empty{display:none}
+.fallback{margin-top:.8rem}
+.fallback summary{cursor:pointer;color:var(--tye-muted)}
+.fallback .actions{margin-top:.6rem}
+@media(max-width:700px){.layout{grid-template-columns:1fr}}
+@media(max-width:700px){.object-tray{grid-template-columns:repeat(3,minmax(0,1fr))}.game-card{min-height:82px}.orbit-zone{min-height:74px}.planet-surface{margin-bottom:.5rem}}

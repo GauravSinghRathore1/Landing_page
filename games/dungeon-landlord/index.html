@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Dungeon Landlord — The Tye Playground</title>
+<title>Dungeon Landlord — High End Games Live</title>
 <meta name="description" content="Build a deck, collect rent from monsters, and keep the dungeon solvent.">
 <link rel="stylesheet" href="../../playground.css">
-<link rel="stylesheet" href="../games.css">
+<link rel="stylesheet" href="../games.css"><link rel="stylesheet" href="../gestures.css">
 <script src="../arcade-games.js" defer></script>
 </head>
 <body data-game="dungeon-landlord">
-<header class="tye-header"><a class="tye-brand" href="../../">The Tye Playground</a><nav aria-label="Main"><a href="../../">Playground</a><a href="../../#pattern">Puzzle</a><a href="../../#daily">Daily</a><a href="../../404.html#games">Back to Arcade</a></nav></header>
+<header class="tye-header"><a class="tye-brand" href="../../">The Tye Playground</a><nav aria-label="Main"><a href="../../">Playground</a><a href="../../#pattern">Puzzle</a><a href="../../#daily">Daily</a><a href="../../404.html#games">High End Games Live</a></nav></header>
 <main>
 <div class="heading"><h1>Dungeon Landlord</h1><button id="restart" type="button">Restart</button></div>
 <p id="intro" class="intro"></p>
 <div id="hud" class="hud" aria-label="Game status"></div>
 <div class="layout">
-<section class="panel" aria-labelledby="board-title"><h2 id="board-title"></h2><div id="board"></div></section>
-<section class="panel"><h2>Your move</h2><p id="help"></p><div class="actions" id="actions" aria-label="Game actions" role="group"></div><p id="status" role="status"></p></section>
+<section class="panel" aria-labelledby="board-title"><h2 id="board-title"></h2><p id="gesture-help"></p><div id="board"></div></section>
+<section class="panel"><h2>Your move</h2><p id="help"></p><div class="actions" id="actions" aria-label="Game actions" role="group"></div><p id="status" role="status"></p><details class="fallback"><summary>Keyboard and alternate controls</summary><div id="fallback-actions" class="actions"></div></details></section>
 </div>
 </main>
 </body>

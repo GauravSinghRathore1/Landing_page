@@ -1,36 +1,23 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Three raccoons, one trench coat, and a very good bread basket. Play an original restaurant heist.">
-<title>Three Raccoons in a Trench Coat</title>
-<link rel="stylesheet" href="style.css">
-<script src="game.js" defer></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Three Raccoons in a Trench Coat — High End Games Live</title>
+<meta name="description" content="Steer three raccoons around the restaurant, outsmart the staff, and escape with the bread.">
+<link rel="stylesheet" href="../../playground.css"><link rel="stylesheet" href="../touch-field.css">
+<script src="stealth.js" defer></script>
 </head>
 <body>
+<header class="tye-header"><a class="tye-brand" href="../../">High End Games Live</a><nav aria-label="Main"><a href="../../">Playground</a><a href="../../404.html#games" aria-current="page">Games</a></nav></header>
 <main>
-<a class="back" href="../../404.html#games">Back to the Arcade</a>
-<header><p class="venue">LE CROÛTON <span>·</span> AFTER DARK</p><h1>Three Raccoons<br><em>in a Trench Coat</em></h1><p>Steal the bread basket. Get back out before the maître d’ catches on.</p></header>
-<section class="stats" aria-label="Heist status">
-<div><small>Suspicion</small><strong id="heat"></strong><meter id="meter" min="0" max="8" value="0" aria-label="Suspicion"></meter></div>
-<div><small>Bread</small><strong id="bread"></strong></div>
-<div><small>Turns left</small><strong id="turns"></strong></div>
-</section>
-<div class="boards">
-<section class="room" aria-label="Restaurant floor plan">
-<div class="room-head"><h2>The restaurant</h2><span id="location"></span></div>
-<div class="map" id="map"></div>
-<p class="route">Follow the dining room route or sneak through the pantry. Leave through the lobby.</p>
-</section>
-<section class="crew" aria-label="Raccoon controls">
-<h2>Inside the coat</h2>
-<div class="roles" id="roles" role="group" aria-label="Select a raccoon"></div>
-<p class="hint" id="hint"></p>
-<div id="actions" class="actions" role="group" aria-label="Available actions"></div>
-</section>
+<h1>Three Raccoons in a Trench Coat</h1>
+<p id="controls">Drag anywhere in the restaurant to steer. Cross the bread basket to grab it, step onto a menu to bluff, and dodge the staff’s gaze. Escape through the lobby. Arrow keys also steer.</p>
+<div class="field">
+<canvas id="restaurant" tabindex="0" aria-label="Restaurant stealth game" aria-describedby="controls"></canvas>
+<div class="field-hud"><span id="bread">Bread in kitchen</span><span id="heat">Suspicion 0%</span><span id="clock">0:45</span></div>
+<div class="field-cover" id="cover"><strong id="headline">Le Croûton is open</strong><span id="instruction">Touch the restaurant to start or press Space.</span></div>
 </div>
-<section class="journal"><div><h2>Heist log</h2><button id="reset" type="button">New heist</button></div><p id="log" role="status" aria-live="polite"></p></section>
+<p id="status" role="status"></p>
 </main>
 </body>
 </html>
