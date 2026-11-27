@@ -412,6 +412,31 @@
   /* keep the fixed power cable clear of the footer text on narrower/desktop windows */
   @media (max-width: 899.98px) { .foot { padding-left: 72px; } }
   @media (min-width: 900px) and (max-width: 1299px) { .foot { padding-left: 76px; } }
+  .arcade-view .hero,.arcade-view .sched{display:none}
+  .arcade-view .ptabs{margin-top:12px}
+  .arcade{background:#131724;color:#f4f1ff;padding:clamp(16px,4vw,38px);border-radius:inherit;font:16px/1.5 system-ui,sans-serif}
+  .arcade-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .arcade h2{font-size:clamp(38px,8vw,72px);line-height:1;letter-spacing:-.07em;margin:0;color:inherit}
+  .arcade a,.arcade strong{color:#d9ff86}
+  .arcade p{color:#c1c9df;margin:8px 0}
+  .arcade-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:24px 0}
+  .arcade-grid article{display:flex;flex-direction:column;border:1px solid #414862;border-radius:18px;overflow:hidden;background:#1e2335}
+  .arcade-art{height:clamp(110px,20vw,195px);position:relative;overflow:hidden;background-size:20px 20px;background-image:linear-gradient(#ffffff13 1px,transparent 1px),linear-gradient(90deg,#ffffff13 1px,transparent 1px)}
+  .arcade-art i{position:absolute;display:block}
+  .sweep-art{background-color:#4c326e}
+  .sweep-art i{width:44px;height:44px;border:2px solid #e7c8ff;border-radius:8px;transform:rotate(20deg);background:#7e52ba;box-shadow:0 0 24px #e7c8ff60}
+  .sweep-art i:nth-child(1){left:18%;top:20%}.sweep-art i:nth-child(2){left:40%;top:53%;background:#d9ff86;border-color:#d9ff86}.sweep-art i:nth-child(3){left:69%;top:30%}
+  .flight-art{background-color:#183952}
+  .flight-art i{width:13%;height:33%;background:#80dfdb;border-radius:4px;box-shadow:0 0 20px #80dfdb60}
+  .flight-art i:nth-child(1){left:62%;top:0}.flight-art i:nth-child(2){left:62%;bottom:0}.flight-art i:nth-child(3){left:24%;top:40%;width:33px;height:33px;border-radius:50%;background:#d9ff86}
+  .arcade-copy{padding:clamp(14px,3vw,24px);display:flex;flex-direction:column;flex:1}
+  .arcade-copy h3{font-size:24px;margin:0;color:inherit}
+  .arcade-copy p:nth-of-type(2){margin-top:auto;padding-top:10px}
+  .arcade-copy button{min-height:44px;border:0;border-radius:8px;background:#d9ff86;color:#19210f;padding:8px 12px;font:700 15px system-ui;cursor:pointer}
+  .arcade button:focus-visible,.dd button.row:focus-visible{outline:2px solid #e7c8ff;outline-offset:3px}
+  .arcade-extra{padding-top:16px;border-top:1px solid #414862}
+  .dd button.row{min-height:44px;touch-action:manipulation;font:700 14px system-ui}
+  @media(max-width:590px){.arcade-grid{grid-template-columns:minmax(0,1fr)}.arcade-art{height:115px}}
 </style>
 </head>
 <body>
@@ -515,11 +540,22 @@
   </div>
 
   <div class="panel" id="pn_games" hidden>
-    <div class="gcards">
-      <div class="gcard"><b>Clean Sweep</b><p>Tap the junk before it lands. Leave the good stuff.</p><button class="btn ghost" id="g_dd" type="button">Play</button></div>
-      <div class="gcard"><b>Flap 404</b><p>One tap. Squeeze through the gaps.</p><button class="btn ghost" id="g_fl" type="button">Play</button></div>
-      <div class="gcard"><b>Pull the plug</b><p>Cut the power. Plug it back in to wake the page.</p><button class="btn ghost" id="g_pl" type="button">Pull it</button></div>
-    </div>
+    <section class="arcade">
+      <div class="arcade-head"><div><h2>The Arcade</h2><p>Two quick games. A new personal best to chase.</p></div><a href="./">Back to Playground</a></div>
+      <div class="arcade-grid">
+        <article><div class="arcade-art sweep-art" aria-hidden="true"><i></i><i></i><i></i></div><div class="arcade-copy">
+          <h3>Clean Sweep</h3><p>Clear the junk in 30 seconds. Keep the streak going by catching junk and leaving good items alone.</p>
+          <p>Best <strong id="sweepPB">0</strong> · Next target <strong id="sweepTarget">10</strong> points</p>
+          <button id="g_dd" type="button">Play Clean Sweep</button>
+        </div></article>
+        <article><div class="arcade-art flight-art" aria-hidden="true"><i></i><i></i><i></i></div><div class="arcade-copy">
+          <h3>Flap 404</h3><p>Tap or press Space to stay airborne. The course speeds up as you clear gates.</p>
+          <p>Best <strong id="flightPB">0</strong> · Next target <strong id="flightTarget">5</strong> gates</p>
+          <button id="g_fl" type="button">Play Flap 404</button>
+        </div></article>
+      </div>
+      <div class="arcade-head arcade-extra"><p><strong>Power switch</strong> · Shut down the workshop and reboot it.</p><button class="sbtn" id="g_pl" type="button">Pull the plug</button></div>
+    </section>
   </div>
 
   <div class="panel" id="pn_about" hidden>
@@ -546,7 +582,7 @@
 
   <div class="foot"><span>page not found</span><span>domain purchased</span><span>everything else is fine</span></div>
 </main>
-<div class="dd" id="dd" hidden role="dialog" aria-label="Clean Sweep mini game"><div class="hud"><span>score <b id="ddsc">0</b></span><span>time <b id="ddt">30</b>s</span><span>best <b id="ddbest">0</b></span><span class="sp"></span><button class="sbtn" id="ddx" type="button">Exit (Esc)</button></div><div class="field" id="ddf"><div class="lake">the clean zone (keep it tidy)</div><div class="msg" id="ddmsg"><h2>Clean Sweep</h2><div>Messy items are falling into the clean zone.<br>Tap the <span style="color:var(--red)">spam, junk and typos</span> to sweep them away (+1).<br>Don't touch the good stuff (-2). Anything messy that lands costs -1.</div><button class="sbtn" id="ddgo" type="button">Start (30s)</button></div></div></div>
+<div class="dd" id="dd" hidden role="dialog" aria-label="Clean Sweep mini game"><div class="hud"><span>score <b id="ddsc">0</b></span><span>time <b id="ddt">30</b>s</span><span>streak <b id="ddStreak">0</b></span><span>best <b id="ddbest">0</b></span><span class="sp"></span><button class="sbtn" id="ddx" type="button">Exit (Esc)</button></div><div class="field" id="ddf"><div class="lake">the clean zone (keep it tidy)</div><div class="msg" id="ddmsg"><h2>Clean Sweep</h2><div>Messy items are falling into the clean zone.<br>Tap the <span style="color:var(--red)">spam, junk and typos</span> to sweep them away (+1).<br>Don't touch the good stuff (-2). Anything messy that lands costs -1.</div><button class="sbtn" id="ddgo" type="button">Start (30s)</button></div></div></div>
 <div class="fl" id="fl" hidden role="dialog" aria-label="Flap 404 mini game"><div class="hud"><span>score <b id="flsc">0</b></span><span>best <b id="flbest">0</b></span><span class="fh">tap / click / space to flap</span><button class="sbtn" id="flx" type="button">Exit (Esc)</button></div><canvas id="flc"></canvas></div>
 <button class="sbtn bskip" id="bskip" type="button" hidden>Skip &#9656;</button>
 <div class="offs" id="offs" hidden aria-live="polite"><div><div id="offmsg"><span class="led"></span>no signal</div><div class="hint" id="offhint">power is out. plug the cable back into the socket (drag it, or just tap it).</div><pre id="bios"></pre><div class="bar"><i id="bfill"></i></div></div></div>
@@ -1326,7 +1362,16 @@
   })();
   // sections (tabs): pipeline/spark share one panel; terminal, games, about have their own
   var PANELS = { term: "pn_term", games: "pn_games", about: "pn_about" };
+  function refreshArcade() {
+    var sweep = ddBest(), flight = flBest();
+    $("sweepPB").textContent = sweep;
+    $("flightPB").textContent = flight;
+    $("sweepTarget").textContent = (Math.floor(sweep / 10) + 1) * 10;
+    $("flightTarget").textContent = (Math.floor(flight / 5) + 1) * 5;
+  }
   function showPanel(n) {
+    document.body.classList.toggle("arcade-view", n === "games");
+    if (n === "games") refreshArcade();
     var pipe = !PANELS[n]; $("pn_pipe").hidden = !pipe;
     Object.keys(PANELS).forEach(function (k) { $(PANELS[k]).hidden = (k !== n); $("tab_" + k).setAttribute("aria-selected", String(k === n)); });
     if (!pipe) { $("tab_orch").setAttribute("aria-selected", "false"); $("tab_spark").setAttribute("aria-selected", "false"); if (n === "term") tout.scrollTop = tout.scrollHeight; }
@@ -1461,22 +1506,22 @@
   var dd = { on: false, sc: 0, t: 30, rows: [], raf: 0, last: 0, spawn: 0, el: null };
   var DDBAD = ["SPAM", "junk", "typo", "oops", "???", "404", "lag", "bug", "ads", "ugh"], DDGOOD = ["hello", "friend", "coffee", "idea", "music", "smile", "cake", "sunny"];
   function ddBest() { try { return +localStorage.getItem("thetye-dd") || 0; } catch (e) { return 0; } }
-  function ddOpen() { dd.el = $("dd"); dd.el.hidden = false; $("ddbest").textContent = ddBest(); $("ddmsg").hidden = false; $("ddmsg").querySelector("h2").textContent = "Clean Sweep"; $("ddgo").focus(); }
+  function ddOpen() { $("ddgo").textContent = "Start (30s)"; $("ddmsg").querySelector("div").textContent = "Tap junk to score (+1). Good items cost 2 points and missed junk costs 1. Both break your streak."; dd.el = $("dd"); dd.el.hidden = false; $("ddbest").textContent = ddBest(); $("ddmsg").hidden = false; $("ddmsg").querySelector("h2").textContent = "Clean Sweep"; $("ddgo").focus(); }
   function ddStop() { dd.on = false; cancelAnimationFrame(dd.raf); }
-  function ddClose() { ddStop(); $("dd").hidden = true; dd.rows.forEach(function (r) { r.el.remove(); }); dd.rows = []; }
-  function ddScore(n) { dd.sc = Math.max(0, dd.sc + n); $("ddsc").textContent = dd.sc; }
+  function ddClose() { ddStop(); $("dd").hidden = true; refreshArcade(); if (!$("pn_games").hidden) $("g_dd").focus(); dd.rows.forEach(function (r) { r.el.remove(); }); dd.rows = []; }
+  function ddScore(n) { dd.streak = n > 0 ? dd.streak + 1 : 0; dd.longest = Math.max(dd.longest, dd.streak); $("ddStreak").textContent = dd.streak; dd.sc = Math.max(0, dd.sc + n); $("ddsc").textContent = dd.sc; }
   function ddStart() {
-    dd.rows.forEach(function (r) { r.el.remove(); }); dd.rows = []; dd.sc = 0; dd.t = 30; dd.spawn = 0; dd.last = 0; dd.on = true;
+    dd.rows.forEach(function (r) { r.el.remove(); }); dd.rows = []; dd.sc = 0; dd.t = 30; dd.spawn = 0; dd.last = 0; dd.streak = 0; dd.longest = 0; dd.on = true; $("ddStreak").textContent = "0";
     $("ddsc").textContent = 0; $("ddt").textContent = 30; $("ddmsg").hidden = true; dd.raf = requestAnimationFrame(ddTick);
   }
   function ddMake() {
-    var f = $("ddf"), bad = Math.random() < 0.6, el = document.createElement("div");
+    var f = $("ddf"), bad = Math.random() < 0.6, el = document.createElement("button"); el.type = "button";
     el.className = "row" + (bad ? " bad" : ""); el.textContent = bad ? DDBAD[Math.floor(Math.random() * DDBAD.length)] : DDGOOD[Math.floor(Math.random() * DDGOOD.length)];
     f.appendChild(el);
-    var w = el.offsetWidth, x = Math.random() * Math.max(10, f.clientWidth - w - 10), r = { el: el, x: x, y: -34, bad: bad, v: 90 + (30 - dd.t) * 6 + Math.random() * 50 };
-    el.style.left = x + "px"; el.style.transform = "translateY(-34px)";
-    el.addEventListener("pointerdown", function (ev) {
-      ev.preventDefault(); if (!dd.on || r.dead) return; r.dead = true;
+    var w = el.offsetWidth, x = Math.random() * Math.max(10, f.clientWidth - w - 10), r = { el: el, x: x, y: -44, bad: bad, v: 90 + (30 - dd.t) * 6 + Math.random() * 50 };
+    el.style.left = x + "px"; el.style.transform = "translateY(-44px)";
+    el.addEventListener("click", function () {
+      if (!dd.on || r.dead) return; r.dead = true;
       if (bad) { ddScore(1); sfx("task"); } else { ddScore(-2); sfx("nope"); if (navigator.vibrate && vibOn) try { navigator.vibrate(30); } catch (e) {} }
       el.classList.add("pop"); setTimeout(function () { el.remove(); }, 200);
     });
@@ -1486,7 +1531,7 @@
     if (!dd.on) return; var dt = dd.last ? Math.min((ts - dd.last) / 1000, 0.05) : 0; dd.last = ts;
     dd.t -= dt; dd.spawn -= dt; $("ddt").textContent = Math.max(0, Math.ceil(dd.t));
     if (dd.spawn <= 0) { ddMake(); dd.spawn = Math.max(0.28, 0.75 - (30 - dd.t) * 0.016); }
-    var H = $("ddf").clientHeight - 34;
+    var H = $("ddf").clientHeight - 44;
     dd.rows = dd.rows.filter(function (r) {
       if (r.dead) return false; r.y += r.v * dt; r.el.style.transform = "translateY(" + r.y + "px)";
       if (r.y > H - 28) { if (r.bad) { ddScore(-1); sfx("nope"); } r.el.remove(); return false; } return true;
@@ -1498,7 +1543,7 @@
     var b = ddBest(), nb = dd.sc > b; if (nb) { try { localStorage.setItem("thetye-dd", String(dd.sc)); } catch (e) {} $("ddbest").textContent = dd.sc; }
     var g = dd.sc >= 30 ? "Legend" : dd.sc >= 20 ? "Pro" : dd.sc >= 10 ? "Rookie" : "Beginner (the mess wins)";
     var m = $("ddmsg"); m.hidden = false; m.querySelector("h2").textContent = "Sweep complete: " + dd.sc + " pts";
-    m.querySelector("div").textContent = "Rank: " + g + (nb ? " - new personal best!" : ""); $("ddgo").textContent = "Play again"; $("ddgo").focus(); sfx("win");
+    m.querySelector("div").textContent = "Rank: " + g + " · Longest streak: " + dd.longest + (nb ? " - new personal best!" : ""); $("ddgo").textContent = "Play again"; $("ddgo").focus(); sfx("win");
   }
   $("ddgo").addEventListener("click", ddStart); $("ddx").addEventListener("click", ddClose);
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("dd").hidden) { e.stopPropagation(); ddClose(); } }, true);
@@ -1508,7 +1553,7 @@
   function flSize() { var c = fl.c, r = c.getBoundingClientRect(), d = window.devicePixelRatio || 1; fl.W = r.width; fl.H = r.height; c.width = r.width * d; c.height = r.height * d; fl.x.setTransform(d, 0, 0, d, 0, 0); }
   function flReset() { fl.on = 0; fl.dead = 0; fl.s = 0; fl.y = fl.H / 2; fl.vy = 0; fl.p = []; fl.t = 0; fl.last = 0; $("flsc").textContent = 0; }
   function flOpen() { fl.c = $("flc"); fl.x = fl.c.getContext("2d"); $("fl").hidden = false; flSize(); flReset(); $("flbest").textContent = flBest(); cancelAnimationFrame(fl.raf); fl.raf = requestAnimationFrame(flLoop); }
-  function flClose() { cancelAnimationFrame(fl.raf); $("fl").hidden = true; }
+  function flClose() { cancelAnimationFrame(fl.raf); $("fl").hidden = true; refreshArcade(); if (!$("pn_games").hidden) $("g_fl").focus(); }
   function flFlap() {
     if (fl.dead) { if (Date.now() - fl.dt0 > 450) flReset(); return; }
     fl.on = 1; fl.vy = -Math.max(380, fl.H * 0.62); sfx("key");
@@ -1527,9 +1572,9 @@
       fl.p = fl.p.filter(function (q) { return q.x > -70; });
       fl.p.forEach(function (q) {
         if (!q.ok && q.x + 26 < bx) { q.ok = 1; fl.s++; $("flsc").textContent = fl.s; sfx("task"); }
-        if (bx + r > q.x && bx - r < q.x + 52 && (fl.y - r < q.gy - gap / 2 || fl.y + r > q.gy + gap / 2)) flDie();
+        if (!fl.dead && bx + r > q.x && bx - r < q.x + 52 && (fl.y - r < q.gy - gap / 2 || fl.y + r > q.gy + gap / 2)) flDie();
       });
-      if (fl.y + r > H || fl.y - r < 0) { fl.y = Math.max(r, Math.min(H - r, fl.y)); flDie(); }
+      if (!fl.dead && (fl.y + r > H || fl.y - r < 0)) { fl.y = Math.max(r, Math.min(H - r, fl.y)); flDie(); }
     } else if (fl.dead) { fl.y = Math.min(H - r, fl.y + fl.vy * dt); fl.vy += g * dt; }
     else { fl.y = H / 2 + Math.sin(ts / 300) * 8; }
     var cs = getComputedStyle(document.documentElement), x = fl.x, gr = cs.getPropertyValue("--green").trim() || "#3fb950", bl = cs.getPropertyValue("--blue").trim() || "#58a6ff", fg = cs.getPropertyValue("--fg").trim() || "#ccc", rd = cs.getPropertyValue("--red").trim() || "#f55", mu = cs.getPropertyValue("--muted").trim() || "#888";
@@ -1706,6 +1751,8 @@
 
   // ---------------- go ----------------
   drawDag(); run();
+  if (location.hash === "#games") showPanel("games");
+  window.addEventListener("hashchange", function () { if (location.hash === "#games") showPanel("games"); });
   if (!reduce) requestAnimationFrame(flow);
 </script>
 </body>
