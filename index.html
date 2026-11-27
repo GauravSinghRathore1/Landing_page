@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Tye Playground — Free Mini Games & Hidden Surprises</title>
+<meta name="description" content="Play a tiny daily game, explore seven hidden surprises, and challenge a friend at The Tye Playground.">
+<link rel="canonical" href="https://thetye.store/">
+<meta property="og:title" content="The Tye Playground">
+<meta property="og:description" content="A tiny daily game and seven hidden surprises. Come play.">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f2e7;color:#212421;font:1rem/1.55 system-ui,sans-serif}
+header,main,footer{width:min(68rem,calc(100% - 2rem));margin:auto}
+header,footer{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.3rem 0}
+a{color:inherit;text-underline-offset:.22em}
+h1,h2,p{margin:0 0 .8rem}
+h1{font:700 clamp(3rem,7vw,6rem)/.95 Georgia,serif;letter-spacing:-.06em}
+h2{font:700 2rem/1.15 Georgia,serif}
+button,.action{font:inherit;font-weight:700;cursor:pointer;border:2px solid #212421;border-radius:2rem;background:#fff9ed;color:#212421;padding:.65rem 1rem;text-decoration:none}
+button:focus-visible,a:focus-visible{outline:3px solid #6344a8;outline-offset:4px}
+.primary{background:#f9ce57}
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:center;padding:2rem 0}
+.scene{min-height:20rem;border:2px solid #212421;border-radius:2rem;background:#c6dcca;display:grid;place-items:center;position:relative;padding:1rem}
+.scene.night{background:#292640;color:#fff9ed}
+.scene.night button{background:#ffe8a5}
+.spinner{font:900 clamp(4rem,13vw,8rem)/1 system-ui,sans-serif;letter-spacing:-.1em;padding:.2em .32em .3em .2em;border-radius:1.5rem;background:#f9ce57;box-shadow:5px 5px #212421}
+.toys,.actions,.row{display:flex;flex-wrap:wrap;gap:.55rem;align-items:center}
+section.card{background:#fff9ed;border:2px solid #212421;border-radius:1.5rem;padding:clamp(1rem,4vw,2rem);margin:1rem 0}
+.board{display:flex;flex-wrap:wrap;gap:.45rem;margin:1rem 0}
+.board button{min-width:3.1rem;min-height:3.1rem}
+.board .lit{background:#f9ce57}
+.status{min-height:1.55em;margin:.8rem 0}
+[hidden]{display:none!important}
+@media(max-width:680px){.hero{grid-template-columns:1fr;gap:1rem;padding-top:1rem}.scene{min-height:17rem}}
+</style>
+</head>
+<body>
+<header>
+<button id="logo" type="button">The Tye Playground</button>
+<a href="#games">Games</a>
+</header>
+<main>
+<div class="hero">
+<div>
+<h1>A tiny playground for curious people</h1>
+<p>Play a daily mini-game, poke around, and see what you can find.</p>
+<div class="actions">
+<a class="action primary" href="#daily">Play today’s challenge</a>
+<a class="action" href="#secrets">Find 7 secrets</a>
+</div>
+</div>
+<div class="scene" id="scene">
+<button class="spinner" id="spinner" type="button" aria-label="Spin the 404">404</button>
+<div class="toys">
+<button id="bubble" type="button">Pop a bubble</button>
+<button id="light" type="button" aria-pressed="false">Lights off</button>
+<button id="ghost" type="button" hidden>Follow the footprints</button>
+</div>
+</div>
+</div>
+<section class="card" id="daily">
+<h2>Today’s tiny challenge</h2>
+<p id="dailyDate"></p>
+<h3 id="gameName"></h3>
+<p id="instructions"></p>
+<div class="row">
+<button class="primary" id="start" type="button">Play</button>
+<button id="relaxed" type="button" aria-pressed="false">Untimed mode</button>
+</div>
+<div class="board" id="board"></div>
+<p class="status" id="gameStatus" role="status"></p>
+<p id="best"></p>
+<div class="row" id="gameShare" hidden>
+<button id="shareScore" type="button">Share my score</button>
+</div>
+</section>
+<section class="card" id="secrets">
+<h2>Lost &amp; Found <span id="count"></span></h2>
+<p id="found" role="status">Seven little things are hiding here.</p>
+<div class="row">
+<button id="hint" type="button">Get a hint</button>
+<button id="shareHunt" type="button">Challenge a friend</button>
+<button id="pocket" type="button">Check the pocket</button>
+</div>
+<p id="hintText" class="status" role="status"></p>
+<ul id="collection"></ul>
+<div id="room" hidden>
+<h3>The Lost &amp; Found room</h3>
+<p>All seven treasures are back. The workshop door is open.</p>
+<a href="./404.html">Open the original 404 workshop</a>
+</div>
+</section>
+<section class="card" id="games">
+<h2>More games</h2>
+<p>Open the original arcade and choose the Games tab to play Clean Sweep or Flap 404.</p>
+<a class="action" href="./404.html">Open the original arcade</a>
+</section>
+</main>
+<footer><span>thetye.store</span><button id="postcard" type="button">Turn over the postcard</button></footer>
+<script>
+"use strict";
+const byId = id => document.getElementById(id);
+function read(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
+  catch { return fallback; }
+}
+function write(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+}
+
+const objects = {
+  teapot: ["Teapot", "Spin the big 404 a few times."],
+  pearl: ["Pearl", "Try popping a few bubbles."],
+  footprints: ["Tiny boots", "Some things only show up with the lights off."],
+  badge: ["Name badge", "Tap the playground’s name three times."],
+  pebble: ["Lucky pebble", "Check the pocket in Lost & Found."],
+  star: ["Gold star", "Finish a daily challenge round."],
+  stamp: ["Postage stamp", "There’s something on the back of the postcard."]
+};
+const saved = read("tye-playground-found", []);
+const collected = new Set(Array.isArray(saved) ? saved.filter(id => Object.hasOwn(objects, id)) : []);
+function renderCollection() {
+  byId("count").textContent = collected.size + "/7";
+  byId("collection").replaceChildren(...Array.from(collected, id => {
+    const item = document.createElement("li");
+    item.textContent = objects[id][0];
+    return item;
+  }));
+  byId("room").hidden = collected.size !== 7;
+}
+function discover(id) {
+  if (collected.has(id)) return;
+  collected.add(id);
+  write("tye-playground-found", [...collected]);
+  renderCollection();
+  byId("found").textContent = "You found " + objects[id][0] + "!";
+  byId("hintText").textContent = "";
+}
+renderCollection();
+let spins = 0;
+let bubbles = 0;
+let taps = 0;
+byId("spinner").onclick = () => {
+  spins++;
+  const faces = ["404", "040", "440", "🫖"];
+  byId("spinner").textContent = faces[spins % faces.length];
+  if (spins % faces.length === 3) discover("teapot");
+};
+byId("bubble").onclick = () => {
+  bubbles++;
+  byId("bubble").textContent = bubbles === 3 ? "Pearl found!" : "Pop again (" + bubbles + ")";
+  if (bubbles === 3) discover("pearl");
+};
+byId("light").onclick = () => {
+  const night = byId("scene").classList.toggle("night");
+  byId("light").setAttribute("aria-pressed", night);
+  byId("light").textContent = night ? "Lights on" : "Lights off";
+  byId("ghost").hidden = !night;
+};
+byId("ghost").onclick = () => { discover("footprints"); byId("ghost").textContent = "Tiny boots found!"; };
+byId("logo").onclick = () => {
+  taps++;
+  if (taps === 3) { discover("badge"); byId("logo").textContent = "The Tye Playground ★"; }
+};
+byId("pocket").onclick = () => { discover("pebble"); byId("pocket").textContent = "Pebble found!"; };
+byId("postcard").onclick = () => { discover("stamp"); byId("postcard").textContent = "Greetings from The Tye!"; };
+byId("hint").onclick = () => {
+  const next = Object.keys(objects).find(id => !collected.has(id));
+  byId("hintText").textContent = next ? objects[next][1] : "You found everything. The hidden room is open.";
+};
+
+const params = new URLSearchParams(location.search);
+const today = new Date().toISOString().slice(0, 10);
+const requestedDay = params.get("day");
+function validDay(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value || "")) return false;
+  const date = new Date(value + "T00:00:00Z");
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+const day = validDay(requestedDay) ? requestedDay : today;
+const seed = Date.parse(day + "T00:00:00Z") / 86400000;
+const game = ((seed % 3) + 3) % 3;
+const games = [
+  ["Lantern Landing", "Stop the lantern as close to the center as you can."],
+  ["Window Memory", "Remember which windows light up, then pick them."],
+  ["Odd Umbrella", "Find the odd umbrella in three rounds."]
+];
+byId("dailyDate").textContent = day === today ? "Daily edition · " + day : "Shared challenge · " + day;
+byId("gameName").textContent = games[game][0];
+byId("instructions").textContent = games[game][1];
+const target = params.get("score");
+if (target !== null && /^\d{1,3}$/.test(target) && Number(target) <= 100) {
+  byId("gameStatus").textContent = "Friend’s score to beat: " + target + "/100.";
+}
+
+let relaxed = params.get("mode") === "untimed" || matchMedia("(prefers-reduced-motion: reduce)").matches;
+let timer;
+let playing = false;
+let lastScore = 0;
+let lastMode = false;
+const board = byId("board");
+const status = message => { byId("gameStatus").textContent = message; };
+const key = () => "tye-best-" + day + (relaxed ? "-relaxed" : "");
+function renderMode() {
+  byId("relaxed").setAttribute("aria-pressed", relaxed);
+  byId("best").textContent = (relaxed ? "Untimed best: " : "Personal best: ") + read(key(), 0) + "/100";
+}
+renderMode();
+byId("relaxed").onclick = () => { relaxed = !relaxed; renderMode(); };
+function tile(label, action) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = label;
+  button.onclick = action;
+  board.append(button);
+  return button;
+}
+function finish(score) {
+  clearInterval(timer);
+  playing = false;
+  lastScore = score;
+  lastMode = relaxed;
+  write(key(), Math.max(score, Number(read(key(), 0)) || 0));
+  renderMode();
+  status("Round complete. Score: " + score + "/100.");
+  byId("start").textContent = "Play again";
+  byId("relaxed").disabled = false;
+  byId("gameShare").hidden = false;
+  board.replaceChildren();
+  byId("start").focus();
+  discover("star");
+}
+
+function lantern() {
+  let position = ((seed % 9) + 9) % 9;
+  let direction = position === 8 ? -1 : 1;
+  let steps = 0;
+  let score = 0;
+  let round = 0;
+  const track = document.createElement("div");
+  track.setAttribute("aria-hidden", "true");
+  board.append(track);
+  const draw = () => {
+    track.textContent = Array.from({length: 9}, (_, i) => i === position ? "🏮" : i === 4 ? "│" : "·").join(" ");
+    if (relaxed) status("Lantern at position " + (position + 1) + " of 9. Center is 5.");
+  };
+  function step() {
+    position += direction;
+    if (position === 0 || position === 8) direction *= -1;
+    draw();
+  }
+  function stop() {
+    score += 100 - Math.abs(position - 4) * 25;
+    round++;
+    if (round === 3) { finish(Math.round(score / 3)); return; }
+    if (!relaxed) status("Round " + (round + 1) + " of 3.");
+    step();
+  }
+  if (relaxed) tile("Move lantern", step);
+  const stopButton = tile("Stop lantern", stop);
+  stopButton.focus();
+  draw();
+  if (!relaxed) timer = setInterval(() => {
+    step();
+    if (++steps >= 108) finish(Math.round(score / 3));
+  }, 165);
+}
+function memory() {
+  const lights = new Set();
+  for (let n = 0; n < 3; n++) lights.add((((seed + n * 4) % 9) + 9) % 9);
+  const guesses = new Set();
+  status("Memorize windows " + [...lights].map(i => i + 1).join(", ") + ".");
+  const ready = tile("Ready", begin);
+  const tiles = Array.from({length: 9}, (_, i) => {
+    const button = tile(String(i + 1), () => {
+      if (guesses.has(i)) return;
+      guesses.add(i);
+      button.setAttribute("aria-pressed", "true");
+      if (guesses.size === 3) finish(Math.round(100 * [...guesses].filter(n => lights.has(n)).length / 3));
+    });
+    button.disabled = true;
+    button.classList.toggle("lit", lights.has(i));
+    return button;
+  });
+  function begin() {
+    clearTimeout(timer);
+    ready.remove();
+    for (const button of tiles) {
+      button.disabled = false;
+      button.classList.remove("lit");
+      button.setAttribute("aria-pressed", "false");
+    }
+    status("Pick the three windows that were lit.");
+    tiles[0].focus();
+  }
+  ready.focus();
+  if (!relaxed) timer = setTimeout(begin, 4800);
+}
+function oddUmbrella() {
+  let round = 0;
+  let correct = 0;
+  function draw() {
+    board.replaceChildren();
+    const odd = (((seed * 7 + round * 5) % 12) + 12) % 12;
+    const choose = index => {
+      clearTimeout(timer);
+      if (index === odd) correct++;
+      round++;
+      if (round === 3) finish(Math.round(correct * 100 / 3));
+      else draw();
+    };
+    for (let i = 0; i < 12; i++) {
+      const button = tile(i === odd ? "☂" : "☔", () => choose(i));
+      button.setAttribute("aria-label", (i === odd ? "Dry umbrella" : "Umbrella with rain") + " " + (i + 1));
+    }
+    board.firstChild.focus();
+    status("Round " + (round + 1) + " of 3.");
+    if (!relaxed) timer = setTimeout(() => choose(-1), 7000);
+  }
+  draw();
+}
+byId("start").onclick = () => {
+  clearInterval(timer);
+  board.replaceChildren();
+  playing = true;
+  byId("start").textContent = "Restart";
+  byId("relaxed").disabled = true;
+  byId("gameShare").hidden = true;
+  status("Round 1 of 3.");
+  if (game === 0) lantern();
+  else if (game === 1) memory();
+  else oddUmbrella();
+};
+async function share(text, url, feedback) {
+  try {
+    if (navigator.share) await navigator.share({text, url});
+    else {
+      await navigator.clipboard.writeText(text + " " + url);
+      feedback("Challenge link copied.");
+    }
+  } catch (error) {
+    if (error.name === "AbortError") return;
+    feedback("Copy this challenge link: " + url);
+  }
+}
+byId("shareScore").onclick = () => {
+  if (playing) return;
+  const url = new URL("./", location.href);
+  url.searchParams.set("day", day);
+  url.searchParams.set("score", lastScore);
+  if (lastMode) url.searchParams.set("mode", "untimed");
+  url.hash = "daily";
+  share("I scored " + lastScore + "/100 in " + games[game][0] + ". Can you beat it?", url.href, status);
+};
+byId("shareHunt").onclick = () => {
+  const url = new URL("./#secrets", location.href);
+  share("I found " + collected.size + "/7 secrets at The Tye Playground. How many can you find?", url.href,
+    message => { byId("hintText").textContent = message; });
+};
+</script>
+</body>
+</html>
