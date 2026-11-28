@@ -4,14 +4,21 @@ const vertex=`
 attribute vec3 p,n,c;
 attribute float mat;
 uniform vec3 eye,origin;
-uniform vec2 facing,tilt,rotation;
+uniform vec2 facing,tilt,rotation,lean,spin;
 uniform float aspect,mirror;
 varying vec3 world,normal,col;
 varying float surface,depth;
+vec3 orient(vec3 v){
+ v.yz=mat2(spin.y,spin.x,-spin.x,spin.y)*v.yz;
+ v.xy=mat2(lean.y,lean.x,-lean.x,lean.y)*v.xy;
+ return vec3(v.x*rotation.y+v.z*rotation.x,v.y,-v.x*rotation.x+v.z*rotation.y);
+}
 void main(){
- world=vec3(p.x*rotation.y+p.z*rotation.x,p.y,-p.x*rotation.x+p.z*rotation.y)+origin;
+ vec3 point=orient(p);
+ world=point+origin;
  world.y*=mirror;
- normal=vec3(n.x*rotation.y+n.z*rotation.x,n.y,-n.x*rotation.x+n.z*rotation.y);
+ normal=orient(n);normal.y*=mirror;
+
  col=c;surface=mat;
  vec3 d=world-eye;
  float forward=dot(d.xz,facing);
@@ -343,7 +350,21 @@ function rod(mesh,a,b,r,col,mat=0,sides=6){
  const point=(p,t)=>p.map((x,i)=>x+r*(Math.cos(t)*u[i]+Math.sin(t)*v[i]));
  for(let j=0;j<sides;j++){const t=j*2*Math.PI/sides,k=(j+1)*2*Math.PI/sides;face(mesh,point(a,t),point(a,k),point(b,k),point(b,t),col,mat);}
 }
-function coupe(paint){
+function wheelMesh(side){
+ const mesh=[],chrome=[.57,.60,.61],trim=[.055,.065,.075];
+ for(let j=0;j<24;j++){
+    const a=j*Math.PI/12,b=(j+1)*Math.PI/12;
+    const wheel=(x,t,r)=>[side*(x-.94),Math.cos(t)*r,Math.sin(t)*r];
+    face(mesh,wheel(.84,a,.41),wheel(.84,b,.41),wheel(1.015,b,.41),wheel(1.015,a,.41),'rubber');
+    face(mesh,wheel(1.015,a,.41),wheel(1.015,b,.41),wheel(1.04,b,.356),wheel(1.04,a,.356),'rubber');
+    face(mesh,wheel(1.04,a,.356),wheel(1.04,b,.356),wheel(1.04,b,.29),wheel(1.04,a,.29),'rubber');
+    face(mesh,wheel(1.043,a,.29),wheel(1.043,b,.29),wheel(1.043,b,.268),wheel(1.043,a,.268),chrome,5);
+    tri(mesh,[side*.102,0,0],wheel(1.042,a,.268),wheel(1.042,b,.268),trim,0);
+    if(j%3===0)face(mesh,wheel(1.049,a,.076),wheel(1.049,b,.076),wheel(1.049,b+.13,.276),wheel(1.049,a+.085,.276),chrome,5);
+   }
+ return mesh;
+}
+function coupe(paint,includeWheels=true){
  const mesh=[],chrome=[.57,.60,.61],trim=[.055,.065,.075];
  const data=[[-2.24,.69,.66],[-2.18,.87,.78],[-1.94,.96,.88],[-1.36,1,.94],[-.68,.96,.94],[.56,.96,.88],[1.28,1,.86],[1.82,.94,.73],[2.12,.84,.62],[2.20,.65,.54]];
  const section=([z,w,h])=>[[-.83,.29],[-.99,.39],[-1,h-.14],[-.96,h-.04],[-.80,h+.015],[0,h+.04],[.80,h+.015],[.96,h-.04],[1,h-.14],[.99,.39],[.83,.29],[0,.26]].reverse().map(([x,y])=>[x*w,y,z]);
@@ -363,17 +384,10 @@ function coupe(paint){
   box(mesh,side*.977,.78,-.48,.035,.037,.19,chrome,5);
   rod(mesh,[side*.83,1.02,.57],[side*1.02,1.05,.49],.033,trim);
   box(mesh,side*1.035,1.075,.47,.19,.105,.23,paint,5);
-  for(const z of [-1.33,1.35]){
-   for(let j=0;j<24;j++){
-    const a=j*Math.PI/12,b=(j+1)*Math.PI/12;
-    const wheel=(x,t,r)=>[side*x,.443+Math.cos(t)*r,z+Math.sin(t)*r];
-    face(mesh,wheel(.84,a,.41),wheel(.84,b,.41),wheel(1.015,b,.41),wheel(1.015,a,.41),'rubber');
-    face(mesh,wheel(1.015,a,.41),wheel(1.015,b,.41),wheel(1.04,b,.356),wheel(1.04,a,.356),'rubber');
-    face(mesh,wheel(1.04,a,.356),wheel(1.04,b,.356),wheel(1.04,b,.29),wheel(1.04,a,.29),'rubber');
-    face(mesh,wheel(1.043,a,.29),wheel(1.043,b,.29),wheel(1.043,b,.268),wheel(1.043,a,.268),chrome,5);
-    tri(mesh,[side*1.042,.443,z],wheel(1.042,a,.268),wheel(1.042,b,.268),trim,0);
-    if(j%3===0)face(mesh,wheel(1.049,a,.076),wheel(1.049,b,.076),wheel(1.049,b+.13,.276),wheel(1.049,a+.085,.276),chrome,5);
-   }
+  if(includeWheels)for(const z of [-1.33,1.35]){
+   const wheel=wheelMesh(side);
+   for(let i=0;i<wheel.length;i+=10){wheel[i]+=side*.94;wheel[i+1]+=.443;wheel[i+2]+=z;}
+   mesh.push(...wheel);
   }
   // Recessed LED strips wrap around the rear corners.
   box(mesh,side*.54,.688,-2.226,.57,.16,.075,trim);
@@ -392,7 +406,7 @@ export function renderer(canvas){
  if(!gl)throw Error('WebGL is required. Enable hardware acceleration to drive.');
  const world=shaderProgram(gl,vertex,fragment),sky=shaderProgram(gl,skyVertex,skyFrag);
  function locations(program,names){return Object.fromEntries(names.map(k=>[k,gl.getUniformLocation(program,k)]));}
- const u=locations(world,['aspect','facing','tilt','eye','origin','rotation','time','mirror','headlamp']),v=locations(sky,['aspect','facing','tilt']);
+ const u=locations(world,['aspect','facing','tilt','eye','origin','rotation','lean','spin','time','mirror','headlamp']),v=locations(sky,['aspect','facing','tilt']);
  function texture(unit,file,placeholder,repeat){
   const handle=gl.createTexture();
   function bind(){gl.activeTexture(gl.TEXTURE0+unit);gl.bindTexture(gl.TEXTURE_2D,handle);}
@@ -418,7 +432,8 @@ export function renderer(canvas){
  gl.useProgram(sky);gl.uniform1i(gl.getUniformLocation(sky,'panorama'),0);
  function buffer(data,stride){const handle=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,handle);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(data),gl.STATIC_DRAW);return {handle,count:data.length/stride};}
  const scene=city(),cityMesh=buffer(scene.m,10),groundMesh=buffer(scene.ground,10),skyMesh=buffer([-1,-1,3,-1,-1,3],2);
- const vehicles=['paint',[.66,.30,.22],[.27,.40,.39],[.56,.54,.51]].map(col=>buffer(coupe(col),10));
+ const vehicles=['paint',[.66,.30,.22],[.27,.40,.39],[.56,.54,.51]].map((col,i)=>buffer(coupe(col,i!==0),10));
+ const wheels=[-1,1].map(side=>buffer(wheelMesh(side),10));
  const torso=[],leg=[];
  function rounded(mesh,x,y,z,rx,ry,rz,color){
   const at=(a,b)=>[x+rx*Math.cos(a)*Math.sin(b),y+ry*Math.cos(b),z+rz*Math.sin(a)*Math.sin(b)];
@@ -444,9 +459,9 @@ export function renderer(canvas){
  for(const x of [-3.8,3.8])box(marker,x,2.8,0,.16,5.6,.16,'gold',4);
  const beacon=buffer(marker,10);
  const attrs=['p','n','c','mat'].map(k=>gl.getAttribLocation(world,k)),skyP=gl.getAttribLocation(sky,'p');
- function drawMesh(mesh,x,y,z,angle){gl.bindBuffer(gl.ARRAY_BUFFER,mesh.handle);
+ function drawMesh(mesh,x,y,z,angle,roll=0,wheelSpin=0){gl.bindBuffer(gl.ARRAY_BUFFER,mesh.handle);
   attrs.forEach((loc,i)=>{gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,i===3?1:3,gl.FLOAT,false,40,i*12);});
-  gl.uniform3f(u.origin,x,y,z);gl.uniform2f(u.rotation,Math.sin(angle),Math.cos(angle));gl.drawArrays(gl.TRIANGLES,0,mesh.count);
+  gl.uniform3f(u.origin,x,y,z);gl.uniform2f(u.rotation,Math.sin(angle),Math.cos(angle));gl.uniform2f(u.lean,Math.sin(roll),Math.cos(roll));gl.uniform2f(u.spin,Math.sin(wheelSpin),Math.cos(wheelSpin));gl.drawArrays(gl.TRIANGLES,0,mesh.count);
  }
  function draw(s,cars,destination,cam){
   const ratio=Math.min(window.devicePixelRatio||1,1.6,1280/Math.max(canvas.clientWidth,canvas.clientHeight));
@@ -455,14 +470,22 @@ export function renderer(canvas){
   gl.viewport(0,0,w,h);gl.disable(gl.DEPTH_TEST);gl.useProgram(sky);
   function camera(prog){gl.uniform1f(prog.aspect,w/h);gl.uniform2f(prog.facing,Math.sin(cam.angle),Math.cos(cam.angle));gl.uniform2f(prog.tilt,Math.sin(cam.pitch),Math.cos(cam.pitch));}
   camera(v);attrs.forEach(loc=>gl.disableVertexAttribArray(loc));gl.bindBuffer(gl.ARRAY_BUFFER,skyMesh.handle);gl.enableVertexAttribArray(skyP);gl.vertexAttribPointer(skyP,2,gl.FLOAT,false,0,0);gl.drawArrays(gl.TRIANGLES,0,3);gl.disableVertexAttribArray(skyP);
-  gl.clear(gl.DEPTH_BUFFER_BIT);gl.enable(gl.DEPTH_TEST);gl.clear(gl.DEPTH_BUFFER_BIT);gl.useProgram(world);camera(u);gl.uniform3f(u.eye,cam.x,cam.y,cam.z);gl.uniform1f(u.time,s.time);gl.uniform3f(u.headlamp,s.x,s.z,s.heading);
-  gl.uniform1f(u.mirror,-1);drawMesh(cityMesh,0,0,0,0);
+  gl.enable(gl.DEPTH_TEST);gl.clear(gl.DEPTH_BUFFER_BIT);gl.useProgram(world);camera(u);gl.uniform3f(u.eye,cam.x,cam.y,cam.z);gl.uniform1f(u.time,s.time);gl.uniform3f(u.headlamp,s.x,s.z,s.heading);
+  function player(){
+   drawMesh(vehicles[0],s.x,.04+(s.heave||0),s.z,s.heading,s.roll||0);
+   const sn=Math.sin(s.heading),cs=Math.cos(s.heading);
+   for(const [i,side] of [-1,1].entries())for(const axle of [-1.33,1.35]){
+    const x=side*.94;
+    drawMesh(wheels[i],s.x+x*cs+axle*sn,.477,s.z-x*sn+axle*cs,s.heading+(axle>0?s.steer*.40:0),0,s.wheelPhase||0);
+   }
+  }
+  gl.uniform1f(u.mirror,-1);drawMesh(cityMesh,0,0,0,0);player();
   gl.clear(gl.DEPTH_BUFFER_BIT);gl.uniform1f(u.mirror,1);
   gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);drawMesh(groundMesh,0,0,0,0);gl.disable(gl.BLEND);
   drawMesh(cityMesh,0,0,0,0);
   for(const car of cars)drawMesh(vehicles[1+car.i%3],car.x,.04,car.z,car.heading);
   if(destination)drawMesh(beacon,destination[0],0,destination[1],s.time*.16);
-  drawMesh(vehicles[0],s.x,.04,s.z,s.heading);
+  player();
   function pedestrian(x,z,heading,step){
    drawMesh(bodyMesh,x,.20,z,heading);
    for(const side of [-1,1]){

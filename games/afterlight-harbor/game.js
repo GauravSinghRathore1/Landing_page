@@ -110,6 +110,11 @@ function frame(now){
    else drive(state,input(),step,engine.blocks,traffic(state.time));remaining-=step;}
   if(now-tick>80){hud();tick=now;}
  }
+ const speed=Math.abs(state.v);
+ state.wheelPhase=((state.wheelPhase||0)+state.v*dt/.41)%(Math.PI*2);
+ const lateral=state.steer*Math.min(1,speed/17);
+ state.roll=(state.roll||0)+(.10*lateral-(state.roll||0))*(1-Math.exp(-dt*7));
+ state.heave=Math.sin(state.wheelPhase*2)*Math.min(.020,speed*.0012);
  // Shorten the chase camera when a building sits behind the coupe.
  const actor=state.person||state;
  const angleDelta=Math.atan2(Math.sin(actor.heading-cameraAngle),Math.cos(actor.heading-cameraAngle));
@@ -120,7 +125,7 @@ function frame(now){
   const x=actor.x-Math.sin(yaw)*d,z=actor.z-Math.cos(yaw)*d;
   if(engine.blocks.some(b=>Math.abs(x-b.x)<b.w/2+.28&&Math.abs(z-b.z)<b.d/2+.28)){range=Math.max(1.1,d-.5);break;}
  }
- const cam={x:actor.x-Math.sin(yaw)*range,y:2.22+range*.065+state.impact*Math.sin(now*.075)*.26,z:actor.z-Math.cos(yaw)*range,angle:yaw,pitch:.17};
+ const cam={x:actor.x-Math.sin(yaw)*range,y:2.22+range*.065+state.impact*Math.sin(now*.075)*.26,z:actor.z-Math.cos(yaw)*range,angle:yaw,pitch:.17-Math.min(.035,speed*.0014)};
  engine.draw(state,traffic(state.time),target(state),cam);requestAnimationFrame(frame);
 }
 if(engine)requestAnimationFrame(frame);
