@@ -114,13 +114,13 @@ function frame(now){
  const actor=state.person||state;
  const angleDelta=Math.atan2(Math.sin(actor.heading-cameraAngle),Math.cos(actor.heading-cameraAngle));
  cameraAngle+=angleDelta*(1-Math.exp(-dt*6));
- let range=state.person?4.5:mode==='title'?10.5:7.8+Math.abs(state.v)*.048;
+ let range=state.person?4.5:mode==='title'?7.3:6.25+Math.abs(state.v)*.052;
  const yaw=mode==='title'?state.heading-.52:cameraAngle;
  for(let d=1;d<range;d+=.65){
   const x=actor.x-Math.sin(yaw)*d,z=actor.z-Math.cos(yaw)*d;
   if(engine.blocks.some(b=>Math.abs(x-b.x)<b.w/2+.28&&Math.abs(z-b.z)<b.d/2+.28)){range=Math.max(1.1,d-.5);break;}
  }
- const cam={x:actor.x-Math.sin(yaw)*range,y:2.6+range*.075+state.impact*Math.sin(now*.075)*.26,z:actor.z-Math.cos(yaw)*range,angle:yaw,pitch:.17};
+ const cam={x:actor.x-Math.sin(yaw)*range,y:2.22+range*.065+state.impact*Math.sin(now*.075)*.26,z:actor.z-Math.cos(yaw)*range,angle:yaw,pitch:.17};
  engine.draw(state,traffic(state.time),target(state),cam);requestAnimationFrame(frame);
 }
 if(engine)requestAnimationFrame(frame);
