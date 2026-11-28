@@ -112,7 +112,7 @@ function frame(now){
  }
  const speed=Math.abs(state.v);
  state.wheelPhase=((state.wheelPhase||0)+state.v*dt/.41)%(Math.PI*2);
- const lateral=state.steer*Math.min(1,speed/17);
+ const lateral=(state.lateralAcceleration||0)/7.1;
  state.roll=(state.roll||0)+(.10*lateral-(state.roll||0))*(1-Math.exp(-dt*7));
  state.heave=Math.sin(state.wheelPhase*2)*Math.min(.020,speed*.0012);
  // Shorten the chase camera when a building sits behind the coupe.

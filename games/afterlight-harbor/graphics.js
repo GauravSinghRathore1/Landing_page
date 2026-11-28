@@ -476,7 +476,7 @@ export function renderer(canvas){
    const sn=Math.sin(s.heading),cs=Math.cos(s.heading);
    for(const [i,side] of [-1,1].entries())for(const axle of [-1.33,1.35]){
     const x=side*.94;
-    drawMesh(wheels[i],s.x+x*cs+axle*sn,.477,s.z-x*sn+axle*cs,s.heading+(axle>0?s.steer*.40:0),0,s.wheelPhase||0);
+    drawMesh(wheels[i],s.x+x*cs+axle*sn,.477,s.z-x*sn+axle*cs,s.heading+(axle>0?(s.wheelSteer||0):0),0,s.wheelPhase||0);
    }
   }
   gl.uniform1f(u.mirror,-1);drawMesh(cityMesh,0,0,0,0);player();
