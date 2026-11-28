@@ -6,6 +6,7 @@ attribute float mat;
 uniform vec3 eye,origin;
 uniform vec2 facing,tilt,rotation,lean,spin;
 uniform float aspect,mirror;
+uniform vec4 dents;
 varying vec3 world,normal,col;
 varying float surface,depth;
 vec3 orient(vec3 v){
@@ -14,12 +15,20 @@ vec3 orient(vec3 v){
  return vec3(v.x*rotation.y+v.z*rotation.x,v.y,-v.x*rotation.x+v.z*rotation.y);
 }
 void main(){
- vec3 point=orient(p);
+ float front=dents.x*smoothstep(.76,2.20,p.z);
+ float rear=dents.y*smoothstep(.76,2.20,-p.z);
+ float dentSide=(p.x<0.?dents.z:dents.w)*smoothstep(.35,1.,abs(p.x));
+ float panel=1.-smoothstep(.98,1.34,p.y);
+ vec3 shell=p;
+ shell.z+=(rear-front)*.68;
+ shell.x-=sign(p.x)*dentSide*.26*panel;
+ shell.y+=(front+rear)*(.17+.12*sin(p.x*11.))*panel+dentSide*.10*sin(p.z*9.)*panel;
+ vec3 point=orient(shell);
  world=point+origin;
  world.y*=mirror;
  normal=orient(n);normal.y*=mirror;
 
- col=c;surface=mat;
+ col=mix(c,vec3(.17,.15,.14),clamp((front+rear+dentSide)*.60,0.,.66));surface=mat;
  vec3 d=world-eye;
  float forward=dot(d.xz,facing);
  float side=dot(d.xz,vec2(facing.y,-facing.x));
@@ -406,7 +415,7 @@ export function renderer(canvas){
  if(!gl)throw Error('WebGL is required. Enable hardware acceleration to drive.');
  const world=shaderProgram(gl,vertex,fragment),sky=shaderProgram(gl,skyVertex,skyFrag);
  function locations(program,names){return Object.fromEntries(names.map(k=>[k,gl.getUniformLocation(program,k)]));}
- const u=locations(world,['aspect','facing','tilt','eye','origin','rotation','lean','spin','time','mirror','headlamp']),v=locations(sky,['aspect','facing','tilt']);
+ const u=locations(world,['aspect','facing','tilt','eye','origin','rotation','lean','spin','dents','time','mirror','headlamp']),v=locations(sky,['aspect','facing','tilt']);
  function texture(unit,file,placeholder,repeat){
   const handle=gl.createTexture();
   function bind(){gl.activeTexture(gl.TEXTURE0+unit);gl.bindTexture(gl.TEXTURE_2D,handle);}
@@ -459,9 +468,9 @@ export function renderer(canvas){
  for(const x of [-3.8,3.8])box(marker,x,2.8,0,.16,5.6,.16,'gold',4);
  const beacon=buffer(marker,10);
  const attrs=['p','n','c','mat'].map(k=>gl.getAttribLocation(world,k)),skyP=gl.getAttribLocation(sky,'p');
- function drawMesh(mesh,x,y,z,angle,roll=0,wheelSpin=0){gl.bindBuffer(gl.ARRAY_BUFFER,mesh.handle);
+ function drawMesh(mesh,x,y,z,angle,roll=0,wheelSpin=0,dents=[0,0,0,0]){gl.bindBuffer(gl.ARRAY_BUFFER,mesh.handle);
   attrs.forEach((loc,i)=>{gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,i===3?1:3,gl.FLOAT,false,40,i*12);});
-  gl.uniform3f(u.origin,x,y,z);gl.uniform2f(u.rotation,Math.sin(angle),Math.cos(angle));gl.uniform2f(u.lean,Math.sin(roll),Math.cos(roll));gl.uniform2f(u.spin,Math.sin(wheelSpin),Math.cos(wheelSpin));gl.drawArrays(gl.TRIANGLES,0,mesh.count);
+  gl.uniform3f(u.origin,x,y,z);gl.uniform2f(u.rotation,Math.sin(angle),Math.cos(angle));gl.uniform2f(u.lean,Math.sin(roll),Math.cos(roll));gl.uniform2f(u.spin,Math.sin(wheelSpin),Math.cos(wheelSpin));gl.uniform4fv(u.dents,dents);gl.drawArrays(gl.TRIANGLES,0,mesh.count);
  }
  function draw(s,cars,destination,cam){
   const ratio=Math.min(window.devicePixelRatio||1,1.6,1280/Math.max(canvas.clientWidth,canvas.clientHeight));
@@ -472,7 +481,7 @@ export function renderer(canvas){
   camera(v);attrs.forEach(loc=>gl.disableVertexAttribArray(loc));gl.bindBuffer(gl.ARRAY_BUFFER,skyMesh.handle);gl.enableVertexAttribArray(skyP);gl.vertexAttribPointer(skyP,2,gl.FLOAT,false,0,0);gl.drawArrays(gl.TRIANGLES,0,3);gl.disableVertexAttribArray(skyP);
   gl.enable(gl.DEPTH_TEST);gl.clear(gl.DEPTH_BUFFER_BIT);gl.useProgram(world);camera(u);gl.uniform3f(u.eye,cam.x,cam.y,cam.z);gl.uniform1f(u.time,s.time);gl.uniform3f(u.headlamp,s.x,s.z,s.heading);
   function player(){
-   drawMesh(vehicles[0],s.x,.04+(s.heave||0),s.z,s.heading,s.roll||0);
+   drawMesh(vehicles[0],s.x,.04+(s.heave||0),s.z,s.heading,s.roll||0,0,s.damage);
    const sn=Math.sin(s.heading),cs=Math.cos(s.heading);
    for(const [i,side] of [-1,1].entries())for(const axle of [-1.33,1.35]){
     const x=side*.94;

@@ -5,14 +5,14 @@ export const jobs=[
  {name:'Skyline Session',pickup:[44,-88],drop:[-88,132],start:'Collect the studio tapes',finish:'Reach the hillside studio',limit:56}
 ];
 export const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
-export function createRun(){return {x:134,z:8,heading:Math.PI,v:0,steer:0,time:0,job:0,loaded:false,left:0,cleared:0,notice:'',noticeUntil:0,impact:0};}
+export function createRun(){return {x:134,z:8,heading:Math.PI,v:0,steer:0,time:0,job:0,loaded:false,left:0,cleared:0,notice:'',noticeUntil:0,impact:0,damage:[0,0,0,0],damageCooldown:0};}
 export const target=s=>s.job<jobs.length?(s.loaded?jobs[s.job].drop:jobs[s.job].pickup):null;
 export function traffic(t){
  return streets.flatMap((road,i)=>[0,1].map(side=>{
   const direction=(i+side)%2===0?1:-1;
   const raw=((t*(6+i%3)+i*43+side*82)%548+548)%548;
   const along=(raw<274?raw:548-raw)-137, sign=(raw<274?1:-1)*direction;
-  return side?{x:along*direction,z:road+sign*2.6,heading:sign*Math.PI/2,i:i+side*7}:{x:road-sign*2.6,z:along*direction,heading:sign>0?0:Math.PI,i:i+side*7};
+  return side?{x:along*direction,z:road+sign*2.6,heading:sign*Math.PI/2,speed:6+i%3,i:i+side*7}:{x:road-sign*2.6,z:along*direction,heading:sign>0?0:Math.PI,speed:6+i%3,i:i+side*7};
  }));
 }
 // Distances are in meters, speed in m/s, and tire forces in m/s².
@@ -28,12 +28,51 @@ function overlaps(x,z,heading,blocks,trafficPoints=[]){
   return trafficPoints.some(([tx,tz])=>(px-tx)**2+(pz-tz)**2<4);
  });
 }
+function contactAt(x,z,heading,blocks,trafficPoints){
+ let contact=null;
+ const consider=(dx,dz,depth,other=null)=>{
+  const length=Math.hypot(dx,dz);
+  if(length>1e-6&&depth>0&&(!contact||depth>contact.depth)){
+   contact={nx:dx/length,nz:dz/length,depth,other};
+  }
+ };
+ for(const [px,pz] of footprint(x,z,heading)){
+  consider(-Math.sign(px),0,Math.abs(px)-141);
+  consider(0,-Math.sign(pz),Math.abs(pz)-141);
+  for(const b of blocks){
+   const dx=px-clamp(px,b.x-b.w/2,b.x+b.w/2),dz=pz-clamp(pz,b.z-b.d/2,b.z+b.d/2);
+   consider(dx,dz,1-Math.hypot(dx,dz));
+  }
+  for(const [tx,tz,car] of trafficPoints)consider(px-tx,pz-tz,2-Math.hypot(px-tx,pz-tz),car);
+ }
+ return contact;
+}
+function deform(s,contact,speed){
+ if(!contact||s.damageCooldown>0)return;
+ const {nx,nz,other}=contact,fx=Math.sin(s.heading),fz=Math.cos(s.heading);
+ const relativeX=fx*speed-(other?Math.sin(other.heading)*(other.speed||0):0);
+ const relativeZ=fz*speed-(other?Math.cos(other.heading)*(other.speed||0):0);
+ const closing=Math.max(0,-(relativeX*nx+relativeZ*nz));
+ if(closing<2.4)return;
+ const forward=nx*fx+nz*fz, side=nx*fz-nz*fx;
+ const severity=clamp((closing**2-2.4**2)/420,0,.82);
+ const fore=Math.abs(forward)/(Math.abs(forward)+Math.abs(side));
+ const end=forward<0?0:1, flank=side>0?2:3;
+ for(const [panel,weight] of [[end,fore],[flank,1-fore]]){
+  s.damage[panel]=Math.min(1,s.damage[panel]+severity*weight);
+ }
+ s.impact=Math.max(s.impact,Math.min(.38,closing*.018));
+ s.damageCooldown=.34;
+ if(severity>.08){s.notice=severity>.38?'Heavy collision · Handling impaired':'Bodywork damaged';s.noticeUntil=s.time+2;}
+}
 export function drive(s,input,dt,blocks,cars){
  s.time+=dt;
  s.impact=Math.max(0,s.impact-dt);
+ s.damageCooldown=Math.max(0,s.damageCooldown-dt);
  s.steer+=(input.steer-s.steer)*Math.min(1,7*dt);
  const speed=Math.abs(s.v);
- const requested=Math.tan(s.steer*.51)/wheelbase;
+ const [front,rear,left,right]=s.damage;
+ const requested=Math.tan((s.steer+(right-left)*.12)*.51)/wheelbase;
  const cornerGrip=tireGrip*(input.brake?.72:.94);
  const curvature=clamp(requested,-cornerGrip/Math.max(1,speed**2),cornerGrip/Math.max(1,speed**2));
  const lateral=speed**2*curvature;
@@ -44,7 +83,7 @@ export function drive(s,input,dt,blocks,cars){
  if(input.brake){
   v=s.v>0?Math.max(0,s.v-grip*dt):s.brakeHold>.32?Math.max(-5,s.v-2.4*dt):s.v;
  }else if(input.gas){
-  const acceleration=Math.min(5.8,grip)*Math.max(.18,1-speed/33);
+  const acceleration=Math.min(5.8*(1-front*.48-rear*.12),grip)*Math.max(.18,1-speed/33);
   v=Math.min(28,s.v+acceleration*dt);
  }else{
   v=Math.sign(s.v)*Math.max(0,speed-(.32+.008*speed**2)*dt);
@@ -52,9 +91,10 @@ export function drive(s,input,dt,blocks,cars){
  const heading=s.heading+(s.v+v)*.5*curvature*dt;
  const yaw=(s.heading+heading)*.5, travel=(v+s.v)*.5*dt;
  const x=s.x+Math.sin(yaw)*travel,z=s.z+Math.cos(yaw)*travel;
- const trafficPoints=cars.flatMap(c=>footprint(c.x,c.z,c.heading||0));
+ const trafficPoints=cars.flatMap(c=>footprint(c.x,c.z,c.heading||0).map(point=>[...point,c]));
  const blocked=(x,z,h)=>overlaps(x,z,h,blocks,trafficPoints);
  const trafficDepth=(x,z,h)=>Math.max(0,...footprint(x,z,h).flatMap(([px,pz])=>trafficPoints.map(([tx,tz])=>2-Math.hypot(px-tx,pz-tz))));
+ if(blocked(x,z,heading))deform(s,contactAt(x,z,heading,blocks,trafficPoints),v);
  if(!blocked(x,z,heading)||!overlaps(x,z,heading,blocks)&&trafficDepth(x,z,heading)<trafficDepth(s.x,s.z,s.heading)){
   Object.assign(s,{x,z,v,heading});
  }else{

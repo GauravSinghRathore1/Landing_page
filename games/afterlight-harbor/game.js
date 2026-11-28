@@ -94,7 +94,8 @@ function hud(){
  swap.disabled=state.person?Math.hypot(state.person.x-state.x,state.person.z-state.z)>4:Math.abs(state.v)>1;
  const job=jobs[state.job];
  const district=state.x>84?'Ferry Quay':state.z>84?'Crown Heights':state.x< -54?'Print District':'Glass Market';
- byId('district').textContent=district+' · '+state.cleared+'/3 deliveries';
+ const damage=Math.round(Math.max(...state.damage)*100);
+ byId('district').textContent=district+' · '+state.cleared+'/3 deliveries'+(damage?' · Damage '+damage+'%':'');
  const prompt=state.time<state.noticeUntil?state.notice:!job?'Free roam · All deliveries complete':state.loaded?job.finish:job.start;
  const text=prompt+(state.loaded?' · '+Math.ceil(state.left)+' s':'');
  byId('brief').textContent=state.person?'On foot · Map marks your parked coupe':text;
